@@ -1,4 +1,5 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { APIProvider } from "@vis.gl/react-google-maps";
 
 import { routeTree } from "./routeTree.gen";
 
@@ -11,7 +12,11 @@ declare module "@tanstack/react-router" {
 }
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+      <RouterProvider router={router} />
+    </APIProvider>
+  );
 }
 
 export default App;

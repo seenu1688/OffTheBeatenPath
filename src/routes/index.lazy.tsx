@@ -1,5 +1,7 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 
+import MapPlanner from "@/features/maps";
+
 export const Route = createLazyFileRoute("/")({
-  component: () => <div>Hello from Off The Beaten Path!</div>,
+  component: () => <MapPlanner />,
 });
