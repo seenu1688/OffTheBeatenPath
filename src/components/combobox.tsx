@@ -1,38 +1,43 @@
 import AsyncSelect from "react-select/async";
+import { OnChangeValue } from "react-select";
 
 type Props = {
-  onSelectionChange: (value: string) => void;
+  items: { value: string; label: string }[];
+  onSelectionChange: (value?: string) => void;
   onInputChange: (value: string) => void;
-  defaultValue: string;
-  items: {
-    value: string;
-    label: string;
-  }[];
-  loadOptions: (inputValue: string) => Promise<void>;
+  defaultValue?: string;
+  loadOptions?: (
+    inputValue: string,
+    callback: (options: any) => void
+  ) => Promise<any> | void;
+  placeholder?: string;
 };
 
 function Combobox(props: Props) {
-  const { items } = props;
+  const { placeholder, loadOptions, defaultValue } = props;
 
   return (
     <AsyncSelect
-      options={items}
-      loadOptions={(inputValue: string) => {
-        console.log(inputValue);
+      cacheOptions={true}
+      loadOptions={loadOptions}
+      placeholder={placeholder}
+      noOptionsMessage={() => "No results found"}
+      onChange={(
+        selectedOption: OnChangeValue<{ value: string; label: string }, false>
+      ) => {
+        props.onSelectionChange(selectedOption?.value);
       }}
-      onChange={(selectedOption) => {}}
+      options={props.items}
       styles={{
         control: (provided) => ({
           ...provided,
           border: "1px solid #e2e8f0",
         }),
-        option(base, props) {
-          return {
-            ...base,
-            backgroundColor: props.isSelected ? "#EA580B" : "white",
-            color: props.isSelected ? "#fff" : "black",
-          };
-        },
+      }}
+      isClearable={true}
+      components={{
+        DropdownIndicator: () => null,
+        IndicatorSeparator: () => null,
       }}
     />
   );

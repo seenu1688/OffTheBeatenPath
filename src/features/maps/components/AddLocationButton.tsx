@@ -1,19 +1,31 @@
 import { Button } from "@/components/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/dialog";
-import { Input } from "@/components/input";
+import { LocationSearch } from "./LocationSearch";
+import { useState } from "react";
+import { useLocations } from "../hooks/useLocations";
 
 export enum LocationType {
   Origin,
   Destination,
 }
 
-const AddLocationButton = ({ type }: { type: LocationType }) => {
+type Props = {
+  type: LocationType;
+};
+
+const AddLocationButton = ({ type }: Props) => {
+  const [location, setLocation] =
+    useState<google.maps.places.PlaceResult | null>(null);
+  const addLocation = useLocations((state) => state.addLocation);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -29,7 +41,25 @@ const AddLocationButton = ({ type }: { type: LocationType }) => {
               : "Add New Destination"}
           </DialogTitle>
         </DialogHeader>
-        <Input placeholder="Search for a location" />
+        <LocationSearch onPlaceSelect={setLocation} />
+        <DialogFooter>
+          <DialogClose>
+            <Button
+              disabled={!location}
+              onClick={() => {
+                addLocation({
+                  id: Math.random(),
+                  name: location!.formatted_address!,
+                  lat: location!.geometry!.location!.lat()!,
+                  lng: location!.geometry!.location!.lng(),
+                  travelMode: "DRIVING",
+                });
+              }}
+            >
+              Add Location
+            </Button>
+          </DialogClose>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

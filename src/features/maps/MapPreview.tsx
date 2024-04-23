@@ -1,24 +1,67 @@
-import { Map, AdvancedMarker } from "@vis.gl/react-google-maps";
+import { useEffect } from "react";
+import { Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+
+import Directions from "./fragments/Directions";
 
 import { useLocations } from "./hooks/useLocations";
 
 const MapPreview = () => {
   const locations = useLocations((state) => state.locations);
+  const map = useMap();
+
+  console.log(locations);
+
+  useEffect(() => {
+    if (!map) return;
+
+    // var latlngbounds = new google.maps.LatLngBounds();
+
+    // locations.forEach((location) => {
+    //   const latLong = new google.maps.LatLng(location.lat, location.lng);
+    //   latlngbounds.extend(latLong);
+    // });
+
+    // console.log(latlngbounds.toJSON());
+    // map.setCenter(latlngbounds.getCenter());
+    // map.fitBounds(latlngbounds);
+
+    // let line = new google.maps.Polyline({
+    //   path: [
+    //     new google.maps.LatLng(40.7126802, -74.00657629999999),
+    //     new google.maps.LatLng(34.0549067, -118.2426508),
+    //   ],
+    //   strokeColor: "#5BC6A8",
+    //   strokeOpacity: 1.0,
+    //   strokeWeight: 4,
+    //   map: map,
+    // });
+  }, [map]);
+
+  const getBoundes = () => {
+    var latlngbounds = new google.maps.LatLngBounds();
+
+    locations.forEach((location) => {
+      const latLong = new google.maps.LatLng(location.lat, location.lng);
+      latlngbounds.extend(latLong);
+    });
+
+    return latlngbounds.toJSON();
+  };
 
   return (
     <div className="flex-1">
       <Map
         defaultZoom={12}
-        zoomControl={true}
-        defaultCenter={{ lat: 43.6456, lng: -79.3754 }}
         mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
+        mapTypeId={"roadmap"}
+        defaultBounds={getBoundes()}
       >
         {locations.map((location, index) => {
           return (
             <AdvancedMarker
               key={location.id}
               position={{ lat: location.lat, lng: location.lng }}
-              title={"AdvancedMarker with customized pin." + index}
+              title={location.name}
             >
               <div className="w-8 h-8 rounded-2xl bg-white flex items-center justify-center text-xl">
                 {index + 1}
@@ -26,6 +69,7 @@ const MapPreview = () => {
             </AdvancedMarker>
           );
         })}
+        <Directions />
       </Map>
     </div>
   );
