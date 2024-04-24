@@ -108,12 +108,6 @@ const filter = <T,>(
   for (const location of locations) {
     const value = callback(location, index);
 
-    console.log({
-      value,
-      index,
-      location,
-    });
-
     if (typeof value === "boolean") {
       if (value) {
         result.push(location);

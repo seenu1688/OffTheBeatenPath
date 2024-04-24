@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 
 import { Location, useLocations } from "../hooks/useLocations";
@@ -10,6 +10,7 @@ function Directions() {
     useState<google.maps.DirectionsService>();
   const [directionsRenderer, setDirectionsRenderer] =
     useState<google.maps.DirectionsRenderer>();
+  const polylines = useRef<google.maps.Polyline[]>([]);
 
   // Initialize directions service and renderer
   useEffect(() => {
@@ -18,19 +19,17 @@ function Directions() {
     setDirectionsRenderer(new routesLibrary.DirectionsRenderer({ map }));
   }, [routesLibrary, map]);
 
-  const createRoutes = (locations: Location[]) => {
-    if (locations.length < 2) {
-      directionsRenderer?.setMap(null);
-      return;
+  // FIXME: cache polylines by location so as to not recreate them
+  const createRoutes = async (locations: Location[]) => {
+    // clear previous polylines
+    while (polylines.current.length > 0) {
+      const polyline = polylines.current.pop();
+      polyline?.setMap(null);
     }
 
-    // const waypoints = locations
-    //   .slice(1, locations.length - 1)
-    //   .map((location) => ({
-    //     location: new google.maps.LatLng(location.lat, location.lng),
-    //   }));
-    // const origin = locations[0];
-    // const destination = locations[locations.length - 1];
+    if (locations.length < 2) {
+      return;
+    }
 
     const points = [] as [google.maps.LatLng, google.maps.LatLng][];
 
@@ -45,8 +44,6 @@ function Directions() {
       ]);
     }
 
-    let index = 0;
-
     points.forEach(([origin, destination]) => {
       directionsService!
         .route({
@@ -59,16 +56,11 @@ function Directions() {
           provideRouteAlternatives: true,
         })
         .then((response) => {
-          console.log(response);
-
           const path = new google.maps.MVCArray();
-          //Set the Path Stroke Color
           const poly = new google.maps.Polyline({
             map: map,
             strokeColor: "purple",
           });
-          index++;
-          let totalDistance = 0;
           const currentRoute = response.routes[0];
           const len = currentRoute.overview_path.length;
           for (var i = 0; i < len; i++) {
@@ -79,29 +71,7 @@ function Directions() {
 
           poly.setPath(path);
 
-          for (i = 0; i < currentRoute.legs.length; i++) {
-            const leg = currentRoute.legs[i];
-            if (leg.distance) {
-              totalDistance += leg.distance.value;
-            }
-          }
-
-          // const marker = new google.maps.marker.AdvancedMarkerElement({
-          //   map: map,
-          //   position: poly.GetPointAtDistance(distance),
-          //   title: "${distance} kms",
-          // });
-
-          // marker.setPosition(poly.GetPointAtDistance(distance));
-
-          // directionsRenderer!.setDirections(response);
-          // directionsRenderer!.setOptions({
-          //   polylineOptions: {
-          //     strokeColor: "purple",
-          //   },
-          //   markerOptions: { visible: false },
-          // });
-          // setRoutes(response.routes);
+          polylines.current = [...polylines.current, poly];
         })
         .catch((e) => {
           console.log(e);
