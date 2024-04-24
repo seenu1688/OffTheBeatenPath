@@ -12,6 +12,8 @@ export type Location = {
 type LocationsState = {
   locations: Location[];
   addLocation: (location: Location) => void;
+  deleteLocation: (id: number) => void;
+  updateLocation: (location: Partial<Location>) => void;
 };
 
 export const useLocations = create<LocationsState>((set) => {
@@ -49,7 +51,6 @@ export const useLocations = create<LocationsState>((set) => {
         name: "Mysuru, Karnataka, India",
         lat: 12.2958104,
         lng: 76.6393805,
-        travelMode: "DRIVING",
       },
     ],
     addLocation: (location: Location) => {
@@ -57,5 +58,71 @@ export const useLocations = create<LocationsState>((set) => {
         locations: [...state.locations, location],
       }));
     },
+    updateLocation: (location: Partial<Location>) => {
+      set((state) => {
+        return {
+          locations: state.locations.map((loc) => {
+            if (loc.id === location.id) {
+              return {
+                ...loc,
+                ...location,
+              };
+            }
+
+            return loc;
+          }),
+        };
+      });
+    },
+    deleteLocation: (id: number) => {
+      set((state) => {
+        const sourceIndex = state.locations.findIndex(
+          (location) => location.id === id
+        );
+
+        return {
+          locations: filter(state.locations, (location, index) => {
+            if (sourceIndex - 1 === index) {
+              return {
+                ...location,
+                travelMode: undefined,
+              };
+            }
+
+            return location.id !== id;
+          }),
+        };
+      });
+    },
   };
 });
+
+const filter = <T,>(
+  locations: T[],
+  callback: (location: T, index: number) => boolean | T
+) => {
+  const result: T[] = [];
+
+  let index = 0;
+
+  for (const location of locations) {
+    const value = callback(location, index);
+
+    console.log({
+      value,
+      index,
+      location,
+    });
+
+    if (typeof value === "boolean") {
+      if (value) {
+        result.push(location);
+      }
+    } else {
+      result.push(value);
+    }
+    index++;
+  }
+
+  return result;
+};

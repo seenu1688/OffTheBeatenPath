@@ -43,7 +43,7 @@ const AddLocationButton = ({ type }: Props) => {
         </DialogHeader>
         <LocationSearch onPlaceSelect={setLocation} />
         <DialogFooter>
-          <DialogClose>
+          <DialogClose asChild>
             <Button
               disabled={!location}
               onClick={() => {

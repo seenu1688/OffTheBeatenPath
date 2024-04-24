@@ -19,7 +19,10 @@ function Directions() {
   }, [routesLibrary, map]);
 
   const createRoutes = (locations: Location[]) => {
-    if (locations.length < 2) return;
+    if (locations.length < 2) {
+      directionsRenderer?.setMap(null);
+      return;
+    }
 
     // const waypoints = locations
     //   .slice(1, locations.length - 1)
@@ -56,6 +59,8 @@ function Directions() {
           provideRouteAlternatives: true,
         })
         .then((response) => {
+          console.log(response);
+
           const path = new google.maps.MVCArray();
           //Set the Path Stroke Color
           const poly = new google.maps.Polyline({
@@ -63,14 +68,31 @@ function Directions() {
             strokeColor: "purple",
           });
           index++;
-          poly.setPath(path);
-          for (
-            var i = 0, len = response.routes[0].overview_path.length;
-            i < len;
-            i++
-          ) {
-            path.push(response.routes[0].overview_path[i]);
+          let totalDistance = 0;
+          const currentRoute = response.routes[0];
+          const len = currentRoute.overview_path.length;
+          for (var i = 0; i < len; i++) {
+            const currentPath = currentRoute.overview_path[i];
+
+            path.push(currentPath);
           }
+
+          poly.setPath(path);
+
+          for (i = 0; i < currentRoute.legs.length; i++) {
+            const leg = currentRoute.legs[i];
+            if (leg.distance) {
+              totalDistance += leg.distance.value;
+            }
+          }
+
+          // const marker = new google.maps.marker.AdvancedMarkerElement({
+          //   map: map,
+          //   position: poly.GetPointAtDistance(distance),
+          //   title: "${distance} kms",
+          // });
+
+          // marker.setPosition(poly.GetPointAtDistance(distance));
 
           // directionsRenderer!.setDirections(response);
           // directionsRenderer!.setOptions({

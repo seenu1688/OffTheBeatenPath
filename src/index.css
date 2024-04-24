@@ -84,3 +84,14 @@
     width: 100%;
   }
 }
+
+.line:before {
+  content: "";
+  width: 4px;
+  height: 100%;
+  display: block;
+  background-color: rgb(199, 199, 199);
+  position: absolute;
+  left: 22px;
+  top: 16px;
+}
