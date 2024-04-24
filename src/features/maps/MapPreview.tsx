@@ -3,13 +3,11 @@ import { Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import Directions from "./fragments/Directions";
 
-import { useLocations } from "./hooks/useLocations";
+import { Location, useLocations } from "./hooks/useLocations";
 
 const MapPreview = () => {
   const locations = useLocations((state) => state.locations);
   const map = useMap();
-
-  console.log(locations);
 
   useEffect(() => {
     if (!map) return;
@@ -35,9 +33,20 @@ const MapPreview = () => {
     //   strokeWeight: 4,
     //   map: map,
     // });
+    useLocations.subscribe((state) => {
+      var latlngbounds = new google.maps.LatLngBounds();
+
+      state.locations.forEach((location) => {
+        const latLong = new google.maps.LatLng(location.lat, location.lng);
+        latlngbounds.extend(latLong);
+      });
+
+      map.setCenter(latlngbounds.getCenter());
+      map.fitBounds(latlngbounds);
+    });
   }, [map]);
 
-  const getBoundes = () => {
+  const getBoundes = (locations: Location[]) => {
     var latlngbounds = new google.maps.LatLngBounds();
 
     locations.forEach((location) => {
@@ -54,7 +63,7 @@ const MapPreview = () => {
         defaultZoom={12}
         mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
         mapTypeId={"roadmap"}
-        defaultBounds={getBoundes()}
+        defaultBounds={getBoundes(locations)}
       >
         {locations.map((location, index) => {
           return (
