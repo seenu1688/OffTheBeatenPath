@@ -31,27 +31,24 @@ function Directions() {
       return;
     }
 
-    const points = [] as [google.maps.LatLng, google.maps.LatLng][];
+    const points = [];
 
     for (let i = 0; i < locations.length; i++) {
-      if (i === locations.length - 1) {
+      if (i === locations.length - 1 || !locations[i].travelMode) {
         break;
       }
 
-      points.push([
-        new google.maps.LatLng(locations[i].lat, locations[i].lng),
-        new google.maps.LatLng(locations[i + 1].lat, locations[i + 1].lng),
-      ]);
+      points.push({
+        origin: [locations[i].lat, locations[i].lng],
+        destination: [locations[i + 1].lat, locations[i + 1].lng],
+      });
     }
 
-    points.forEach(([origin, destination]) => {
+    points.forEach(({ origin, destination }) => {
       directionsService!
         .route({
-          origin: new google.maps.LatLng(origin.lat(), origin.lng()),
-          destination: new google.maps.LatLng(
-            destination.lat(),
-            destination.lng()
-          ),
+          origin: new google.maps.LatLng(origin[0], origin[1]),
+          destination: new google.maps.LatLng(destination[0], destination[1]),
           travelMode: google.maps.TravelMode.DRIVING,
           provideRouteAlternatives: true,
         })
