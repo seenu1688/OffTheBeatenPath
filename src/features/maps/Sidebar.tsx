@@ -38,6 +38,7 @@ const Sidebar = () => {
             location={location}
             order={index + 1}
             onAction={handleAction}
+            isLast={index === locations.length - 1}
           />
         );
       })}

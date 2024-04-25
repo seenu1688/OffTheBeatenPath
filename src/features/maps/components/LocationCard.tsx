@@ -16,23 +16,29 @@ const TravelModeLabel = () => {
 };
 
 const Schedule = (props: { location: Location; onClick: () => void }) => {
+  const hasDestination = !!props.location.travelMode;
+
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger className="w-[calc(100%-40px)]">
         <div
           className={cn(
-            "flex gap-2 items-center justify-between",
+            "flex gap-2 items-center justify-between w-full",
             "border border-orange-500 p-3 rounded-lg bg-white cursor-pointer"
           )}
           onClick={props.onClick}
         >
-          <div className="flex gap-2 ">
-            <TravelModeLabel />
-            <div className="flex flex-col gap-1 text-xs">
-              <div>Flight from XYZ Airport</div>
-              <div>12h 14mins</div>
+          {hasDestination ? (
+            <div className="flex gap-2 w-full">
+              <TravelModeLabel />
+              <div className="flex flex-col gap-1 text-xs items-start">
+                <div>Flight from XYZ Airport</div>
+                <div>12h 14mins</div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex w-full">Select a route</div>
+          )}
           <div>
             <ChevronRight />
           </div>
@@ -52,17 +58,16 @@ type Props = {
     type: "EDIT" | "DELETE" | "SCHEDULE";
     location: Location;
   }) => void;
+  isLast?: boolean;
 };
 
 const LocationCard = (props: Props) => {
-  const hasDestination = !!props.location.travelMode;
-
   const handleAction = (type: "EDIT" | "DELETE" | "SCHEDULE") => {
     props.onAction({ type, location: props.location });
   };
 
   return (
-    <div className={cn("relative", hasDestination && "line pb-8")}>
+    <div className={cn("relative", !props.isLast && "line pb-8")}>
       <div className="relative">
         <div className="py-3 px-2 rounded-lg">
           <div className="flex items-center justify-between gap-4 mb-3 group">
@@ -86,12 +91,12 @@ const LocationCard = (props: Props) => {
             </button>
           </div>
         </div>
-        {hasDestination ? (
+        {!props.isLast && (
           <Schedule
             location={props.location}
             onClick={handleAction.bind(null, "SCHEDULE")}
           />
-        ) : null}
+        )}
       </div>
     </div>
   );

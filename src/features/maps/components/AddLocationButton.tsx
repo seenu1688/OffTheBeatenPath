@@ -52,7 +52,6 @@ const AddLocationButton = ({ type }: Props) => {
                   name: location!.formatted_address!,
                   lat: location!.geometry!.location!.lat()!,
                   lng: location!.geometry!.location!.lng(),
-                  travelMode: "DRIVING",
                 });
               }}
             >

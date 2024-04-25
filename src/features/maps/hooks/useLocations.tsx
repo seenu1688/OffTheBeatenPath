@@ -44,7 +44,6 @@ export const useLocations = create<LocationsState>((set) => {
         name: "Bengaluru, Karnataka, India",
         lat: 12.9715987,
         lng: 77.5945627,
-        travelMode: "DRIVING",
       },
       {
         id: 3,
