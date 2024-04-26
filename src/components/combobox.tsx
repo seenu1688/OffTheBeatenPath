@@ -5,7 +5,10 @@ type Props = {
   items: { value: string; label: string }[];
   onSelectionChange: (value?: string) => void;
   onInputChange: (value: string) => void;
-  defaultValue?: string;
+  defaultValue?: {
+    label: string;
+    value: string;
+  };
   loadOptions?: (
     inputValue: string,
     callback: (options: any) => void
@@ -20,6 +23,7 @@ function Combobox(props: Props) {
     <AsyncSelect
       cacheOptions={true}
       loadOptions={loadOptions}
+      defaultValue={defaultValue}
       placeholder={placeholder}
       noOptionsMessage={() => "No results found"}
       onChange={(

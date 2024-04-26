@@ -4,9 +4,16 @@ import AddLocationButton, {
 } from "./components/AddLocationButton";
 
 import { useLocations, Location } from "./hooks/useLocations";
+import { useState } from "react";
 
 const Sidebar = () => {
-  const { locations, deleteLocation } = useLocations((state) => state);
+  const { locations, deleteLocation, updateLocation } = useLocations(
+    (state) => state
+  );
+  const [place, setPlace] = useState<null | {
+    label: string;
+    value: string;
+  }>(null);
 
   const handleAction = (payload: {
     type: "EDIT" | "DELETE" | "SCHEDULE";
@@ -17,6 +24,10 @@ const Sidebar = () => {
     switch (type) {
       case "EDIT":
         console.log("Edit action");
+        setPlace({
+          label: location.name,
+          value: location.placeId,
+        });
         break;
 
       case "DELETE":
@@ -24,7 +35,7 @@ const Sidebar = () => {
         break;
 
       case "SCHEDULE":
-        console.log("Schedule action");
+        updateLocation(location);
         break;
     }
   };
@@ -49,6 +60,12 @@ const Sidebar = () => {
               ? LocationType.Origin
               : LocationType.Destination
           }
+          onOpenChange={(open) => {
+            if (!open && !!place) {
+              setPlace(null);
+            }
+          }}
+          place={place}
         />
       </div>
     </div>

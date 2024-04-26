@@ -1,3 +1,5 @@
+import { nanoid } from "nanoid";
+
 import { Button } from "@/components/button";
 import {
   Dialog,
@@ -19,15 +21,27 @@ export enum LocationType {
 
 type Props = {
   type: LocationType;
+  onOpenChange: (open: boolean) => void;
+  place?: null | {
+    label: string;
+    value: string;
+  };
 };
 
-const AddLocationButton = ({ type }: Props) => {
+const AddLocationButton = ({ type, onOpenChange, place }: Props) => {
   const [location, setLocation] =
     useState<google.maps.places.PlaceResult | null>(null);
   const addLocation = useLocations((state) => state.addLocation);
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={onOpenChange}
+      {...(place
+        ? {
+            open: true,
+          }
+        : {})}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" className="bg-gray-300 hover:bg-gray-200">
           {type === LocationType.Origin ? "Add Origin" : "Add New Destination"}
@@ -41,17 +55,18 @@ const AddLocationButton = ({ type }: Props) => {
               : "Add New Destination"}
           </DialogTitle>
         </DialogHeader>
-        <LocationSearch onPlaceSelect={setLocation} />
+        <LocationSearch onPlaceSelect={setLocation} place={place} />
         <DialogFooter>
           <DialogClose asChild>
             <Button
               disabled={!location}
               onClick={() => {
                 addLocation({
-                  id: Math.random(),
+                  id: nanoid(),
                   name: location!.formatted_address!,
                   lat: location!.geometry!.location!.lat()!,
                   lng: location!.geometry!.location!.lng(),
+                  placeId: location?.place_id ?? ""!,
                 });
               }}
             >

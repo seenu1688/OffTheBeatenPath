@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
+import { toast } from "sonner";
 
-import { Location, useLocations } from "../hooks/useLocations";
+import { Location, travelModeMap, useLocations } from "../hooks/useLocations";
 
 function Directions() {
+  const updateLocation = useLocations((state) => state.updateLocation);
   const map = useMap();
   const routesLibrary = useMapsLibrary("routes");
   const [directionsService, setDirectionsService] =
@@ -31,49 +33,85 @@ function Directions() {
       return;
     }
 
-    const points = [];
+    const routes = [];
 
     for (let i = 0; i < locations.length; i++) {
-      if (i === locations.length - 1 || !locations[i].travelMode) {
+      const location = locations[i];
+
+      if (i === locations.length - 1 || !location.travelMode) {
         break;
       }
 
-      points.push({
-        origin: [locations[i].lat, locations[i].lng],
+      const travel = travelModeMap[location.travelMode!];
+
+      routes.push({
+        origin: [location.lat, location.lng],
         destination: [locations[i + 1].lat, locations[i + 1].lng],
+        color: travel.color,
+        travelMode: location.travelMode,
+        oname: location.name,
+        dname: locations[i + 1].name,
+        id: location.id,
       });
     }
 
-    points.forEach(({ origin, destination }) => {
-      directionsService!
-        .route({
-          origin: new google.maps.LatLng(origin[0], origin[1]),
-          destination: new google.maps.LatLng(destination[0], destination[1]),
-          travelMode: google.maps.TravelMode.DRIVING,
-          provideRouteAlternatives: true,
-        })
-        .then((response) => {
-          const path = new google.maps.MVCArray();
-          const poly = new google.maps.Polyline({
-            map: map,
-            strokeColor: "purple",
-          });
-          const currentRoute = response.routes[0];
-          const len = currentRoute.overview_path.length;
-          for (var i = 0; i < len; i++) {
-            const currentPath = currentRoute.overview_path[i];
+    for (let route of routes) {
+      const { origin, destination, color, travelMode } = route;
 
-            path.push(currentPath);
-          }
-
-          poly.setPath(path);
-
-          polylines.current = [...polylines.current, poly];
-        })
-        .catch((e) => {
-          console.log(e);
+      if (travelMode === "FLIGHT") {
+        const path = new google.maps.MVCArray();
+        const poly = new google.maps.Polyline({
+          map: map,
+          strokeColor: color,
         });
-    });
+
+        path.push(new google.maps.LatLng(origin[0], origin[1]));
+        path.push(new google.maps.LatLng(destination[0], destination[1]));
+
+        poly.setPath(path);
+
+        polylines.current = [...polylines.current, poly];
+      } else {
+        directionsService!
+          .route({
+            origin: new google.maps.LatLng(origin[0], origin[1]),
+            destination: new google.maps.LatLng(destination[0], destination[1]),
+            travelMode: travelMode as google.maps.TravelMode,
+            provideRouteAlternatives: true,
+          })
+          .then((response) => {
+            const path = new google.maps.MVCArray();
+            const poly = new google.maps.Polyline({
+              map: map,
+              strokeColor: color,
+            });
+            const currentRoute = response.routes[0];
+            const len = currentRoute.overview_path.length;
+            for (var i = 0; i < len; i++) {
+              const currentPath = currentRoute.overview_path[i];
+
+              path.push(currentPath);
+            }
+
+            poly.setPath(path);
+
+            polylines.current = [...polylines.current, poly];
+          })
+          .catch((e) => {
+            console.log(e);
+            toast.error(
+              `${travelMode.toLowerCase()} route not available between ${route.oname} an ${route.dname}`,
+              {
+                dismissible: true,
+              }
+            );
+            updateLocation({
+              id: route.id,
+              travelMode: null,
+            });
+          });
+      }
+    }
   };
 
   // Use directions service

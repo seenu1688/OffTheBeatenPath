@@ -1,55 +1,10 @@
-import { ChevronRight, Edit2, Plane, X } from "lucide-react";
+import { Edit2, X } from "lucide-react";
+
+import TravelRoute from "./TravelRoute";
 
 import { Location } from "../hooks/useLocations";
 
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent } from "@/components/dialog";
-import { DialogTrigger } from "@radix-ui/react-dialog";
-
-const TravelModeLabel = () => {
-  return (
-    <div className="p-2 bg-stone-200 flex items-center gap-2 rounded-md select-none">
-      <Plane size={16} />
-      <div>Flight</div>
-    </div>
-  );
-};
-
-const Schedule = (props: { location: Location; onClick: () => void }) => {
-  const hasDestination = !!props.location.travelMode;
-
-  return (
-    <Dialog>
-      <DialogTrigger className="w-[calc(100%-40px)]">
-        <div
-          className={cn(
-            "flex gap-2 items-center justify-between w-full",
-            "border border-orange-500 p-3 rounded-lg bg-white cursor-pointer"
-          )}
-          onClick={props.onClick}
-        >
-          {hasDestination ? (
-            <div className="flex gap-2 w-full">
-              <TravelModeLabel />
-              <div className="flex flex-col gap-1 text-xs items-start">
-                <div>Flight from XYZ Airport</div>
-                <div>12h 14mins</div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex w-full">Select a route</div>
-          )}
-          <div>
-            <ChevronRight />
-          </div>
-        </div>
-      </DialogTrigger>
-      <DialogContent>
-        <h1>Flight</h1>
-      </DialogContent>
-    </Dialog>
-  );
-};
 
 type Props = {
   location: Location;
@@ -62,8 +17,17 @@ type Props = {
 };
 
 const LocationCard = (props: Props) => {
-  const handleAction = (type: "EDIT" | "DELETE" | "SCHEDULE") => {
-    props.onAction({ type, location: props.location });
+  const handleAction = (
+    type: "EDIT" | "DELETE" | "SCHEDULE",
+    location: Partial<Location> = {}
+  ) => {
+    props.onAction({
+      type,
+      location: {
+        ...props.location,
+        ...location,
+      },
+    });
   };
 
   return (
@@ -78,21 +42,21 @@ const LocationCard = (props: Props) => {
               <div>{props.location.name}</div>
               <button
                 className="invisible group-hover:visible"
-                onClick={handleAction.bind(null, "EDIT")}
+                onClick={handleAction.bind(null, "EDIT", {})}
               >
                 <Edit2 size={13} />
               </button>
             </div>
             <button
               className="invisible group-hover:visible"
-              onClick={handleAction.bind(null, "DELETE")}
+              onClick={handleAction.bind(null, "DELETE", {})}
             >
               <X size={18} />
             </button>
           </div>
         </div>
         {!props.isLast && (
-          <Schedule
+          <TravelRoute
             location={props.location}
             onClick={handleAction.bind(null, "SCHEDULE")}
           />

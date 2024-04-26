@@ -1,57 +1,60 @@
+import { Bus, Car, Plane } from "lucide-react";
 import { create } from "zustand";
 
+export const travelModeMap = {
+  DRIVING: {
+    color: "#6D4482",
+  },
+  FLIGHT: {
+    color: "#5BC6A8",
+  },
+  TRANSIT: {
+    color: "#F3B13E",
+  },
+};
+
+export const routes = [
+  {
+    id: "DRIVING",
+    name: "Driving",
+    icon: Car,
+  },
+  {
+    id: "FLIGHT",
+    name: "Flight",
+    icon: Plane,
+  },
+  {
+    id: "TRANSIT",
+    name: "Transit",
+    icon: Bus,
+  },
+] as const;
+
+export type RouteType = (typeof routes)[number]["id"] | null;
+
+export type Route = (typeof routes)[number];
+
 export type Location = {
-  id: number;
+  id: string;
   name: string;
+  placeId: string;
   lat: number;
   lng: number;
   duration?: string;
-  travelMode?: "DRIVING";
+  travelMode?: RouteType | null;
 };
 
 type LocationsState = {
   locations: Location[];
   addLocation: (location: Location) => void;
-  deleteLocation: (id: number) => void;
+  deleteLocation: (id: string) => void;
   updateLocation: (location: Partial<Location>) => void;
 };
 
 export const useLocations = create<LocationsState>((set) => {
   return {
-    locations: [
-      // {
-      //   id: 1,
-      //   name: "100 Front St, Toronto ON",
-      //   lat: 43.6456,
-      //   lng: -79.3754,
-      //   travelMode: "DRIVING",
-      // },
-      // {
-      //   id: 2,
-      //   name: "500 College St, Toronto ON",
-      //   lat: 43.6594,
-      //   lng: -79.3995,
-      // },
-      {
-        id: 1,
-        name: "Anekal, Karnataka, India",
-        lat: 12.7090575,
-        lng: 77.6992265,
-        travelMode: "DRIVING",
-      },
-      {
-        id: 2,
-        name: "Bengaluru, Karnataka, India",
-        lat: 12.9715987,
-        lng: 77.5945627,
-      },
-      {
-        id: 3,
-        name: "Mysuru, Karnataka, India",
-        lat: 12.2958104,
-        lng: 76.6393805,
-      },
-    ],
+    locations: [],
     addLocation: (location: Location) => {
       set((state) => ({
         locations: [...state.locations, location],
@@ -73,7 +76,7 @@ export const useLocations = create<LocationsState>((set) => {
         };
       });
     },
-    deleteLocation: (id: number) => {
+    deleteLocation: (id: string) => {
       set((state) => {
         const sourceIndex = state.locations.findIndex(
           (location) => location.id === id

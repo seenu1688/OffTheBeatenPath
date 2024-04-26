@@ -5,6 +5,10 @@ import Combobox from "@/components/combobox";
 
 interface Props {
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
+  place?: {
+    label: string;
+    value: string;
+  } | null;
 }
 
 const debounce = (
@@ -23,7 +27,7 @@ const debounce = (
     });
   };
 };
-export const LocationSearch = ({ onPlaceSelect }: Props) => {
+export const LocationSearch = ({ onPlaceSelect, place }: Props) => {
   const map = useMap();
   const places = useMapsLibrary("places");
   const [sessionToken, setSessionToken] =
@@ -114,6 +118,7 @@ export const LocationSearch = ({ onPlaceSelect }: Props) => {
   return (
     <div className="grid gap-4 py-4">
       <Combobox
+        {...(place ? { defaultValue: place } : {})}
         items={predictions.map((prediction) => ({
           label: prediction.description,
           value: prediction.place_id,
