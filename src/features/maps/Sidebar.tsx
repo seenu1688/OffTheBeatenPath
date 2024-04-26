@@ -1,10 +1,11 @@
+import { useState } from "react";
+
 import LocationCard from "./components/LocationCard";
 import AddLocationButton, {
   LocationType,
 } from "./components/AddLocationButton";
 
 import { useLocations, Location } from "./hooks/useLocations";
-import { useState } from "react";
 
 const Sidebar = () => {
   const { locations, deleteLocation, updateLocation } = useLocations(
@@ -23,7 +24,6 @@ const Sidebar = () => {
 
     switch (type) {
       case "EDIT":
-        console.log("Edit action");
         setPlace({
           label: location.name,
           value: location.placeId,

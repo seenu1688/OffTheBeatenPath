@@ -14,7 +14,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/radio-group";
 import { Label } from "@/components/label";
 import { Button } from "@/components/button";
 
-import { Location, Route, RouteType, routes } from "../hooks/useLocations";
+import { Location, RouteType, routes } from "../hooks/useLocations";
 
 import { cn } from "@/lib/utils";
 
