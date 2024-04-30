@@ -35,6 +35,9 @@ importers:
       '@tanstack/router-vite-plugin':
         specifier: ^1.30.0
         version: 1.30.0(vite@5.2.10(@types/node@20.12.7))
+      '@types/google.maps':
+        specifier: ^3.55.7
+        version: 3.55.7
       '@vis.gl/react-google-maps':
         specifier: ^0.9.0
         version: 0.9.0(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
