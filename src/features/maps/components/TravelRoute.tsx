@@ -14,6 +14,7 @@ import { Label } from "@/components/label";
 import { Button } from "@/components/button";
 
 import { Location, RouteType, routes } from "../hooks/useLocations";
+import { ChevronRight } from "lucide-react";
 
 const TravelRoute = (props: {
   location: Location;
@@ -23,8 +24,11 @@ const TravelRoute = (props: {
   return (
     <Dialog>
       <DialogTrigger asChild={true}>
-        <Button variant="outline" disabled={props.isLast}>
-          Edit
+        <Button variant="outline" disabled={props.isLast} className="bg-orange-100 border-orange-600 hover:bg-orange-200">
+          <span>
+            Edit
+          </span>
+          <ChevronRight size={18} />
         </Button>
       </DialogTrigger>
 
