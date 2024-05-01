@@ -1,5 +1,6 @@
+import { Suspense } from "react";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { APIProvider } from "@vis.gl/react-google-maps";
+import { Loader } from "lucide-react";
 
 import { Toaster } from "@/components/sonner";
 
@@ -15,10 +16,10 @@ declare module "@tanstack/react-router" {
 
 function App() {
   return (
-    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+    <Suspense fallback={<Loader className="animate-spin" />}>
       <RouterProvider router={router} />
       <Toaster />
-    </APIProvider>
+    </Suspense>
   );
 }
 
