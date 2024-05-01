@@ -10,6 +10,9 @@
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
 
+    --tooltip: 0 0% 3.9%;
+    --tooltip-foreground: 0 0% 98%;
+
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
 
@@ -87,11 +90,14 @@
 
 .line:before {
   content: "";
-  width: 4px;
+  /* width: 4px; */
   height: 100%;
   display: block;
-  background-color: rgb(199, 199, 199);
+  /* background-color: rgb(199, 199, 199); */
   position: absolute;
   left: 22px;
   top: 16px;
+  border-width: 1px;
+  border-color: red;
+  border-style: dashed;
 }

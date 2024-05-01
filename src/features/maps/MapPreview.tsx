@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import { Tooltip, TooltipArrow, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/tooltip";
 
 import Directions from "./fragments/Directions";
 
@@ -68,14 +69,24 @@ const MapPreview = () => {
         {locations.map((location, index) => {
           return (
             <AdvancedMarker
-              key={location.id}
               position={{ lat: location.lat, lng: location.lng }}
-              title={location.name}
+              key={location.id}
             >
-              <div className="w-8 h-8 rounded-2xl bg-white flex items-center justify-center text-xl">
-                {index + 1}
-              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div className="w-8 h-8 rounded-2xl bg-white pointer-events-auto flex items-center justify-center text-xl">
+                      {index + 1}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <TooltipArrow />
+                    <span>{location.name}</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </AdvancedMarker>
+
           );
         })}
         <Directions />
