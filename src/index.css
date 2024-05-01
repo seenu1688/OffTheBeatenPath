@@ -98,6 +98,6 @@
   left: 22px;
   top: 16px;
   border-width: 1px;
-  border-color: red;
+  border-color: hsl(var(--tooltip));
   border-style: dashed;
 }

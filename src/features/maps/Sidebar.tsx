@@ -1,79 +1,30 @@
-import { useState } from "react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/tabs";
+import TravelRoutes from "./TravleRoutes";
 
-import LocationCard from "./components/LocationCard";
-import AddLocationButton, {
-  LocationType,
-} from "./components/AddLocationButton";
-
-import { useLocations, Location } from "./hooks/useLocations";
 import { cn } from "@/lib/utils";
 
 const Sidebar = () => {
-  const { locations, deleteLocation, updateLocation } = useLocations(
-    (state) => state
-  );
-  const [place, setPlace] = useState<null | {
-    label: string;
-    value: string;
-  }>(null);
-
-  const handleAction = (payload: {
-    type: "EDIT" | "DELETE" | "SCHEDULE";
-    location: Location;
-  }) => {
-    const { location, type } = payload;
-
-    switch (type) {
-      case "EDIT":
-        setPlace({
-          label: location.name,
-          value: location.placeId,
-        });
-        break;
-
-      case "DELETE":
-        deleteLocation(location.id);
-        break;
-
-      case "SCHEDULE":
-        updateLocation(location);
-        break;
-    }
-  };
-
   return (
     <div
       className={cn(
-        "w-[350px] h-full p-4 shadow-md bg-[#f3f3f3] flex flex-col gap-4",
-        "relative overflow-y-auto dashed-line"
+        "w-[350px] h-full shadow-md bg-[#f3f3f3] flex flex-col gap-4",
+        "relative overflow-hidden"
       )}
     >
-      {locations.map((location, index) => {
-        return (
-          <LocationCard
-            key={location.id}
-            location={location}
-            order={index + 1}
-            onAction={handleAction}
-            isLast={index === locations.length - 1}
-          />
-        );
-      })}
-      <div className="flex justify-center mt-5">
-        <AddLocationButton
-          type={
-            locations.length === 0
-              ? LocationType.Origin
-              : LocationType.Destination
-          }
-          onOpenChange={(open) => {
-            if (!open && !!place) {
-              setPlace(null);
-            }
-          }}
-          place={place}
-        />
-      </div>
+      <Tabs defaultValue="map" className="w-full h-full">
+        <TabsList className="w-full">
+          <TabsTrigger value="map">Map</TabsTrigger>
+          <TabsTrigger value="filter">Filter</TabsTrigger>
+        </TabsList>
+        <TabsContent value="map" className="p-4 overflow-y-auto pb-10 h-[calc(100%-46px)]">
+          <TravelRoutes />
+        </TabsContent>
+        <TabsContent value="filter" className="h-[calc(100%-46px)]">
+          <div className="flex items-center justify-center h-full">
+            Filters
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
