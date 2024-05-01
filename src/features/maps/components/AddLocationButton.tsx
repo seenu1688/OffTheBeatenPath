@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/dialog";
 import { LocationSearch } from "./LocationSearch";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocations } from "../hooks/useLocations";
 
 export enum LocationType {
@@ -22,24 +22,39 @@ export enum LocationType {
 type Props = {
   type: LocationType;
   onOpenChange: (open: boolean) => void;
-  place?: null | {
-    label: string;
-    value: string;
-  };
+  locationId?: null | string;
 };
 
-const AddLocationButton = ({ type, onOpenChange, place }: Props) => {
+const AddLocationButton = ({ type, onOpenChange, locationId }: Props) => {
   const [location, setLocation] =
     useState<google.maps.places.PlaceResult | null>(null);
-  const addLocation = useLocations((state) => state.addLocation);
+  const { addLocation, updateLocation } = useLocations((state) => ({
+    addLocation: state.addLocation,
+    updateLocation: state.updateLocation,
+
+  }));
+  const locations = useLocations((state) => state.locations);
+  const currentPlace = useMemo(() => {
+    if (!locationId) return null;
+
+    const location = locations.find((location) => location.id === locationId);
+
+    if (!location) return null;
+
+
+    return {
+      label: location.name,
+      value: location.placeId,
+    }
+  }, [locationId]);
 
   return (
     <Dialog
       onOpenChange={onOpenChange}
-      {...(place
+      {...(!!currentPlace
         ? {
-            open: true,
-          }
+          open: true,
+        }
         : {})}
     >
       <DialogTrigger asChild>
@@ -55,12 +70,23 @@ const AddLocationButton = ({ type, onOpenChange, place }: Props) => {
               : "Add New Destination"}
           </DialogTitle>
         </DialogHeader>
-        <LocationSearch onPlaceSelect={setLocation} place={place} />
+        <LocationSearch onPlaceSelect={setLocation} place={currentPlace} />
         <DialogFooter>
           <DialogClose asChild>
             <Button
               disabled={!location}
               onClick={() => {
+                if (!!currentPlace) {
+                  updateLocation({
+                    id: locationId!,
+                    name: location!.formatted_address!,
+                    lat: location!.geometry!.location!.lat()!,
+                    lng: location!.geometry!.location!.lng(),
+                    placeId: location?.place_id ?? ""!,
+                  });
+                  return;
+                }
+
                 addLocation({
                   id: nanoid(),
                   name: location!.formatted_address!,

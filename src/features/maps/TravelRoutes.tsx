@@ -9,12 +9,7 @@ const TravelRoutes = () => {
     const { locations, deleteLocation, updateLocation } = useLocations(
         (state) => state
     );
-    const [place, setPlace] = useState<null | {
-        label: string;
-        value: string;
-    }>(null);
-
-
+    const [locationId, setLocationId] = useState<null | string>(null);
 
     const handleAction = (payload: {
         type: "EDIT" | "DELETE" | "SCHEDULE";
@@ -24,10 +19,7 @@ const TravelRoutes = () => {
 
         switch (type) {
             case "EDIT":
-                setPlace({
-                    label: location.name,
-                    value: location.placeId,
-                });
+                setLocationId(location.id);
                 break;
 
             case "DELETE":
@@ -60,11 +52,11 @@ const TravelRoutes = () => {
                         : LocationType.Destination
                 }
                 onOpenChange={(open) => {
-                    if (!open && !!place) {
-                        setPlace(null);
+                    if (!open && !!locationId) {
+                        setLocationId(null);
                     }
                 }}
-                place={place}
+                locationId={locationId}
             />
         </div></div>
 

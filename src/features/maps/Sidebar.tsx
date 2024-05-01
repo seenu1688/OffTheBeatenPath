@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/tabs";
 import { Dialog, DialogPortal, DialogTrigger, } from "@/components/dialog";
-import TravelRoutes from "./TravleRoutes";
+import TravelRoutes from "./TravelRoutes";
 
 import { cn } from "@/lib/utils";
 
