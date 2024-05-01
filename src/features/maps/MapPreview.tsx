@@ -65,6 +65,9 @@ const MapPreview = () => {
         mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
         mapTypeId={"roadmap"}
         defaultBounds={getBoundes(locations)}
+        mapTypeControlOptions={{
+          position: google.maps.ControlPosition.TOP_RIGHT,
+        }}
       >
         {locations.map((location, index) => {
           return (
