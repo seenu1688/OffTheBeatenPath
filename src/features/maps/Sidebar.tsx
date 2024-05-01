@@ -1,9 +1,15 @@
+import { useState } from "react";
+import { DialogContent, } from "@radix-ui/react-dialog";
+import { Menu, X } from "lucide-react";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/tabs";
+import { Dialog, DialogPortal, DialogTrigger, } from "@/components/dialog";
 import TravelRoutes from "./TravleRoutes";
 
 import { cn } from "@/lib/utils";
 
-const Sidebar = () => {
+
+const SidebarContent = () => {
   return (
     <div
       className={cn(
@@ -16,16 +22,41 @@ const Sidebar = () => {
           <TabsTrigger value="map">Map</TabsTrigger>
           <TabsTrigger value="filter">Filter</TabsTrigger>
         </TabsList>
-        <TabsContent value="map" className="p-4 overflow-y-auto pb-10 h-[calc(100%-46px)]">
+        <TabsContent
+          value="map"
+          className="p-4 overflow-y-auto pb-10 h-[calc(100%-46px)]"
+        >
           <TravelRoutes />
         </TabsContent>
         <TabsContent value="filter" className="h-[calc(100%-46px)]">
-          <div className="flex items-center justify-center h-full">
-            Filters
-          </div>
+          <div className="flex items-center justify-center h-full">Filters</div>
         </TabsContent>
       </Tabs>
     </div>
+  );
+};
+
+const Sidebar = () => {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <Dialog onOpenChange={setOpen} defaultOpen={true}>
+      <DialogTrigger className={
+        cn(
+          "fixed top-5 left-5 z-[10] data-[state=open]:translate-x-[350px]",
+          "bg-white rounded-sm px-2 py-1 shadow-md cursor-pointer",
+        )
+      }>
+        {open ? <X /> : <Menu />}
+      </DialogTrigger>
+      <DialogPortal>
+        <DialogContent className="fixed top-0 left-0 h-full"
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}>
+          <SidebarContent />
+        </DialogContent>
+      </DialogPortal>
+    </Dialog>
   );
 };
 
