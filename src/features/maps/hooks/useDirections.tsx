@@ -87,6 +87,7 @@ export const useDirections = () => {
               position: "top-center",
               style: {
                 backgroundColor: "red",
+                color: "white",
               },
             }
           );
