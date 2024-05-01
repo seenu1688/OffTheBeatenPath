@@ -15,20 +15,21 @@ import { Button } from "@/components/button";
 
 import { Location, RouteType, routes } from "../hooks/useLocations";
 
-
 const TravelRoute = (props: {
   location: Location;
   onClick: (location: Partial<Location>) => void;
   isLast?: boolean;
-
 }) => {
   return (
     <Dialog>
       <DialogTrigger asChild={true}>
-      <Button variant="outline" disabled={props.isLast}>Edit</Button>
+        <Button variant="outline" disabled={props.isLast}>
+          Edit
+        </Button>
       </DialogTrigger>
 
       <TravelRoute.Content
+        key={props.location.travelMode}
         onSave={(mode: RouteType) => {
           props.onClick({
             travelMode: mode,
