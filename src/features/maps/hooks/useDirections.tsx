@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { toast } from "sonner";
 
-import { useLocations } from "./useLocations";
+import { RouteType, useLocations } from "./useLocations";
 
 export type RouteConfig = {
   origin: {
@@ -16,7 +16,7 @@ export type RouteConfig = {
     name: string;
   };
   strokeColor: string;
-  travelMode: "FLIGHT" | "DRIVING" | "TRANSIT";
+  travelMode: RouteType;
 };
 
 export const useDirections = () => {
@@ -38,8 +38,6 @@ export const useDirections = () => {
 
   const drawRoute = (config: RouteConfig) => {
     const { destination, origin, strokeColor, travelMode } = config;
-
-    console.log(polylines.current);
 
     if (travelMode === "FLIGHT") {
       const path = new google.maps.MVCArray();
