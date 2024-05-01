@@ -37,7 +37,7 @@ const LocationCard = (props: Props) => {
     <div className={
       cn(
         "w-full relative pb-7",
-        !props.isLast && "line" 
+        !props.isLast && "line"
       )
     }>
       <div
@@ -50,21 +50,28 @@ const LocationCard = (props: Props) => {
                 {props.order}
               </div>
               <div>{props.location.name}</div>
+
+            </div>
+            <div className="flex items-center gap-2">
               <button
+                title="Edit location"
+                aria-label="Edit location"
                 className="invisible group-hover:visible"
                 onClick={handleAction.bind(null, "EDIT", {})}
               >
                 <Edit2 size={13} />
               </button>
+              <button
+                title="Delete location"
+                aria-label="Delete location"
+                className="invisible group-hover:visible"
+                onClick={handleAction.bind(null, "DELETE", {})}
+              >
+                <X size={18} />
+              </button>
             </div>
-            <button
-              className="invisible group-hover:visible"
-              onClick={handleAction.bind(null, "DELETE", {})}
-            >
-              <X size={18} />
-            </button>
           </div>
-        {!!props.location.travelMode &&  <div className="flex items-center gap-2">
+          {!!props.location.travelMode && <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 py-2 px-2 rounded-md w-min border bg-stone-200">
               <div className="flex items-center gap-2 rounded-md select-none h-auto">
                 {route ? <route.icon size={22} /> : null}
@@ -81,9 +88,9 @@ const LocationCard = (props: Props) => {
           </div>}
           <div className="flex justify-end">
             <TravelRoute
-            location={props.location}
-            onClick={handleAction.bind(null, "SCHEDULE")}
-            isLast={props.isLast}
+              location={props.location}
+              onClick={handleAction.bind(null, "SCHEDULE")}
+              isLast={props.isLast}
             />
           </div>
         </div>
