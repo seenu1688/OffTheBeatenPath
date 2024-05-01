@@ -6,6 +6,7 @@ import AddLocationButton, {
 } from "./components/AddLocationButton";
 
 import { useLocations, Location } from "./hooks/useLocations";
+import { cn } from "@/lib/utils";
 
 const Sidebar = () => {
   const { locations, deleteLocation, updateLocation } = useLocations(
@@ -41,7 +42,12 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-[350px] h-full p-4 shadow-md bg-[#f3f3f3] flex flex-col relative overflow-y-auto dashed-line">
+    <div
+      className={cn(
+        "w-[350px] h-full p-4 shadow-md bg-[#f3f3f3] flex flex-col gap-4",
+        "relative overflow-y-auto dashed-line"
+      )}
+    >
       {locations.map((location, index) => {
         return (
           <LocationCard
@@ -53,7 +59,7 @@ const Sidebar = () => {
           />
         );
       })}
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-5">
         <AddLocationButton
           type={
             locations.length === 0
