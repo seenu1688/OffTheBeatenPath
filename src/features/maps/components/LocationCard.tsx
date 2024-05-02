@@ -5,6 +5,7 @@ import TravelRoute from "./TravelRoute";
 
 import { Location, routes } from "../hooks/useLocations";
 import { useDistance } from "../hooks/useDistance";
+import { usePathHighlights } from "../hooks/usePathHighlights";
 
 import { cn } from "@/lib/utils";
 
@@ -38,7 +39,24 @@ const LocationCard = (props: Props) => {
   const info = distances.get(props.location.id) ?? {};
 
   return (
-    <div className={cn("w-full relative pb-7", !props.isLast && "line")}>
+    <div
+      className={cn("w-full relative pb-7", !props.isLast && "line")}
+      onMouseOver={() => {
+        if (props.isLast || !props.location.travelMode) return;
+
+        const state = usePathHighlights.getState();
+
+        if (state.highlightId === props.location.id) return;
+
+        state.setHighlightId(props.location.id);
+      }}
+      onMouseLeave={() => {
+        if (props.isLast || !props.location.travelMode) return;
+
+        const state = usePathHighlights.getState();
+        state.setHighlightId(null);
+      }}
+    >
       <div
         className={cn("relative border bg-white rounded-lg border-orange-500")}
       >

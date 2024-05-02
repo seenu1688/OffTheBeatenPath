@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { RouteType, useLocations } from "./useLocations";
 import { useDistance } from "./useDistance";
 
+export const PATH_LINE_SEPARATOR = "_2_";
+
 export type RouteConfig = {
   origin: {
     id: string;
@@ -53,7 +55,10 @@ export const useDirections = () => {
 
       poly.setPath(path);
 
-      polylines.current.set(`${origin.name}-${destination.name}`, poly);
+      polylines.current.set(
+        `${origin.id}${PATH_LINE_SEPARATOR}${destination.id}`,
+        poly
+      );
     } else {
       directionsService!
         .route({
@@ -78,7 +83,10 @@ export const useDirections = () => {
 
           poly.setPath(path);
 
-          polylines.current.set(`${origin.name}-${destination.name}`, poly);
+          polylines.current.set(
+            `${origin.id}${PATH_LINE_SEPARATOR}${destination.id}`,
+            poly
+          );
 
           const leg = currentRoute.legs[0];
 

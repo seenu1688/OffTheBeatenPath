@@ -1,7 +1,12 @@
 import { useEffect } from "react";
 
 import { Location, travelModeMap, useLocations } from "../hooks/useLocations";
-import { RouteConfig, useDirections, } from "../hooks/useDirections";
+import {
+  PATH_LINE_SEPARATOR,
+  RouteConfig,
+  useDirections,
+} from "../hooks/useDirections";
+import { usePathHighlights } from "../hooks/usePathHighlights";
 
 function Directions() {
   const { drawRoute, directionsRenderer, directionsService, polylines } =
@@ -59,11 +64,48 @@ function Directions() {
 
     createRoutes(useLocations.getState().locations);
 
-    useLocations.subscribe((state) => {
+    const routesUnsubscribe = useLocations.subscribe((state) => {
       createRoutes(state.locations);
     });
 
-    return () => directionsRenderer.setMap(null);
+    const unsubscribe = usePathHighlights.subscribe((state) => {
+      const locations = useLocations.getState().locations;
+
+      for (let [key, polyline] of polylines.current) {
+        const [originId] = key.split(PATH_LINE_SEPARATOR);
+        const location = locations.find((loc) => loc.id === originId);
+
+        if (!location || !location?.travelMode) {
+          return;
+        }
+
+        if (!state.highlightId) {
+          const travel = travelModeMap[location.travelMode];
+
+          polyline.setOptions({
+            strokeColor: travel.color,
+            zIndex: 1,
+            strokeWeight: 3,
+          });
+        } else {
+          const travel = travelModeMap[location.travelMode];
+
+          const isHighlighted = state.highlightId === originId;
+
+          polyline.setOptions({
+            strokeColor: isHighlighted ? travel.color : "gray",
+            zIndex: isHighlighted ? 1 : 0,
+            strokeWeight: isHighlighted ? 5 : 3,
+          });
+        }
+      }
+    });
+
+    return () => {
+      directionsRenderer.setMap(null);
+      unsubscribe();
+      routesUnsubscribe();
+    };
   }, [directionsService, directionsRenderer]);
 
   return null;
