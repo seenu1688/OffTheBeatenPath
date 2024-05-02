@@ -4,6 +4,7 @@ import { Label } from "@/components/label";
 import TravelRoute from "./TravelRoute";
 
 import { Location, routes } from "../hooks/useLocations";
+import { useDistance } from "../hooks/useDistance";
 
 import { cn } from "@/lib/utils";
 
@@ -32,14 +33,12 @@ const LocationCard = (props: Props) => {
   };
 
   const route = routes.find((route) => route.id === props.location.travelMode);
+  const { distances } = useDistance();
+
+  const info = distances.get(props.location.id) ?? {};
 
   return (
-    <div className={
-      cn(
-        "w-full relative pb-7",
-        !props.isLast && "line"
-      )
-    }>
+    <div className={cn("w-full relative pb-7", !props.isLast && "line")}>
       <div
         className={cn("relative border bg-white rounded-lg border-orange-500")}
       >
@@ -50,7 +49,6 @@ const LocationCard = (props: Props) => {
                 {props.order}
               </div>
               <div>{props.location.name}</div>
-
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -71,28 +69,39 @@ const LocationCard = (props: Props) => {
               </button>
             </div>
           </div>
-          {!!props.location.travelMode && <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 py-2 px-2 rounded-md w-min border bg-stone-200">
-              <div className="flex items-center gap-2 rounded-md select-none h-auto">
-                {route ? <route.icon size={22} /> : null}
+          {!!props.location.travelMode && (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 py-2 px-2 rounded-md w-min border bg-stone-200">
+                <div className="flex items-center gap-2 rounded-md select-none h-auto">
+                  {route ? <route.icon size={22} /> : null}
+                </div>
+                <Label className="flex flex-col text-xs items-center text-left font-normal">
+                  {route?.name}
+                </Label>
               </div>
-              <Label className="flex flex-col text-xs items-center text-left font-normal">
-                {route?.name}
-              </Label>
+              <div className="flex gap-3">
+                {!!info.distance ? (
+                  <div className="text-orange-500 text-base">
+                    {info.distance.text}
+                  </div>
+                ) : null}
+                {!!info.duration ? (
+                  <div className="text-orange-500 text-base">
+                    {info.duration.text}
+                  </div>
+                ) : null}
+              </div>
             </div>
-            {props.location.duration ? (
-              <div className="text-orange-500 text-xs">
-                {props.location.duration}
-              </div>
-            ) : null}
-          </div>}
-          <div className="flex justify-end">
-            <TravelRoute
-              location={props.location}
-              onClick={handleAction.bind(null, "SCHEDULE")}
-              isLast={props.isLast}
-            />
-          </div>
+          )}
+          {!props.isLast && (
+            <div className="flex justify-end">
+              <TravelRoute
+                location={props.location}
+                onClick={handleAction.bind(null, "SCHEDULE")}
+                isLast={props.isLast}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

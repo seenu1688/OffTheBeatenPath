@@ -3,6 +3,7 @@ import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { toast } from "sonner";
 
 import { RouteType, useLocations } from "./useLocations";
+import { useDistance } from "./useDistance";
 
 export type RouteConfig = {
   origin: {
@@ -27,6 +28,8 @@ export const useDirections = () => {
   const [directionsRenderer, setDirectionsRenderer] =
     useState<google.maps.DirectionsRenderer>();
   const updateLocation = useLocations((state) => state.updateLocation);
+  const polylines = useRef<Map<string, google.maps.Polyline>>(new Map());
+  const { setDistance } = useDistance();
 
   // Initialize directions service and renderer
   useEffect(() => {
@@ -34,7 +37,6 @@ export const useDirections = () => {
     setDirectionsService(new routesLibrary.DirectionsService());
     setDirectionsRenderer(new routesLibrary.DirectionsRenderer({ map }));
   }, [routesLibrary, map]);
-  const polylines = useRef<google.maps.Polyline[]>([]);
 
   const drawRoute = (config: RouteConfig) => {
     const { destination, origin, strokeColor, travelMode } = config;
@@ -51,7 +53,7 @@ export const useDirections = () => {
 
       poly.setPath(path);
 
-      polylines.current = [...polylines.current, poly];
+      polylines.current.set(`${origin.name}-${destination.name}`, poly);
     } else {
       directionsService!
         .route({
@@ -76,7 +78,16 @@ export const useDirections = () => {
 
           poly.setPath(path);
 
-          polylines.current = [...polylines.current, poly];
+          polylines.current.set(`${origin.name}-${destination.name}`, poly);
+
+          const leg = currentRoute.legs[0];
+
+          if (!!leg) {
+            setDistance(origin.id, {
+              distance: leg.distance,
+              duration: leg.duration,
+            });
+          }
         })
         .catch((e) => {
           console.log(e);

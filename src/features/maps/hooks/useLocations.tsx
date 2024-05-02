@@ -36,18 +36,18 @@ export const routes = [
     icon: Bus,
   },
   {
-    id:"WALKING",
-    name:"Walking",
+    id: "WALKING",
+    name: "Walking",
     icon: PersonStanding,
   },
   {
-    id:"BICYCLING",
-    name:"Bicycling",
+    id: "BICYCLING",
+    name: "Bicycling",
     icon: Bike,
-  }
+  },
 ] as const;
 
-export type RouteType = (typeof routes)[number]["id"] ;
+export type RouteType = (typeof routes)[number]["id"];
 
 export type Route = (typeof routes)[number];
 
@@ -73,26 +73,25 @@ export const useLocations = create<LocationsState>((set) => {
     locations: [],
     addLocation: (location: Location) => {
       set((state) => {
-
-        if(state.locations.length === 0) {
+        if (state.locations.length === 0) {
           return {
             locations: [location],
-          }
+          };
         }
 
-        const length= state.locations.length;
-        const lastLocation= state.locations[length - 1];
+        const length = state.locations.length;
+        const lastLocation = state.locations[length - 1];
 
         return {
           locations: [
-            ...state.locations.slice(0,length-1),
+            ...state.locations.slice(0, length - 1),
             {
               ...lastLocation,
               travelMode: "DRIVING",
-            }, 
-            location
+            },
+            location,
           ],
-        }
+        };
       });
     },
     updateLocation: (location: Partial<Location>) => {

@@ -24,10 +24,12 @@ const TravelRoute = (props: {
   return (
     <Dialog>
       <DialogTrigger asChild={true}>
-        <Button variant="outline" disabled={props.isLast} className="bg-orange-100 border-orange-600 hover:bg-orange-200">
-          <span>
-            Edit
-          </span>
+        <Button
+          variant="outline"
+          disabled={props.isLast}
+          className="bg-orange-100 border-orange-600 hover:bg-orange-200"
+        >
+          <span>Edit</span>
           <ChevronRight size={18} />
         </Button>
       </DialogTrigger>

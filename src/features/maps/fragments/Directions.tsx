@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { Location, travelModeMap, useLocations } from "../hooks/useLocations";
-import { RouteConfig, useDirections } from "../hooks/useDirections";
+import { RouteConfig, useDirections, } from "../hooks/useDirections";
 
 function Directions() {
   const { drawRoute, directionsRenderer, directionsService, polylines } =
@@ -10,10 +10,10 @@ function Directions() {
   // FIXME: cache polylines by location so as to not recreate them
   const createRoutes = async (locations: Location[]) => {
     // clear previous polylines
-    while (polylines.current.length > 0) {
-      const polyline = polylines.current.pop();
-
-      polyline?.setMap(null);
+    while (polylines.current.size > 0) {
+      const [key, polyline] = polylines.current.entries().next().value;
+      polyline.setMap(null);
+      polylines.current.delete(key);
     }
 
     if (locations.length < 2) {
