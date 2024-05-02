@@ -40,7 +40,7 @@ const LocationCard = (props: Props) => {
   const info = distances.get(props.location.id) ?? {};
 
   return (
-    <Reorder.Item key={props.location.id} value={location}>
+    <Reorder.Item key={props.location.id} value={props.location}>
       <div
         className={cn("w-full relative pb-7", !props.isLast && "line")}
         onMouseOver={() => {
