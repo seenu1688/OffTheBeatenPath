@@ -14,7 +14,7 @@ const SidebarContent = () => {
     <div
       className={cn(
         "w-[350px] h-full shadow-md bg-[#f3f3f3] flex flex-col gap-4",
-        "relative overflow-hidden"
+        "relative overflow-hidden",
       )}
     >
       <Tabs defaultValue="map" className="w-full h-full">
@@ -40,17 +40,21 @@ const Sidebar = () => {
   const [open, setOpen] = useState(true);
 
   return (
-    <Dialog onOpenChange={setOpen} defaultOpen={true}>
+    <Dialog
+      onOpenChange={(value) => {
+        setOpen(value)
+      }}
+      defaultOpen={true}>
       <DialogTrigger className={
         cn(
-          "fixed top-5 left-5 z-[10] data-[state=open]:translate-x-[350px]",
+          "fixed top-5 left-5 z-[10] data-[state=open]:translate-x-[350px] transition-transform duration-200 ease-in-out",
           "bg-white rounded-sm px-2 py-1 shadow-md cursor-pointer",
         )
       }>
         {open ? <X /> : <Menu />}
       </DialogTrigger>
       <DialogPortal>
-        <DialogContent className="fixed top-0 left-0 h-full"
+        <DialogContent className="fixed top-0 left-0 h-full data-[state=closed]:animate-slide-left data-[state=open]:animate-slide-right"
           onPointerDownOutside={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}>
           <SidebarContent />
