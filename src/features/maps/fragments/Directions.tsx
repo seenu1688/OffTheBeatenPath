@@ -30,27 +30,25 @@ function Directions() {
     for (let i = 0; i < locations.length; i++) {
       const origin = locations[i];
 
-      if (i === locations.length - 1 || !origin.travelMode) {
-        break;
+      if (i !== locations.length - 1 && !!origin.travelMode) {
+        const travel = travelModeMap[origin.travelMode!];
+        const destination = locations[i + 1];
+
+        routesConfig.push({
+          origin: {
+            latLng: new google.maps.LatLng(origin.lat, origin.lng),
+            name: origin.name,
+            id: origin.id,
+          },
+          destination: {
+            latLng: new google.maps.LatLng(destination.lat, destination.lng),
+            name: destination.name,
+            id: destination.id,
+          },
+          strokeColor: travel.color,
+          travelMode: origin.travelMode,
+        } satisfies RouteConfig);
       }
-
-      const travel = travelModeMap[origin.travelMode!];
-      const destination = locations[i + 1];
-
-      routesConfig.push({
-        origin: {
-          latLng: new google.maps.LatLng(origin.lat, origin.lng),
-          name: origin.name,
-          id: origin.id,
-        },
-        destination: {
-          latLng: new google.maps.LatLng(destination.lat, destination.lng),
-          name: destination.name,
-          id: destination.id,
-        },
-        strokeColor: travel.color,
-        travelMode: origin.travelMode,
-      } satisfies RouteConfig);
     }
 
     for (let config of routesConfig) {
@@ -65,6 +63,8 @@ function Directions() {
     createRoutes(useLocations.getState().locations);
 
     const routesUnsubscribe = useLocations.subscribe((state) => {
+      console.log({ locations: state.locations });
+
       createRoutes(state.locations);
     });
 

@@ -66,6 +66,7 @@ type LocationsState = {
   addLocation: (location: Location) => void;
   deleteLocation: (id: string) => void;
   updateLocation: (location: Partial<Location>) => void;
+  setLocations: (locations: Location[]) => void;
 };
 
 export const useLocations = create<LocationsState>((set) => {
@@ -129,6 +130,9 @@ export const useLocations = create<LocationsState>((set) => {
           }),
         };
       });
+    },
+    setLocations: (locations: Location[]) => {
+      set({ locations });
     },
   };
 });

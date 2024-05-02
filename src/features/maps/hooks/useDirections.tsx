@@ -31,7 +31,7 @@ export const useDirections = () => {
     useState<google.maps.DirectionsRenderer>();
   const updateLocation = useLocations((state) => state.updateLocation);
   const polylines = useRef<Map<string, google.maps.Polyline>>(new Map());
-  const { setDistance } = useDistance();
+  const { addMeta, removeMeta } = useDistance();
 
   // Initialize directions service and renderer
   useEffect(() => {
@@ -59,6 +59,7 @@ export const useDirections = () => {
         `${origin.id}${PATH_LINE_SEPARATOR}${destination.id}`,
         poly
       );
+      removeMeta(origin.id);
     } else {
       directionsService!
         .route({
@@ -91,7 +92,7 @@ export const useDirections = () => {
           const leg = currentRoute.legs[0];
 
           if (!!leg) {
-            setDistance(origin.id, {
+            addMeta(origin.id, {
               distance: leg.distance,
               duration: leg.duration,
             });

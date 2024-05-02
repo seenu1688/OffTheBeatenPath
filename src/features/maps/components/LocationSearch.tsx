@@ -95,8 +95,6 @@ export const LocationSearch = ({ onPlaceSelect, place }: Props) => {
 
   const onSelect = useCallback(
     (prediction: google.maps.places.AutocompletePrediction | string) => {
-      console.log({ prediction });
-
       if (!places || typeof prediction === "string") return;
 
       const detailRequestOptions = {
@@ -108,8 +106,6 @@ export const LocationSearch = ({ onPlaceSelect, place }: Props) => {
       const detailsRequestCallback = (
         placeDetails: google.maps.places.PlaceResult | null
       ) => {
-        console.log({ placeDetails });
-
         onPlaceSelect({
           ...placeDetails,
           place_id: prediction.place_id,
