@@ -62,26 +62,23 @@ const TravelRoutes = () => {
   };
 
   return (
-    <div className="h-full w-full">
-      <Reorder.Group
-        axis="y"
-        values={locations}
-        onReorder={callbackRef.current}
-      >
-        {locations.map((location, index) => {
-          return (
-            <Reorder.Item key={location.id} value={location}>
-              <LocationCard
-                key={location.id}
-                location={location}
-                order={index + 1}
-                onAction={handleAction}
-                isLast={index === locations.length - 1}
-              />
-            </Reorder.Item>
-          );
-        })}
-      </Reorder.Group>
+    <Reorder.Group
+      axis="y"
+      values={locations}
+      onReorder={callbackRef.current}
+      className="h-auto w-full"
+    >
+      {locations.map((location, index) => {
+        return (
+          <LocationCard
+            key={location.id}
+            location={location}
+            order={index + 1}
+            onAction={handleAction}
+            isLast={index === locations.length - 1}
+          />
+        );
+      })}
       <div className="flex justify-center pt-5">
         <AddLocationButton
           type={
@@ -97,7 +94,7 @@ const TravelRoutes = () => {
           locationId={locationId}
         />
       </div>
-    </div>
+    </Reorder.Group>
   );
 };
 
