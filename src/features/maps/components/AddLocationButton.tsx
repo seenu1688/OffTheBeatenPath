@@ -31,7 +31,6 @@ const AddLocationButton = ({ type, onOpenChange, locationId }: Props) => {
   const { addLocation, updateLocation } = useLocations((state) => ({
     addLocation: state.addLocation,
     updateLocation: state.updateLocation,
-
   }));
   const locations = useLocations((state) => state.locations);
   const currentPlace = useMemo(() => {
@@ -41,11 +40,10 @@ const AddLocationButton = ({ type, onOpenChange, locationId }: Props) => {
 
     if (!location) return null;
 
-
     return {
       label: location.name,
       value: location.placeId,
-    }
+    };
   }, [locationId]);
 
   return (
@@ -53,8 +51,8 @@ const AddLocationButton = ({ type, onOpenChange, locationId }: Props) => {
       onOpenChange={onOpenChange}
       {...(!!currentPlace
         ? {
-          open: true,
-        }
+            open: true,
+          }
         : {})}
     >
       <DialogTrigger asChild>
