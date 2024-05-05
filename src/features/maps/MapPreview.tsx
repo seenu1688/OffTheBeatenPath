@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { Tooltip, TooltipArrow, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/tooltip";
@@ -62,7 +64,7 @@ const MapPreview = () => {
     <div className="flex-1">
       <Map
         defaultZoom={12}
-        mapId={import.meta.env.VITE_GOOGLE_MAP_ID}
+        mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID}
         mapTypeId={"roadmap"}
         defaultBounds={getBoundes(locations)}
         mapTypeControlOptions={{
