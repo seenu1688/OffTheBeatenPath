@@ -34,7 +34,7 @@ const TravelRoute = (props: {
         </Button>
       </DialogTrigger>
 
-      <TravelRoute.Content
+      <TravelRouteContent
         key={props.location.travelMode}
         onSave={(mode: RouteType) => {
           props.onClick({
@@ -47,7 +47,7 @@ const TravelRoute = (props: {
   );
 };
 
-TravelRoute.Content = (props: {
+const TravelRouteContent = (props: {
   onSave: (route: RouteType) => void;
   mode?: RouteType | null;
 }) => {
@@ -88,5 +88,6 @@ TravelRoute.Content = (props: {
     </DialogContent>
   );
 };
+
 
 export default TravelRoute;
