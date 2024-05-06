@@ -1,6 +1,7 @@
-import { auth } from '@/auth';
+import NextAuth from 'next-auth';
+import { authConfig } from './config/auth.config';
 
-export { auth as middleware } from '@/auth';
+const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl } = req;
