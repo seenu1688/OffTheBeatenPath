@@ -1,15 +1,23 @@
-import { NextRequest } from 'next/server';
+import { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
+import jsforce from 'jsforce';
 
 import { auth } from '@/auth';
-import { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
+
+export type Context = {
+  headers: Headers;
+  session: {
+    access_token: string;
+    instance_url: string;
+  } | null;
+  salesforceClient: jsforce.Connection | null;
+};
 
 export const createContext = async (opts: FetchCreateContextFnOptions) => {
-  const session = await auth();
+  const session = (await auth()) as Context['session'];
 
   return {
     session,
     headers: opts.req.headers,
-  };
+    salesforceClient: null,
+  } satisfies Context;
 };
-
-export type Context = Awaited<ReturnType<typeof createContext>>;
