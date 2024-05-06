@@ -1,16 +1,18 @@
-"use client";
+'use client';
 
-import { APIProvider } from "@vis.gl/react-google-maps";
-import { PropsWithChildren } from "react";
-import { Toaster } from "sonner";
+import { PropsWithChildren } from 'react';
+import { APIProvider } from '@vis.gl/react-google-maps';
+import { Toaster } from 'sonner';
+
+import { trpcClient } from '@/client';
 
 const HomeLayout = ({ children }: PropsWithChildren) => {
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
-      <>{children}</>
+      {children}
       <Toaster />
     </APIProvider>
   );
 };
 
-export default HomeLayout;
+export default trpcClient.withTRPC(HomeLayout);
