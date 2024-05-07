@@ -1,20 +1,20 @@
-import { NextAuthConfig } from 'next-auth';
+import { NextAuthConfig } from "next-auth";
 
-import { Salesforce } from './provider';
+import { Salesforce } from "./provider";
 
 export const authConfig = {
   providers: [Salesforce],
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   secret: process.env.AUTH_SECRET,
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
-        return Promise.resolve({ ...token, ...account });
+        return { ...token, ...account };
       }
 
-      return Promise.resolve(token);
+      return token;
     },
     async session({ session, token }) {
       return { ...session, ...token };

@@ -13,8 +13,8 @@ export function Salesforce<P extends SalesforceProfile>(
 ): OAuthConfig<P> {
   const { issuer = process.env.AUTH_SALESFORCE_ISSUER } = options;
 
-  var query = qs.stringify({
-    scope: 'id refresh_token offline_access',
+  const query = qs.stringify({
+    scope: 'id api web refresh_token offline_access',
   });
 
   return {
@@ -24,6 +24,7 @@ export function Salesforce<P extends SalesforceProfile>(
     authorization: `${issuer}/services/oauth2/authorize?display=page&${query}`,
     token: `${issuer}/services/oauth2/token`,
     userinfo: `${issuer}/services/oauth2/userinfo`,
+    issuer: process.env.AUTH_SALESFORCE_URL_LOGIN,
     profile(profile) {
       return {
         id: profile.user_id,
