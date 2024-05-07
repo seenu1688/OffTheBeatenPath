@@ -12,4 +12,4 @@ Design studio to plan your next adventure
 1. Clone the repository
 2. Run `pnpm install`
 3. Run `pnpm dev`
-4. Visit `http://localhost:5173/`
+4. Visit `http://localhost:3000`
