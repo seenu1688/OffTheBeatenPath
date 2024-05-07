@@ -2,11 +2,22 @@
 
 import { useEffect } from "react";
 import { Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-import { Tooltip, TooltipArrow, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/tooltip";
+import {
+  Tooltip,
+  TooltipArrow,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/tooltip";
 
 import Directions from "./fragments/Directions";
 
 import { Location, useLocations } from "./hooks/useLocations";
+
+const DEFAULT_CENTER = {
+  lat: 45.6823097,
+  lng: -111.0394193,
+};
 
 const MapPreview = () => {
   const locations = useLocations((state) => state.locations);
@@ -15,27 +26,6 @@ const MapPreview = () => {
   useEffect(() => {
     if (!map) return;
 
-    // var latlngbounds = new google.maps.LatLngBounds();
-
-    // locations.forEach((location) => {
-    //   const latLong = new google.maps.LatLng(location.lat, location.lng);
-    //   latlngbounds.extend(latLong);
-    // });
-
-    // console.log(latlngbounds.toJSON());
-    // map.setCenter(latlngbounds.getCenter());
-    // map.fitBounds(latlngbounds);
-
-    // let line = new google.maps.Polyline({
-    //   path: [
-    //     new google.maps.LatLng(40.7126802, -74.00657629999999),
-    //     new google.maps.LatLng(34.0549067, -118.2426508),
-    //   ],
-    //   strokeColor: "#5BC6A8",
-    //   strokeOpacity: 1.0,
-    //   strokeWeight: 4,
-    //   map: map,
-    // });
     useLocations.subscribe((state) => {
       var latlngbounds = new google.maps.LatLngBounds();
 
@@ -50,6 +40,10 @@ const MapPreview = () => {
   }, [map]);
 
   const getBoundes = (locations: Location[]) => {
+    if (locations.length === 0) {
+      return undefined;
+    }
+
     var latlngbounds = new google.maps.LatLngBounds();
 
     locations.forEach((location) => {
@@ -61,7 +55,7 @@ const MapPreview = () => {
   };
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 transition-all duration-200">
       <Map
         defaultZoom={12}
         mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID}
@@ -69,6 +63,10 @@ const MapPreview = () => {
         defaultBounds={getBoundes(locations)}
         mapTypeControlOptions={{
           position: google.maps.ControlPosition.TOP_RIGHT,
+        }}
+        defaultCenter={{
+          lat: DEFAULT_CENTER.lat,
+          lng: DEFAULT_CENTER.lng,
         }}
       >
         {locations.map((location, index) => {
@@ -80,7 +78,7 @@ const MapPreview = () => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <div className="w-8 h-8 rounded-2xl bg-white pointer-events-auto flex items-center justify-center text-xl">
+                    <div className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-2xl bg-white text-xl">
                       {index + 1}
                     </div>
                   </TooltipTrigger>
@@ -91,7 +89,6 @@ const MapPreview = () => {
                 </Tooltip>
               </TooltipProvider>
             </AdvancedMarker>
-
           );
         })}
         <Directions />
