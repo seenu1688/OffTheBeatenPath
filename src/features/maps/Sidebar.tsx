@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { DialogContent } from "@radix-ui/react-dialog";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/tabs";
-import { Dialog, DialogTrigger } from "@/components/dialog";
 import TravelRoutes from "./TravelRoutes";
+import FiltersView from "./fragments/FiltersView";
 
 import { cn } from "@/lib/utils";
 
@@ -30,7 +29,7 @@ const SidebarContent = () => {
           <TravelRoutes />
         </TabsContent>
         <TabsContent value="filter" className="h-[calc(100%-46px)]">
-          <div className="flex h-full items-center justify-center">Filters</div>
+          <FiltersView />
         </TabsContent>
       </Tabs>
     </div>
@@ -41,23 +40,27 @@ const Sidebar = () => {
   const [open, setOpen] = useState(true);
 
   return (
-    <Dialog onOpenChange={setOpen} defaultOpen={true}>
-      <DialogTrigger
+    <>
+      <button
+        aria-label="Toggle Sidebar"
         className={cn(
           "fixed left-5 top-5 z-[10] transition-transform duration-200 ease-in-out data-[state=open]:translate-x-[350px]",
-          "cursor-pointer rounded-sm bg-orange-500 px-2 py-1 text-white shadow-md"
+          "cursor-pointer rounded-sm bg-primary px-2 py-1 text-primary-foreground shadow-md"
         )}
+        data-state={open ? "open" : "closed"}
+        onClick={setOpen.bind(null, !open)}
       >
         {open ? <ChevronLeft /> : <ChevronRight />}
-      </DialogTrigger>
-      <DialogContent
-        className="bg-[#f3f3f3] transition-all duration-200 ease-in-out"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onInteractOutside={(e) => e.preventDefault()}
+      </button>
+      <div
+        className={cn(
+          "invisible w-0 bg-[#f3f3f3] transition-all duration-200 ease-in-out",
+          open && "visible w-auto"
+        )}
       >
         <SidebarContent />
-      </DialogContent>
-    </Dialog>
+      </div>
+    </>
   );
 };
 
