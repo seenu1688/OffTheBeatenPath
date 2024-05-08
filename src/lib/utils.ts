@@ -21,3 +21,27 @@ export const debounce = (
     });
   };
 };
+
+export const filter = <T>(
+  locations: T[],
+  callback: (location: T, index: number) => boolean | T
+) => {
+  const result: T[] = [];
+
+  let index = 0;
+
+  for (const location of locations) {
+    const value = callback(location, index);
+
+    if (typeof value === "boolean") {
+      if (value) {
+        result.push(location);
+      }
+    } else {
+      result.push(value);
+    }
+    index++;
+  }
+
+  return result;
+};

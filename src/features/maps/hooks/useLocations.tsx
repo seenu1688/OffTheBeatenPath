@@ -1,3 +1,4 @@
+import { filter } from "@/lib/utils";
 import { Bike, Bus, Car, PersonStanding, Plane } from "lucide-react";
 import { create } from "zustand";
 
@@ -136,27 +137,3 @@ export const useLocations = create<LocationsState>((set) => {
     },
   };
 });
-
-const filter = <T,>(
-  locations: T[],
-  callback: (location: T, index: number) => boolean | T
-) => {
-  const result: T[] = [];
-
-  let index = 0;
-
-  for (const location of locations) {
-    const value = callback(location, index);
-
-    if (typeof value === "boolean") {
-      if (value) {
-        result.push(location);
-      }
-    } else {
-      result.push(value);
-    }
-    index++;
-  }
-
-  return result;
-};

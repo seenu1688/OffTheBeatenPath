@@ -20,28 +20,28 @@ const DestinationMarkers = () => {
       });
     }
 
-    const elements = destinations
-      .map((destination) => {
-        const { lat, lng } = destination.geolocation || {};
+    const elements = destinations.reduce((acc, destination) => {
+      const { lat, lng } = destination.geolocation || {};
 
-        if (!lat || !lng) {
-          return null;
-        }
+      if (!lat || !lng) {
+        return acc;
+      }
 
-        if (markersRef.current[destination.id]) {
-          return markersRef.current[destination.id];
-        }
+      if (markersRef.current[destination.id]) {
+        return [...acc, markersRef.current[destination.id]];
+      }
 
-        return (markersRef.current[destination.id] =
-          new markers.AdvancedMarkerElement({
-            map,
-            position: destination.geolocation,
-            title: destination.name,
-          }));
-      })
-      .filter(
-        (element) => element !== null
-      ) as google.maps.marker.AdvancedMarkerElement[];
+      const pin = new markers.PinElement({});
+
+      markersRef.current[destination.id] = new markers.AdvancedMarkerElement({
+        map,
+        position: destination.geolocation,
+        title: destination.name,
+        content: pin.element,
+      });
+
+      return [...acc, markersRef.current[destination.id]];
+    }, [] as Marker[]);
 
     if (elements.length > 0) clusterer.current?.addMarkers(elements);
 
