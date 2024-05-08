@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 
 import Combobox from "@/components/combobox";
+import { debounce } from "@/lib/utils";
 
 interface Props {
   onPlaceSelect: (place: google.maps.places.PlaceResult | null) => void;
@@ -11,22 +12,6 @@ interface Props {
   } | null;
 }
 
-const debounce = (
-  fn: (...params: any) => void | Promise<any>,
-  delay: number
-) => {
-  let timeout: NodeJS.Timeout;
-
-  return async (...args: any) => {
-    clearTimeout(timeout);
-
-    return new Promise((resolve) => {
-      timeout = setTimeout(() => {
-        resolve(fn(...args));
-      }, delay);
-    });
-  };
-};
 export const LocationSearch = ({ onPlaceSelect, place }: Props) => {
   const map = useMap();
   const places = useMapsLibrary("places");

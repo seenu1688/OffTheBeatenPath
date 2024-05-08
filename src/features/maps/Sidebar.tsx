@@ -17,7 +17,7 @@ const SidebarContent = () => {
         "relative overflow-hidden"
       )}
     >
-      <Tabs defaultValue="map" className="h-full w-full">
+      <Tabs defaultValue="filter" className="h-full w-full">
         <TabsList className="w-full">
           <TabsTrigger value="map">Map</TabsTrigger>
           <TabsTrigger value="filter">Filter</TabsTrigger>

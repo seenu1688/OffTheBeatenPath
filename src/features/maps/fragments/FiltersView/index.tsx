@@ -1,88 +1,104 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Search } from "lucide-react";
+import AsyncSelect from "react-select/async";
 
 import FilterItem from "./FilterItem";
+import { Button } from "@/components/button";
 
 import {
   FilterType,
   filters,
   useDestinationFilters,
+  useFilteredDestinations,
 } from "../../hooks/useDestinations";
 
-import { cn } from "@/lib/utils";
+import { debounce } from "@/lib/utils";
+import { toast } from "sonner";
+import { useMap } from "@vis.gl/react-google-maps";
 
-const ComboInput = React.forwardRef<
-  HTMLInputElement,
-  React.InputHTMLAttributes<HTMLInputElement>
->((props, ref) => {
-  return (
-    <div className="flex items-center rounded-md border-b bg-popover px-3 text-popover-foreground">
-      <input
-        {...props}
-        ref={ref}
-        className={cn(
-          "flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-        )}
-        placeholder="Search framework..."
-      />
-      <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-    </div>
+const DestinationSearch = () => {
+  const destinations = useFilteredDestinations();
+  const map = useMap();
+  const [selectedOption, setSelectedOption] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
+
+  const filterData = useCallback(
+    async (value: string) => {
+      return Promise.resolve(
+        destinations
+          .filter((destination) => {
+            return destination.name.toLowerCase().includes(value.toLowerCase());
+          })
+          .map((destination) => ({
+            value: destination.id,
+            label: destination.name,
+          }))
+      );
+    },
+    [destinations]
   );
-});
 
-ComboInput.displayName = "ComboInput";
+  const debouncedSearch = useMemo(
+    () => debounce(filterData, 200),
+    [filterData]
+  );
 
-const Combobox = () => {
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
-  const [isOpen, setIsOpen] = useState(false);
+  const handleSelect = useCallback(
+    (option: { label: string; value: string }) => {
+      setSelectedOption(option);
+    },
+    [setSelectedOption]
+  );
 
-  useEffect(() => {
-    if (inputRef.current) {
-      const rect = inputRef.current.getBoundingClientRect();
-
-      setPosition({
-        x: rect.left,
-        y: rect.top,
-        width: rect.width,
-        height: rect.height,
-      });
+  const goToLocation = useCallback(() => {
+    if (!selectedOption) {
+      return;
     }
 
-    const handleClick = (e: MouseEvent) => {
-      if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
+    const destination = destinations.find((d) => d.id === selectedOption.value);
 
-    document.addEventListener("click", handleClick);
+    if (!destination) {
+      toast.error("Destination don't have valid co ordinates");
+      return;
+    }
 
-    return () => {
-      document.removeEventListener("click", handleClick);
-    };
-  }, []);
-
-  console.log(position);
+    map?.panTo({
+      lat: destination.geolocation.lat,
+      lng: destination.geolocation.lng,
+    });
+    map?.setZoom(15);
+  }, [destinations, map, selectedOption]);
 
   return (
     <div>
-      <ComboInput
-        ref={inputRef}
-        onFocus={() => {
-          setIsOpen(true);
+      <AsyncSelect
+        styles={{
+          control: (provided) => ({
+            ...provided,
+            border: "1px solid #e2e8f0",
+          }),
         }}
+        loadOptions={debouncedSearch as any}
+        isClearable={true}
+        placeholder="Type to search..."
+        components={{
+          DropdownIndicator: () => null,
+          IndicatorSeparator: () => <Search className="pr-3" size={28} />,
+        }}
+        onChange={handleSelect as any}
       />
-      <div
-        className="fixed z-50 bg-popover transition-all duration-200"
-        style={{
-          top: position.y + position.height + 5,
-          left: position.x - 12,
-          width: 310,
-        }}
-      >
-        {isOpen && <div className="p-4">hello</div>}
+      <div className="mt-4 flex items-center justify-end">
+        <Button
+          variant="outline"
+          onClick={goToLocation}
+          disabled={!selectedOption}
+        >
+          Go To
+        </Button>
       </div>
     </div>
   );
@@ -110,6 +126,7 @@ const FiltersView = () => {
 
   return (
     <div className="p-5">
+      <DestinationSearch />
       <div className="my-6 grid grid-cols-2 gap-4">
         {filters.map((filter) => {
           return (

@@ -5,13 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const debounce = (fn: Function, delay: number) => {
-  let timer: NodeJS.Timeout;
+export const debounce = (
+  fn: (...params: any) => void | Promise<any>,
+  delay: number
+) => {
+  let timeout: NodeJS.Timeout;
 
-  return (...args: any) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      fn(...args);
-    }, delay);
+  return async (...args: any) => {
+    clearTimeout(timeout);
+
+    return new Promise((resolve) => {
+      timeout = setTimeout(() => {
+        resolve(fn(...args));
+      }, delay);
+    });
   };
 };
