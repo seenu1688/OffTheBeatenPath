@@ -1,10 +1,8 @@
-'use client';
+"use client";
 
-import { PropsWithChildren } from 'react';
-import { APIProvider } from '@vis.gl/react-google-maps';
-import { Toaster } from 'sonner';
-
-import { trpcClient } from '@/client';
+import { PropsWithChildren } from "react";
+import { APIProvider } from "@vis.gl/react-google-maps";
+import { Toaster } from "sonner";
 
 const HomeLayout = ({ children }: PropsWithChildren) => {
   return (
@@ -15,4 +13,4 @@ const HomeLayout = ({ children }: PropsWithChildren) => {
   );
 };
 
-export default trpcClient.withTRPC(HomeLayout);
+export default HomeLayout;
