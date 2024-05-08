@@ -1,15 +1,20 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useApiIsLoaded } from "@vis.gl/react-google-maps";
 import { Loader } from "lucide-react";
-
-import MapPreview from "./MapPreview";
-import Sidebar from "./Sidebar";
 
 import { useDestinations } from "./hooks/useDestinations";
 
 import { trpcStandAloneClient } from "@/client";
+
+const MapPreview = dynamic(() => import("./MapPreview"), {
+  ssr: false,
+});
+const Sidebar = dynamic(() => import("./Sidebar"), {
+  ssr: false,
+});
 
 const MapPlanner = () => {
   const isApiLoaded = useApiIsLoaded();
