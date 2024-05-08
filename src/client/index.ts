@@ -1,14 +1,14 @@
-import { httpLink } from '@trpc/client';
-import { createTRPCNext } from '@trpc/next';
-import { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
-import superjson from 'superjson';
+import { httpLink, createTRPCClient } from "@trpc/client";
+import { createTRPCNext } from "@trpc/next";
+import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import superjson from "superjson";
 
-import { AppRouter } from '@/server';
+import { AppRouter } from "@/server";
 
 function getBaseUrl() {
-  if (typeof window !== 'undefined')
+  if (typeof window !== "undefined")
     // browser should use relative path
-    return '';
+    return "";
 
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
 
@@ -46,6 +46,15 @@ export const trpcClient = createTRPCNext<AppRouter>({
   },
   transformer: superjson,
   ssr: false,
+});
+
+export const trpcStandAloneClient = createTRPCClient<AppRouter>({
+  links: [
+    httpLink({
+      url: `${getBaseUrl()}/api/trpc`,
+      transformer: superjson,
+    }),
+  ],
 });
 
 export type RouterInput = inferRouterInputs<AppRouter>;

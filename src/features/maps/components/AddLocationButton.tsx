@@ -44,7 +44,7 @@ const AddLocationButton = ({ type, onOpenChange, locationId }: Props) => {
       label: location.name,
       value: location.placeId,
     };
-  }, [locationId]);
+  }, [locationId, locations]);
 
   return (
     <Dialog

@@ -13,6 +13,7 @@ import {
 import Directions from "./fragments/Directions";
 
 import { Location, useLocations } from "./hooks/useLocations";
+import DestinationMarkers from "./fragments/DestinationMarkers";
 
 const DEFAULT_CENTER = {
   lat: 45.6823097,
@@ -92,6 +93,7 @@ const MapPreview = () => {
           );
         })}
         <Directions />
+        <DestinationMarkers />
       </Map>
     </div>
   );
