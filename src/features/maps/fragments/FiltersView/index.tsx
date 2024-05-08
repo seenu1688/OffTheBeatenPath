@@ -61,8 +61,17 @@ const DestinationSearch = () => {
 
     const destination = destinations.find((d) => d.id === selectedOption.value);
 
-    if (!destination) {
-      toast.error("Destination don't have valid co ordinates");
+    if (
+      !destination ||
+      !destination.geolocation.lat ||
+      !destination.geolocation.lng
+    ) {
+      toast.error("Destination don't have valid co-ordinates", {
+        style: {
+          backgroundColor: "#ff0000",
+          color: "#fff",
+        },
+      });
       return;
     }
 
