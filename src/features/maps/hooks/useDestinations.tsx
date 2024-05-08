@@ -1,7 +1,8 @@
-import { useMemo, useDeferredValue } from "react";
+import { useEffect, useMemo } from "react";
 import { create } from "zustand";
 
 import { Destination } from "@/common/types";
+import { toast } from "sonner";
 
 export type FilterType = "destinations" | "activities" | "lodging" | "other";
 
@@ -57,10 +58,9 @@ const otherFilters = ["transportation", "food & beverage", "guide service"];
 export const useFilteredDestinations = () => {
   const destinations = useDestinations((state) => state.destinations);
   const filters = useDestinationFilters((state) => state.filters);
-  const fills = useDeferredValue(filters);
 
   const data = useMemo(() => {
-    let _filters = [...fills];
+    let _filters = [...filters];
 
     if (_filters.includes("other")) {
       _filters = [..._filters, ...otherFilters];
@@ -73,7 +73,18 @@ export const useFilteredDestinations = () => {
     return destinations.filter((destination) => {
       return _filters.includes(destination.vendorType);
     });
-  }, [destinations, fills]);
+  }, [destinations, filters]);
+
+  useEffect(() => {
+    if (data.length === 0) {
+      return;
+    }
+
+    toast.info(`Found ${data.length} destinations.`, {
+      dismissible: true,
+      id: "filtered-destinations",
+    });
+  }, [data]);
 
   return data;
 };

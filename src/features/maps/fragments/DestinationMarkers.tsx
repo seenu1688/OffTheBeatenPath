@@ -1,91 +1,56 @@
-import { useEffect, useRef, useState } from "react";
-import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import { useEffect, useRef } from "react";
+import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import type { Marker } from "@googlemaps/markerclusterer";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
 import { useFilteredDestinations } from "../hooks/useDestinations";
 
 const DestinationMarkers = () => {
-  const destinations = useFilteredDestinations();
   const map = useMap();
-  const [markers, setMarkers] = useState<{ [key: string]: Marker }>({});
+  const markers = useMapsLibrary("marker");
   const clusterer = useRef<MarkerClusterer | null>(null);
+  const destinations = useFilteredDestinations();
+  const markersRef = useRef<{ [key: string]: Marker }>({});
 
-  console.log(destinations);
-
-  // Initialize MarkerClusterer
   useEffect(() => {
-    if (!map) return;
+    if (!map || !markers) return;
     if (!clusterer.current) {
-      //   const svg = window.btoa(`
-      //     <svg fill="#edba31" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
-      //     <circle cx="120" cy="120" opacity="1" r="70" />
-      //     <circle cx="120" cy="120" opacity=".7" r="90" />
-      //     <circle cx="120" cy="120" opacity=".3" r="110" />
-      //     <circle cx="120" cy="120" opacity=".2" r="130" />
-      //     </svg>`);
-
-      //   const renderer = {
-      //     render: ({ count, position }) =>
-      //       new google.maps.Marker({
-      //         label: {
-      //           text: String(count),
-      //           color: "#263184",
-      //           fontSize: "14px",
-      //           fontWeight: "600",
-      //         },
-      //         icon: {
-      //           url: `data:image/svg+xml;base64,${svg}`,
-      //           scaledSize: new google.maps.Size(45, 45),
-      //         },
-      //         position,
-      //         // adjust zIndex to be above other markers
-      //         zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
-      //       }),
-      //   };
-
       clusterer.current = new MarkerClusterer({
         map,
       });
     }
-  }, [map]);
 
-  // Update markers
-  useEffect(() => {
-    clusterer.current?.clearMarkers();
-    clusterer.current?.addMarkers(Object.values(markers));
-  }, [markers]);
+    const elements = destinations
+      .map((destination) => {
+        const { lat, lng } = destination.geolocation || {};
 
-  const setMarkerRef = (marker: Marker | null, key: string) => {
-    if (marker && markers[key]) return;
-    if (!marker && !markers[key]) return;
+        if (!lat || !lng) {
+          return null;
+        }
 
-    setMarkers((prev) => {
-      if (marker) {
-        return { ...prev, [key]: marker };
-      } else {
-        const newMarkers = { ...prev };
-        delete newMarkers[key];
-        return newMarkers;
-      }
-    });
-  };
+        if (markersRef.current[destination.id]) {
+          return markersRef.current[destination.id];
+        }
 
-  return destinations.map((destination) => {
-    const { lat, lng } = destination.geolocation || {};
+        return (markersRef.current[destination.id] =
+          new markers.AdvancedMarkerElement({
+            map,
+            position: destination.geolocation,
+            title: destination.name,
+          }));
+      })
+      .filter(
+        (element) => element !== null
+      ) as google.maps.marker.AdvancedMarkerElement[];
 
-    if (!lat || !lng) {
-      return null;
-    }
+    if (elements.length > 0) clusterer.current?.addMarkers(elements);
 
-    return (
-      <AdvancedMarker
-        key={destination.id}
-        ref={(marker) => setMarkerRef(marker, destination.id)}
-        position={destination.geolocation}
-      />
-    );
-  });
+    return () => {
+      clusterer.current?.clearMarkers();
+    };
+  }, [map, markers, destinations]);
+
+  return null;
 };
 
 export default DestinationMarkers;
