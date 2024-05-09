@@ -8,6 +8,7 @@ export type PlannerState = {
   endDate: Date;
   dayWidth: number;
   width: number;
+  dayCount: number;
 };
 
 export const usePlanner = (departure: Departure) => {
@@ -20,7 +21,8 @@ export const usePlanner = (departure: Departure) => {
       startDate,
       endDate,
       dayWidth: 240,
-      width: dayCount * 240,
+      width: dayCount * 240 + 2 * 240,
+      dayCount,
     };
   });
 

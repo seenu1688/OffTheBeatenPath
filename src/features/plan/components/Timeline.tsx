@@ -34,13 +34,12 @@ const Timeline = (props: Props) => {
     () => getDateRanges(startDate, endDate),
     [startDate, endDate]
   );
-  const containerWidth = width + 2 * dayWidth;
 
   return (
     <div
       className="relative h-full w-full"
       style={{
-        width: `${containerWidth}px`,
+        width: `${width}px`,
       }}
     >
       <div
@@ -49,7 +48,7 @@ const Timeline = (props: Props) => {
           gridTemplateColumns: `repeat(${ranges.length + 1}, ${dayWidth}px)`,
         }}
       >
-        <div className="sticky left-0 h-full w-full bg-white"></div>
+        <div className="sticky left-0 h-full w-full "></div>
         {ranges.map((date) => (
           <div
             key={date.id}
@@ -61,7 +60,7 @@ const Timeline = (props: Props) => {
         ))}
       </div>
       <GridLineLabel
-        className={cn("absolute bottom-[5px] -translate-x-1/2")}
+        className={cn("absolute bottom-[5px] -translate-x-[48%]")}
         style={{
           left: `${dayWidth}px`,
         }}
@@ -71,7 +70,7 @@ const Timeline = (props: Props) => {
       <GridLineLabel
         className={cn("absolute bottom-[5px] -translate-x-1/2")}
         style={{
-          left: `${width + dayWidth}px`,
+          left: `${width - dayWidth}px`,
         }}
         label="Departure"
         icon={<Luggage size={14} />}

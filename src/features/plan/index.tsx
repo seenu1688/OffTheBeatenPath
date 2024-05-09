@@ -2,6 +2,7 @@
 
 import PlannerHeader from "./components/PlannerHeader";
 import Timeline from "./components/Timeline";
+import GanttView from "./GanttView";
 
 import { usePlanner } from "./hooks/usePlanner";
 
@@ -21,11 +22,12 @@ const DeparturePlanner = (props: Props) => {
       <PlannerHeader departure={props.departure} />
       <div
         className={cn(
-          "grid h-[calc(100vh-62px)] grid-rows-[48px_1fr]",
+          "grid h-auto grid-rows-[48px_1fr]",
           "overflow-x-auto overflow-y-hidden"
         )}
       >
         <Timeline state={state} />
+        <GanttView state={state} />
       </div>
     </div>
   );
