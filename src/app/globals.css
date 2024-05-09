@@ -102,3 +102,32 @@
   border-color: hsl(var(--tooltip));
   border-style: dashed;
 }
+
+.tooltip:before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip[data-place="bottom"]:before {
+  border-top: 12px solid hsl(var(--tooltip));
+  bottom: -12px;
+}
+
+.tooltip[data-place="top"]:before {
+  border-bottom: 12px solid hsl(var(--tooltip));
+  top: -12px;
+}
+
+.tooltip-primary[data-place="bottom"]:before {
+  border-top-color: hsl(var(--primary));
+}
+
+.tooltip-primary[data-place="top"]:before {
+  border-bottom-color: hsl(var(--primary));
+}
