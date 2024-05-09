@@ -1,6 +1,11 @@
 "use client";
 
-import { redirect, useParams, usePathname } from "next/navigation";
+import {
+  RedirectType,
+  redirect,
+  useParams,
+  usePathname,
+} from "next/navigation";
 
 import Loader from "@/components/Loader";
 
@@ -25,7 +30,7 @@ const DeparturePage = () => {
     );
   }
 
-  return redirect(`${pathName}/map`);
+  return redirect(`${pathName}/map`, RedirectType.replace);
 };
 
 export default DeparturePage;

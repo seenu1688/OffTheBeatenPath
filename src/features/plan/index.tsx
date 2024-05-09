@@ -1,6 +1,11 @@
 "use client";
 
-import { Button } from "@/components/button";
+import PlannerHeader from "./components/PlannerHeader";
+import Timeline from "./components/Timeline";
+
+import { usePlanner } from "./hooks/usePlanner";
+
+import { cn } from "@/lib/utils";
 
 import { Departure } from "@/common/types";
 
@@ -9,16 +14,19 @@ type Props = {
 };
 
 const DeparturePlanner = (props: Props) => {
+  const state = usePlanner(props.departure);
+
   return (
     <div className="overflow-hidden">
-      <header className="sticky top-0 z-10 flex items-center justify-between bg-[#f7f7f7] px-6 py-3">
-        <p className="w-[20ch] overflow-hidden overflow-ellipsis whitespace-nowrap text-lg font-medium">
-          {props.departure.tripName}
-        </p>
-        <div className="flex items-center">
-          <Button size="sm">Create</Button>
-        </div>
-      </header>
+      <PlannerHeader departure={props.departure} />
+      <div
+        className={cn(
+          "grid h-[calc(100vh-62px)] grid-rows-[48px_1fr]",
+          "overflow-x-auto overflow-y-hidden"
+        )}
+      >
+        <Timeline state={state} />
+      </div>
     </div>
   );
 };
