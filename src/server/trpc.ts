@@ -1,8 +1,8 @@
-import { TRPCError, initTRPC } from '@trpc/server';
-import superjson from 'superjson';
+import { TRPCError, initTRPC } from "@trpc/server";
+import superjson from "superjson";
 
-import { Context } from './context';
-import { salesforceClient } from './client';
+import { Context } from "./context";
+import { salesforceClient } from "./client";
 
 const t = initTRPC.context<Context>().create({
   errorFormatter({ shape }) {
@@ -16,10 +16,11 @@ export const router = t.router;
 export const publicProcedure = t.procedure;
 
 export const authProcedure = publicProcedure.use(async (opts) => {
-  if (!opts.ctx.session) {
+  // FIXME: need to check if the session is valid
+  if (!opts.ctx.session || !opts.ctx.session.access_token) {
     throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'Request is not authorised',
+      code: "UNAUTHORIZED",
+      message: "Request is not authorised",
     });
   }
 

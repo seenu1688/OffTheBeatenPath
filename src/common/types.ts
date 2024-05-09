@@ -10,3 +10,12 @@ export type Destination = {
   vendorType: string;
   vendorName: string;
 };
+
+// departures types
+export type Departure = {
+  id: string;
+  name: string;
+  tripName: string;
+  startDate: string;
+  endDate: string;
+};
