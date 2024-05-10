@@ -1,6 +1,7 @@
-import { filter } from "@/lib/utils";
-import { Bike, Bus, Car, PersonStanding, Plane } from "lucide-react";
 import { create } from "zustand";
+import { Bike, Bus, Car, PersonStanding, Plane } from "lucide-react";
+
+import { filter } from "@/lib/utils";
 
 export const travelModeMap = {
   DRIVING: {
@@ -79,6 +80,14 @@ export const useLocations = create<LocationsState>((set) => {
           return {
             locations: [location],
           };
+        }
+
+        const exists = state.locations.find(
+          (loc) => loc.lat === location.lat || loc.lng === location.lng
+        );
+
+        if (!!exists) {
+          return state;
         }
 
         const length = state.locations.length;

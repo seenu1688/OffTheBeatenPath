@@ -4,6 +4,9 @@ import type { Marker } from "@googlemaps/markerclusterer";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
 import { useFilteredDestinations } from "../hooks/useDestinations";
+import { useLocations } from "../hooks/useLocations";
+
+import { Destination } from "@/common/types";
 
 const DestinationMarkers = () => {
   const map = useMap();
@@ -12,6 +15,7 @@ const DestinationMarkers = () => {
   const clusterer = useRef<MarkerClusterer | null>(null);
   const destinations = useFilteredDestinations();
   const markersRef = useRef<{ [key: string]: Marker }>({});
+  const addLocation = useLocations((state) => state.addLocation);
 
   useEffect(() => {
     if (!map || !markers || !mapsLibrary) return;
@@ -43,9 +47,39 @@ const DestinationMarkers = () => {
         content: pin.element,
       });
 
+      const createInfoContent = (destination: Destination) => {
+        const container = document.createElement("div");
+        container.style.padding = "8px";
+        container.style.display = "flex";
+        container.style.gap = "8px";
+
+        const title = document.createElement("span");
+        title.textContent = destination.name;
+        container.appendChild(title);
+
+        const button = document.createElement("button");
+        button.textContent = "+ Add";
+        button.style.color = "#f97415";
+        button.style.fontWeight = "bold";
+
+        button.addEventListener("click", () => {
+          addLocation({
+            id: destination.id,
+            name: destination.name,
+            lat: destination.geolocation!.lat,
+            lng: destination.geolocation!.lng,
+            placeId: "",
+          });
+        });
+
+        container.appendChild(button);
+
+        return container;
+      };
+
       marker.addListener("click", () => {
         infoWindow.close();
-        infoWindow.setContent(destination.name);
+        infoWindow.setContent(createInfoContent(destination));
         infoWindow.open(map, marker);
       });
 
@@ -59,7 +93,7 @@ const DestinationMarkers = () => {
     return () => {
       clusterer.current?.clearMarkers();
     };
-  }, [map, markers, mapsLibrary, destinations]);
+  }, [map, markers, mapsLibrary, destinations, addLocation]);
 
   return null;
 };
