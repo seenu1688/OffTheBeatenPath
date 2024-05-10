@@ -19,6 +19,12 @@ export const authConfig = {
     async session({ session, token }) {
       return { ...session, ...token };
     },
+    redirect: async ({ url, baseUrl }) => {
+      return url.startsWith(baseUrl) ? url : baseUrl;
+    },
+  },
+  pages: {
+    signIn: "/signin",
   },
   trustHost: true,
 } satisfies NextAuthConfig;
