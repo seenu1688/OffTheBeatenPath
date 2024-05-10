@@ -47,8 +47,8 @@ export const useDestinations = create<DestinationState>((set, get) => ({
 
 export const useDestinationFilters = create<DestinationFilters>((set, get) => {
   return {
-    filters: ["destinations", "activities", "lodging", "other"],
-    enabled: false,
+    filters: [],
+    enabled: true,
     setFilters: (filter) => set({ filters: [...get().filters, filter] }),
     removeFilter: (filter) => {
       set({ filters: get().filters.filter((f) => f !== filter) });
