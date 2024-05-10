@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from "react";
 import { create } from "zustand";
+import { toast } from "sonner";
 
 import { Destination } from "@/common/types";
-import { toast } from "sonner";
 
 export type FilterType = "destinations" | "activities" | "lodging" | "other";
 
@@ -48,7 +48,7 @@ export const useDestinations = create<DestinationState>((set, get) => ({
 export const useDestinationFilters = create<DestinationFilters>((set, get) => {
   return {
     filters: ["destinations", "activities", "lodging", "other"],
-    enabled: true,
+    enabled: false,
     setFilters: (filter) => set({ filters: [...get().filters, filter] }),
     removeFilter: (filter) => {
       set({ filters: get().filters.filter((f) => f !== filter) });
