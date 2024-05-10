@@ -47,7 +47,10 @@ const DestinationMarkers = () => {
         content: pin.element,
       });
 
-      const createInfoContent = (destination: Destination) => {
+      const createInfoContent = (
+        destination: Destination,
+        callback: () => void
+      ) => {
         const container = document.createElement("div");
         container.style.padding = "8px";
         container.style.display = "flex";
@@ -70,6 +73,8 @@ const DestinationMarkers = () => {
             lng: destination.geolocation!.lng,
             placeId: "",
           });
+
+          callback();
         });
 
         container.appendChild(button);
@@ -79,7 +84,11 @@ const DestinationMarkers = () => {
 
       marker.addListener("click", () => {
         infoWindow.close();
-        infoWindow.setContent(createInfoContent(destination));
+        infoWindow.setContent(
+          createInfoContent(destination, () => {
+            infoWindow.close();
+          })
+        );
         infoWindow.open(map, marker);
       });
 
