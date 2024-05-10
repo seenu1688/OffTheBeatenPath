@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useCallback, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { useMap } from "@vis.gl/react-google-maps";
 import AsyncSelect from "react-select/async";
+import { Search } from "lucide-react";
+import { toast } from "sonner";
 
 import FilterItem from "./FilterItem";
 import { Button } from "@/components/button";
@@ -15,8 +17,7 @@ import {
 } from "../../hooks/useDestinations";
 
 import { debounce } from "@/lib/utils";
-import { toast } from "sonner";
-import { useMap } from "@vis.gl/react-google-maps";
+import FilterToggle from "./FilterToggle";
 
 const DestinationSearch = () => {
   const destinations = useFilteredDestinations();
@@ -135,6 +136,9 @@ const FiltersView = () => {
 
   return (
     <div className="p-5">
+      <div className="mb-6">
+        <FilterToggle />
+      </div>
       <DestinationSearch />
       <div className="my-6 grid grid-cols-2 gap-4">
         {filters.map((filter) => {

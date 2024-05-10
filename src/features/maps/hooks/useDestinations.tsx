@@ -13,8 +13,10 @@ type DestinationState = {
 
 type DestinationFilters = {
   filters: string[];
+  enabled: boolean;
   setFilters: (filter: FilterType) => void;
   removeFilter: (filter: FilterType) => void;
+  toggleFilters: (enabled: boolean) => void;
 };
 
 export const filters = [
@@ -46,9 +48,13 @@ export const useDestinations = create<DestinationState>((set, get) => ({
 export const useDestinationFilters = create<DestinationFilters>((set, get) => {
   return {
     filters: ["destinations", "activities", "lodging", "other"],
+    enabled: true,
     setFilters: (filter) => set({ filters: [...get().filters, filter] }),
     removeFilter: (filter) => {
       set({ filters: get().filters.filter((f) => f !== filter) });
+    },
+    toggleFilters: (enabled: boolean) => {
+      set({ enabled });
     },
   };
 });
@@ -58,8 +64,13 @@ const otherFilters = ["transportation", "food & beverage", "guide service"];
 export const useFilteredDestinations = () => {
   const destinations = useDestinations((state) => state.destinations);
   const filters = useDestinationFilters((state) => state.filters);
+  const enabled = useDestinationFilters((state) => state.enabled);
 
   const data = useMemo(() => {
+    if (!enabled) {
+      return [];
+    }
+
     let _filters = [...filters];
 
     if (_filters.includes("other")) {
@@ -73,7 +84,7 @@ export const useFilteredDestinations = () => {
     return destinations.filter((destination) => {
       return _filters.includes(destination.vendorType);
     });
-  }, [destinations, filters]);
+  }, [destinations, filters, enabled]);
 
   useEffect(() => {
     if (data.length === 0) {

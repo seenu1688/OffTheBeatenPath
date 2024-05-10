@@ -92,6 +92,7 @@ const AddLocationButton = ({ type, onOpenChange, locationId }: Props) => {
                   lng: location!.geometry!.location!.lng(),
                   placeId: location?.place_id ?? ""!,
                 });
+                setLocation(null);
               }}
             >
               Add Location

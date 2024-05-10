@@ -11,6 +11,7 @@ import LocationCard from "./components/LocationCard";
 import { useLocations, Location } from "./hooks/useLocations";
 import { useDistance } from "./hooks/useDistance";
 import { debounce } from "@/lib/utils";
+import FilterToggle from "./fragments/FiltersView/FilterToggle";
 
 const TravelRoutes = () => {
   const { locations, deleteLocation, updateLocation, setLocations } =
@@ -64,39 +65,44 @@ const TravelRoutes = () => {
   };
 
   return (
-    <Reorder.Group
-      axis="y"
-      values={locations}
-      onReorder={callbackRef.current}
-      className="h-auto w-full"
-    >
-      {locations.map((location, index) => {
-        return (
-          <LocationCard
-            key={location.id}
-            location={location}
-            order={index + 1}
-            onAction={handleAction}
-            isLast={index === locations.length - 1}
-          />
-        );
-      })}
-      <div className="flex justify-center pt-5">
-        <AddLocationButton
-          type={
-            locations.length === 0
-              ? LocationType.Origin
-              : LocationType.Destination
-          }
-          onOpenChange={(open) => {
-            if (!open && !!locationId) {
-              setLocationId(null);
-            }
-          }}
-          locationId={locationId}
-        />
+    <div className="h-auto w-full">
+      <div className="mb-6">
+        <FilterToggle />
       </div>
-    </Reorder.Group>
+      <Reorder.Group
+        axis="y"
+        values={locations}
+        onReorder={callbackRef.current}
+        className="h-auto w-full"
+      >
+        {locations.map((location, index) => {
+          return (
+            <LocationCard
+              key={location.id}
+              location={location}
+              order={index + 1}
+              onAction={handleAction}
+              isLast={index === locations.length - 1}
+            />
+          );
+        })}
+        <div className="flex justify-center pt-5">
+          <AddLocationButton
+            type={
+              locations.length === 0
+                ? LocationType.Origin
+                : LocationType.Destination
+            }
+            onOpenChange={(open) => {
+              if (!open && !!locationId) {
+                setLocationId(null);
+              }
+            }}
+            locationId={locationId}
+          />
+        </div>
+      </Reorder.Group>
+    </div>
   );
 };
 
