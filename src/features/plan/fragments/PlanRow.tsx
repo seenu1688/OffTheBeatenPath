@@ -53,8 +53,8 @@ const PlanRow = ({ plan, data, state }: Props) => {
                     style={{
                       width: `${width - 5}px`,
                       transform: `translateX(${position}px)`,
-                      background: plan.color,
-                      borderColor: "#7466CF",
+                      background: plan.accentColor,
+                      borderColor: plan.primaryColor,
                     }}
                     key={segment.id}
                     className="z-1 absolute cursor-pointer rounded-sm border-1.5  px-3 py-1 text-left text-xs"
