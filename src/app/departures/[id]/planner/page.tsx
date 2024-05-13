@@ -14,7 +14,20 @@ const PlannerView = dynamic(() => import("@/features/plan"), {
 const PlannerPage = () => {
   const params = useParams<{ id: string }>();
 
-  const { data } = trpcClient.departures.getById.useQuery(params.id);
+  const { data, error, isLoading, isError } =
+    trpcClient.departures.getById.useQuery(params.id);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        {error.message}
+      </div>
+    );
+  }
 
   if (!data) return <Loader />;
 

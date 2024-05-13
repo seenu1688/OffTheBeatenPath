@@ -1,77 +1,41 @@
-import { tripPlans } from "./constants";
+import GridTileArea from "./components/GridTileArea";
+import GridLines from "./components/GridLines";
+import PlanRow from "./fragments/PlanRow";
+
+import Loader from "@/components/Loader";
 
 import { PlannerState } from "./hooks/usePlanner";
 
+import { trpcClient } from "@/client";
+
+import { tripPlans } from "./constants";
+
 type Props = {
   state: PlannerState;
-};
-
-const GridTileArea = (props: { count: number }) => {
-  return Array.from({ length: props.count }).map((_, index) => {
-    return (
-      <div
-        key={index}
-        className="absolute bottom-0 top-0 w-[240px]"
-        style={{
-          left: `${(index + 1) * 240}px`,
-          backgroundColor: index % 2 === 0 ? "#fff6e0" : "transparent",
-          zIndex: -1,
-        }}
-      />
-    );
-  });
-};
-
-const GridLines = ({ dayWidth }: { dayWidth: number }) => {
-  return (
-    <>
-      <div
-        className="absolute bottom-0 top-0 h-full translate-x-1/2 bg-black"
-        style={{
-          left: `${dayWidth}px`,
-          width: 2,
-          zIndex: -1,
-        }}
-      />
-      <div
-        className="absolute bottom-0 top-0 h-full translate-x-1/2 bg-black"
-        style={{
-          right: `${dayWidth}px`,
-          width: 2,
-        }}
-      />
-    </>
-  );
+  departureId: string;
 };
 
 const GanttView = (props: Props) => {
   const { width, dayWidth, dayCount } = props.state;
+
+  const { data, isLoading } = trpcClient.departures.getSegments.useQuery(
+    props.departureId
+  );
+
+  if (isLoading || !data) return <Loader />;
 
   return (
     <div
       style={{
         width: `${width}px`,
       }}
-      className="relative h-full"
+      className="relative h-full select-none"
     >
-      {tripPlans.map((plan) => (
-        <div
-          className="grid h-16 w-full border-b-1.5 border-b-[#C59D89]"
-          key={plan.id}
-          style={{
-            gridTemplateColumns: `${dayWidth}px 1fr ${dayWidth}px`,
-          }}
-        >
-          <div className="sticky left-0 h-full  bg-[#EAEADD]">
-            <div className="flex h-full items-center gap-2 px-10">
-              {<plan.Icon size={20} />}
-              {plan.title}
-            </div>
-          </div>
-          <div></div>
-          <div></div>
-        </div>
-      ))}
+      {tripPlans.map((plan) => {
+        return (
+          <PlanRow key={plan.id} state={props.state} plan={plan} data={data} />
+        );
+      })}
       <GridTileArea count={dayCount} />
       <GridLines dayWidth={dayWidth} />
     </div>

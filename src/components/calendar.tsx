@@ -86,4 +86,6 @@ const CalendarPicker = (
   );
 };
 
+CalendarPicker.displayName = "CalendarPicker";
+
 export { Calendar, CalendarPicker };

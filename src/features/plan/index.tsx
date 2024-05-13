@@ -22,12 +22,12 @@ const DeparturePlanner = (props: Props) => {
       <PlannerHeader departure={props.departure} />
       <div
         className={cn(
-          "grid h-auto grid-rows-[48px_1fr]",
+          "grid h-auto grid-rows-[60px_1fr]",
           "overflow-x-auto overflow-y-hidden"
         )}
       >
         <Timeline state={state} />
-        <GanttView state={state} />
+        <GanttView state={state} departureId={props.departure.id} />
       </div>
     </div>
   );

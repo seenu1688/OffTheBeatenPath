@@ -30,7 +30,7 @@ const DeparturePage = () => {
     );
   }
 
-  return redirect(`${pathName}/map`, RedirectType.replace);
+  return redirect(`${pathName}/planner`, RedirectType.replace);
 };
 
 export default DeparturePage;
