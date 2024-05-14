@@ -37,18 +37,18 @@ const Timeline = (props: Props) => {
 
   return (
     <div
-      className="relative h-full w-full"
+      className="sticky top-0 z-20 h-full w-full bg-white"
       style={{
         width: `${width}px`,
       }}
     >
       <div
-        className="relative grid h-full w-full border-b-2 border-[#C59D89] text-sm"
+        className="relative grid h-full w-full border-b-2 border-[#C59D89] text-sm last:border-b-0"
         style={{
           gridTemplateColumns: `repeat(${ranges.length + 1}, ${dayWidth}px)`,
         }}
       >
-        <div className="sticky left-0 h-full w-full "></div>
+        <div className="sticky left-0 z-50 h-full w-full"></div>
         {ranges.map((date) => (
           <div
             key={date.id}

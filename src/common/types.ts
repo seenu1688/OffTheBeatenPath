@@ -53,6 +53,7 @@ export type DeparturesResponse = {
   segments: Segment[];
   destinations: DestinationAssignment[];
   reservations: Reservation[];
+  lodging: any[];
   routes: any[];
   activities: any[];
   guides: any[];

@@ -101,6 +101,7 @@ export const fetchSegmentsByDepartureId = ({
         transportation: [],
         other: [],
         routes: [],
+        lodging: [],
       };
 
       if (result.totalSize === 0) {

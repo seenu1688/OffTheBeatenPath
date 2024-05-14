@@ -18,11 +18,12 @@ type Props = {
 const GanttView = (props: Props) => {
   const { width, dayWidth, dayCount } = props.state;
 
-  const { data, isLoading } = trpcClient.departures.getSegments.useQuery(
-    props.departureId
-  );
+  const { data, isLoading, error, isError } =
+    trpcClient.departures.getSegments.useQuery(props.departureId);
 
   if (isLoading || !data) return <Loader />;
+
+  if (error || isError) return <div>{error.message}</div>;
 
   return (
     <div

@@ -8,6 +8,7 @@ import {
   MapPin,
   CookingPot,
   CircleDot,
+  Hotel,
 } from "lucide-react";
 
 export const tripPlans = [
@@ -29,6 +30,13 @@ export const tripPlans = [
     id: "routes",
     title: "Routes",
     Icon: Route,
+    accentColor: "#D3F8F0",
+    primaryColor: "#0B8B70",
+  },
+  {
+    id: "lodging",
+    title: "Lodging",
+    Icon: Hotel,
     accentColor: "#D3F8F0",
     primaryColor: "#0B8B70",
   },

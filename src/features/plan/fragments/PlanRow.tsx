@@ -36,7 +36,7 @@ const PlanRow = ({ plan, data, state }: Props) => {
       <div className="flex flex-col py-2">
         {gridData.map((line, index) => {
           return (
-            <div key={index} className="relative flex h-[40px]">
+            <div key={index} className="relative flex h-[40px] items-center">
               {line.map((segment, i) => {
                 const { startDate, endDate } = segment;
 
