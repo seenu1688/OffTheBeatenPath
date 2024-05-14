@@ -5,7 +5,9 @@ import { useParams } from "next/navigation";
 
 import Loader from "@/components/Loader";
 
-import { trpcClient } from "@/client";
+import { trpcClient, trpcStandAloneClient } from "@/client";
+import { useDestinations } from "@/features/maps/hooks/useDestinations";
+import { useCallback, useEffect } from "react";
 
 const PlannerView = dynamic(() => import("@/features/plan"), {
   loading: () => <Loader />,
@@ -16,6 +18,25 @@ const PlannerPage = () => {
 
   const { data, error, isLoading, isError } =
     trpcClient.departures.getById.useQuery(params.id);
+
+  const setDestinations = useDestinations((state) => state.setDestinations);
+
+  const loadData = useCallback(() => {
+    trpcStandAloneClient.destinations.list.query().then((data) => {
+      setDestinations((prev) => {
+        return [...prev, ...data];
+      });
+    });
+    trpcStandAloneClient.destinations.accounts.query().then((data) => {
+      setDestinations((prev) => {
+        return [...prev, ...data];
+      });
+    });
+  }, [setDestinations]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (isLoading) {
     return <Loader />;

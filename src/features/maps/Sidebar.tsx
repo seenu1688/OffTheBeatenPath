@@ -44,7 +44,7 @@ const Sidebar = () => {
       <button
         aria-label="Toggle Sidebar"
         className={cn(
-          "fixed left-5 top-5 z-[10] transition-transform duration-200 ease-in-out data-[state=open]:translate-x-[350px]",
+          "absolute left-5 top-5 z-[10] transition-transform duration-200 ease-in-out data-[state=open]:translate-x-[350px]",
           "cursor-pointer rounded-sm bg-primary px-2 py-1 text-primary-foreground shadow-md"
         )}
         data-state={open ? "open" : "closed"}

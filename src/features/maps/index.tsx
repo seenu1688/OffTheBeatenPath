@@ -18,24 +18,6 @@ const Sidebar = dynamic(() => import("./Sidebar"), {
 
 const MapPlanner = () => {
   const isApiLoaded = useApiIsLoaded();
-  const setDestinations = useDestinations((state) => state.setDestinations);
-
-  const loadData = useCallback(() => {
-    trpcStandAloneClient.destinations.list.query().then((data) => {
-      setDestinations((prev) => {
-        return [...prev, ...data];
-      });
-    });
-    trpcStandAloneClient.destinations.accounts.query().then((data) => {
-      setDestinations((prev) => {
-        return [...prev, ...data];
-      });
-    });
-  }, [setDestinations]);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
 
   if (!isApiLoaded) {
     return (
@@ -46,7 +28,7 @@ const MapPlanner = () => {
   }
 
   return (
-    <div className="flex h-full w-full">
+    <div className="relative flex h-full w-full">
       <Sidebar />
       <MapPreview />
     </div>

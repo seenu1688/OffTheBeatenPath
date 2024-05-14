@@ -56,7 +56,7 @@ const MapPreview = () => {
   };
 
   return (
-    <div className="flex-1 transition-all duration-200">
+    <div className="flex-1">
       <Map
         defaultZoom={12}
         mapId={process.env.NEXT_PUBLIC_GOOGLE_MAP_ID}
