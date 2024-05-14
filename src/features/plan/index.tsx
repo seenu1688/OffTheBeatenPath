@@ -28,7 +28,7 @@ const DeparturePlanner = (props: Props) => {
         <div
           className={cn(
             "relative grid h-auto grid-rows-[60px_1fr]",
-            "duration-400 h-full w-full overflow-x-auto overflow-y-auto transition-all ease-in-out",
+            "h-full w-full overflow-x-auto overflow-y-auto transition-all duration-200 ease-in-out",
             showMap && "h-[50vh]"
           )}
         >
@@ -38,7 +38,7 @@ const DeparturePlanner = (props: Props) => {
             title="Open Map"
             aria-label="Toggle Map"
             className={cn(
-              "absolute bottom-5 right-5 z-[10] duration-200 ease-in-out",
+              "fixed bottom-10 right-10 z-[10] duration-200 ease-in-out data-[state=open]:bottom-1/2",
               "cursor-pointer rounded-sm bg-primary px-2 py-1 text-primary-foreground shadow-md"
             )}
             data-state={showMap ? "open" : "closed"}
@@ -49,7 +49,7 @@ const DeparturePlanner = (props: Props) => {
         </div>
         <div
           className={cn(
-            "duration-400 w-full transition-all ease-in-out",
+            "w-full transition-all duration-200 ease-in-out",
             showMap ? "visible h-full" : "invisible h-0"
           )}
         >
