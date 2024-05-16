@@ -13,10 +13,12 @@ type DestinationState = {
 
 type DestinationFilters = {
   filters: string[];
+  ids: string[];
   enabled: boolean;
   setFilters: (filter: FilterType) => void;
   removeFilter: (filter: FilterType) => void;
   toggleFilters: (enabled: boolean) => void;
+  updateIds: (id: string[]) => void;
 };
 
 export const filters = [
@@ -31,6 +33,14 @@ export const filters = [
   {
     name: "Lodging",
     id: "lodging",
+  },
+  {
+    name: "Transportation",
+    id: "transportation",
+  },
+  {
+    name: "Guide Service",
+    id: "guide service",
   },
   {
     name: "Other",
@@ -49,6 +59,7 @@ export const useDestinationFilters = create<DestinationFilters>((set, get) => {
   return {
     filters: [],
     enabled: true,
+    ids: [],
     setFilters: (filter) => set({ filters: [...get().filters, filter] }),
     removeFilter: (filter) => {
       set({ filters: get().filters.filter((f) => f !== filter) });
@@ -56,14 +67,42 @@ export const useDestinationFilters = create<DestinationFilters>((set, get) => {
     toggleFilters: (enabled: boolean) => {
       set({ enabled });
     },
+    updateIds: (ids: string[]) => {
+      set({
+        ids,
+      });
+    },
   };
 });
 
-const otherFilters = ["transportation", "food & beverage", "guide service"];
+const otherFilters = ["food & beverage"];
+
+export const filterDestinations = (props: {
+  destinations: Destination[];
+  filters: string[];
+  ids?: string[];
+}) => {
+  const { destinations, filters, ids = [] } = props;
+
+  if (filters.length === 0) {
+    return destinations;
+  }
+
+  return destinations.filter((destination) => {
+    if (ids.length === 0) {
+      return filters.includes(destination.vendorType);
+    }
+
+    return (
+      filters.includes(destination.vendorType) && ids.includes(destination.id)
+    );
+  });
+};
 
 export const useFilteredDestinations = () => {
   const destinations = useDestinations((state) => state.destinations);
   const filters = useDestinationFilters((state) => state.filters);
+  const ids = useDestinationFilters((state) => state.ids);
   const enabled = useDestinationFilters((state) => state.enabled);
 
   const data = useMemo(() => {
@@ -77,14 +116,8 @@ export const useFilteredDestinations = () => {
       _filters = [..._filters, ...otherFilters];
     }
 
-    if (_filters.length === 0) {
-      return destinations;
-    }
-
-    return destinations.filter((destination) => {
-      return _filters.includes(destination.vendorType);
-    });
-  }, [destinations, filters, enabled]);
+    return filterDestinations({ destinations, filters, ids });
+  }, [destinations, filters, enabled, ids]);
 
   useEffect(() => {
     if (data.length === 0) {
