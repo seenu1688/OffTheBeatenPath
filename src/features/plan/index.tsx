@@ -19,40 +19,45 @@ type Props = {
 
 const DeparturePlanner = (props: Props) => {
   const state = usePlanner(props.departure);
-  const [showMap, setShowMap] = useState(false);
+  const [showPlanner, setShowPlanner] = useState(true);
 
   return (
     <div className="relative overflow-hidden">
-      <PlannerHeader departure={props.departure} />
-      <div className={cn("h-[calc(100vh-64px)] overflow-y-hidden")}>
+      {showPlanner && <PlannerHeader departure={props.departure} />}
+      <div
+        className={cn(
+          "h-[calc(100vh-64px)] overflow-y-hidden",
+          !showPlanner && "h-[100vh]"
+        )}
+      >
         <div
           className={cn(
             "relative grid h-auto grid-rows-[60px_1fr]",
-            "h-full w-full overflow-x-auto overflow-y-auto transition-all duration-200 ease-in-out",
-            showMap && "h-[50vh]"
+            "w-full overflow-x-auto overflow-y-auto transition-all duration-200 ease-in-out",
+            showPlanner ? "visible h-[50vh]" : "invisible h-0"
           )}
         >
           <Timeline state={state} />
           <GanttView state={state} departureId={props.departure.id} />
-          <button
-            title="Open Map"
-            aria-label="Toggle Map"
-            className={cn(
-              "fixed bottom-10 right-10 z-[10] duration-200 ease-in-out data-[state=open]:bottom-1/2",
-              "cursor-pointer rounded-sm bg-primary px-2 py-1 text-primary-foreground shadow-md"
-            )}
-            data-state={showMap ? "open" : "closed"}
-            onClick={setShowMap.bind(null, !showMap)}
-          >
-            {showMap ? <ChevronDown /> : <ChevronUp />}
-          </button>
         </div>
         <div
           className={cn(
-            "w-full transition-all duration-200 ease-in-out",
-            showMap ? "visible h-full" : "invisible h-0"
+            "relative w-full transition-all duration-200 ease-in-out",
+            !showPlanner && "h-full"
           )}
         >
+          <button
+            title="Toggle Planner"
+            aria-label="Toggle Planner"
+            className={cn(
+              "absolute right-10 top-10 z-[10] h-10 duration-200 ease-in-out data-[state=open]:bottom-1/2",
+              "cursor-pointer rounded-sm bg-primary px-2 py-1 text-primary-foreground shadow-md"
+            )}
+            data-state={showPlanner ? "open" : "closed"}
+            onClick={setShowPlanner.bind(null, !showPlanner)}
+          >
+            {showPlanner ? <ChevronUp /> : <ChevronDown />}
+          </button>
           <MapPlanner />
         </div>
       </div>

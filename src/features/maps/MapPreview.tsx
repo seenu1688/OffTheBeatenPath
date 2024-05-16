@@ -65,6 +65,7 @@ const MapPreview = () => {
         mapTypeControlOptions={{
           position: google.maps.ControlPosition.TOP_RIGHT,
         }}
+        mapTypeControl={false}
         defaultCenter={{
           lat: DEFAULT_CENTER.lat,
           lng: DEFAULT_CENTER.lng,
