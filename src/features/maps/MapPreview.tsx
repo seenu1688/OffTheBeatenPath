@@ -76,6 +76,7 @@ const MapPreview = () => {
             <AdvancedMarker
               position={{ lat: location.lat, lng: location.lng }}
               key={location.id}
+              zIndex={100}
             >
               <TooltipProvider>
                 <Tooltip>

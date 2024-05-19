@@ -34,14 +34,14 @@ const DeparturePlanner = (props: Props) => {
           className={cn(
             "relative grid h-auto grid-rows-[60px_1fr]",
             "w-full overflow-x-auto overflow-y-auto",
-            showPlanner ? "visible h-[50%]" : "invisible h-0"
+            showPlanner ? "visible h-[70%]" : "invisible h-0"
           )}
         >
           <Timeline state={state} />
           <GanttView state={state} departureId={props.departure.id} />
         </div>
         <div
-          className={cn("relative h-[50%] w-full", !showPlanner && "h-full")}
+          className={cn("relative h-[30%] w-full", !showPlanner && "h-full")}
         >
           <button
             title="Toggle Planner"
