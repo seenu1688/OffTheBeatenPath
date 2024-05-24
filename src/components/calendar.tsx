@@ -1,14 +1,16 @@
-import * as React from "react";
+import React, { PropsWithChildren } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, Day } from "react-day-picker";
 import {
   PopoverContent,
   PopoverPortal,
   PopoverTrigger,
   Popover,
+  PopoverClose,
 } from "@radix-ui/react-popover";
+import { CalendarIcon } from "lucide-react";
 
-import { buttonVariants } from "./button";
+import { buttonVariants, Button } from "./button";
 
 import { cn } from "@/lib/utils";
 
@@ -18,6 +20,7 @@ function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  components = {},
   ...props
 }: CalendarProps) {
   return (
@@ -61,6 +64,7 @@ function Calendar({
       components={{
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
+        ...components,
       }}
       {...props}
     />
@@ -78,8 +82,17 @@ const CalendarPicker = (
     <Popover>
       <PopoverTrigger asChild={true}>{children}</PopoverTrigger>
       <PopoverPortal>
-        <PopoverContent className="z-[100] mt-2 bg-white">
-          <Calendar {...restProps} />
+        <PopoverContent className="z-[100] mt-2 rounded-md border border-gray-200 bg-white shadow-sm">
+          <Calendar
+            {...restProps}
+            components={{
+              Day: (props) => (
+                <PopoverClose>
+                  <Day {...props} />
+                </PopoverClose>
+              ),
+            }}
+          />
         </PopoverContent>
       </PopoverPortal>
     </Popover>
@@ -88,4 +101,59 @@ const CalendarPicker = (
 
 CalendarPicker.displayName = "CalendarPicker";
 
-export { Calendar, CalendarPicker };
+const DateTimePicker = (
+  props: PropsWithChildren<
+    CalendarProps & {
+      triggerClassName?: string;
+      timepicker?: React.ReactNode;
+      disableCalender?: boolean;
+    }
+  >
+) => {
+  const {
+    children,
+    triggerClassName,
+    timepicker,
+    disableCalender,
+    ...restProps
+  } = props;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild={true}>
+        <Button
+          variant="outline"
+          className={cn(
+            "w-[240px] pl-3 text-left font-normal",
+            triggerClassName
+          )}
+          disabled={disableCalender}
+        >
+          {children}
+          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverPortal>
+        <PopoverContent className="z-[100] mt-2 rounded-md border border-gray-200 bg-white shadow-sm">
+          <Calendar
+            {...restProps}
+            components={{
+              Day: (props) => (
+                <PopoverClose>
+                  <Day {...props} />
+                </PopoverClose>
+              ),
+            }}
+          />
+          {timepicker ? (
+            <div className="border-t border-border p-3">{timepicker}</div>
+          ) : null}
+        </PopoverContent>
+      </PopoverPortal>
+    </Popover>
+  );
+};
+
+DateTimePicker.displayName = "DateTimePicker";
+
+export { Calendar, CalendarPicker, DateTimePicker };
