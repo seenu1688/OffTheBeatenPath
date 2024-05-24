@@ -2,7 +2,7 @@ import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 
 import { Context } from "./context";
-import { salesforceClient } from "./client";
+import { createApexClient, salesforceClient } from "./client";
 
 const t = initTRPC.context<Context>().create({
   errorFormatter({ shape }) {
@@ -28,6 +28,10 @@ export const authProcedure = publicProcedure.use(async (opts) => {
     ctx: {
       ...opts.ctx,
       salesforceClient: salesforceClient(opts.ctx.session),
+      apexClient: createApexClient({
+        accessToken: opts.ctx.session.access_token,
+        instanceUrl: opts.ctx.session.instance_url,
+      }),
     },
     input: opts.input,
   });

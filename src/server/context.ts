@@ -1,7 +1,8 @@
-import { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
-import jsforce from 'jsforce';
+import jsforce from "jsforce";
+import { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 
-import { auth } from '@/auth';
+import { auth } from "@/auth";
+import { createApexClient } from "./client";
 
 export type Context = {
   headers: Headers;
@@ -10,14 +11,16 @@ export type Context = {
     instance_url: string;
   } | null;
   salesforceClient: jsforce.Connection | null;
+  apexClient: ReturnType<typeof createApexClient> | null;
 };
 
 export const createContext = async (opts: FetchCreateContextFnOptions) => {
-  const session = (await auth()) as Context['session'];
+  const session = (await auth()) as Context["session"];
 
   return {
     session,
     headers: opts.req.headers,
     salesforceClient: null,
+    apexClient: null,
   } satisfies Context;
 };

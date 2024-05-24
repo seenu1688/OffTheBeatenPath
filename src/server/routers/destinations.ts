@@ -2,7 +2,9 @@ import { QueryResult } from "jsforce";
 
 import { authProcedure, router } from "../trpc";
 
-import { Destination, Geolocation } from "@/common/types";
+import { Destination } from "@/common/types";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 type RawDestination = {
   Id: string;
@@ -31,8 +33,22 @@ export const destinationsRouter = router({
         {},
         (err, result: QueryResult<RawDestination>) => {
           if (err) {
+            if (
+              err?.name === "INVALID_AUTH_HEADER" ||
+              err?.name === "INVALID_JWT_FORMAT"
+            ) {
+              const cookieStore = cookies();
+              const list = cookieStore.getAll();
+              for (let cookie of list) {
+                cookieStore.delete(cookie.name);
+              }
+
+              redirect("/signin");
+            }
+
             reject(err);
           }
+
           const records = result.records.map((record) => {
             return {
               id: record.Id,
@@ -63,10 +79,22 @@ export const destinationsRouter = router({
         {},
         (err, result: QueryResult<RawAccount>) => {
           if (err) {
-            console.log(err);
+            if (
+              err.name === "INVALID_AUTH_HEADER" ||
+              err.name === "INVALID_JWT_FORMAT"
+            ) {
+              const cookieStore = cookies();
+              const list = cookieStore.getAll();
+              for (let cookie of list) {
+                cookieStore.delete(cookie.name);
+              }
+
+              redirect("/signin");
+            }
 
             reject(err);
           }
+
           const records = result.records.map((record) => {
             const [vendorType = "", vendorName = ""] =
               record.Vendor_Type__c.split("-");

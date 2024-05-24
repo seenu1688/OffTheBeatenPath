@@ -10,6 +10,8 @@ import {
   Segment,
 } from "@/common/types";
 import { RawDeparture, RawSegment } from "./types";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export const fetchDepartureById = ({
   client,
@@ -23,7 +25,20 @@ export const fetchDepartureById = ({
   return new Promise<Departure>((resolve, reject) => {
     client.query(query, {}, (err, result: QueryResult<RawDeparture>) => {
       if (err) {
-        if (err.name === "INVALID_SESSION_ID") {
+        console.log(err?.name === "INVALID_AUTH_HEADER");
+
+        if (
+          err?.name === "INVALID_SESSION_ID" ||
+          err?.name === "INVALID_AUTH_HEADER" ||
+          err?.name === "INVALID_JWT_FORMAT"
+        ) {
+          const cookieStore = cookies();
+          const list = cookieStore.getAll();
+
+          for (let cookie of list) {
+            cookieStore.delete(cookie.name);
+          }
+
           reject(
             new TRPCError({
               message: "Session expired",
@@ -31,8 +46,6 @@ export const fetchDepartureById = ({
             })
           );
         }
-
-        console.log(err);
 
         reject(
           new TRPCError({
@@ -74,14 +87,27 @@ export const fetchSegmentsByDepartureId = ({
   departureId: string;
   client: jsforce.Connection;
 }) => {
-  const query = `SELECT Id, Segment_Name__c, Narrative__c, StartDate__c, EndDate__c, PrimaryDestinationId__c, 
-  (SELECT Id, Experience_Name__c, Vendor__r.Name, StartDate__c, EndDate__c FROM Reservations__r), (
+  const query = `SELECT Id, Segment_Name__c, Narrative__c,StartDate__c,EndDate__c, Start_DateTime__c, End_DateTime__c, PrimaryDestinationId__c, 
+  (SELECT Id, Experience_Name__c, Vendor__r.Name, Vendor__r.Vendor_Type__c, StartDate__c, EndDate__c FROM Reservations__r), (
     SELECT Id, Day__r.Date__c, Destination__c, Destination__r.Name FROM Destination_Assignments__r)
      FROM Segment__c WHERE Departure__c = '${departureId}'`;
 
   return new Promise<DeparturesResponse>((resolve, reject) => {
     client.query(query, {}, (err, result: QueryResult<RawSegment>) => {
       if (err) {
+        if (
+          err.name === "INVALID_AUTH_HEADER" ||
+          err.name === "INVALID_JWT_FORMAT"
+        ) {
+          const cookieStore = cookies();
+          const list = cookieStore.getAll();
+          for (let cookie of list) {
+            cookieStore.delete(cookie.name);
+          }
+
+          redirect("/signin");
+        }
+
         reject(
           new TRPCError({
             message: err.message,
@@ -113,28 +139,35 @@ export const fetchSegmentsByDepartureId = ({
           id: record.Id,
           name: record.Segment_Name__c,
           narrative: record.Narrative__c,
-          startDate: record.StartDate__c,
-          endDate: record.EndDate__c,
+          startDate: record.Start_DateTime__c ?? record.StartDate__c,
+          endDate: record.End_DateTime__c ?? record.EndDate__c,
           primaryDestinationId: record.PrimaryDestinationId__c,
         });
 
-        if (record.Reservations__r) {
-          response.reservations = response.reservations?.concat(
-            record.Reservations__r?.records.reduce((acc, reservation) => {
+        try {
+          if (record.Reservations__r) {
+            record.Reservations__r?.records.forEach((reservation) => {
               if (reservation.Experience_Name__c) {
-                acc.push({
-                  id: reservation.Id,
-                  name: reservation.Experience_Name__c,
-                  vendorName: reservation.Vendor__r.Name,
-                  startDate: reservation.StartDate__c,
-                  endDate: reservation.EndDate__c,
-                  segmentId: record.Id,
-                });
-              }
 
-              return acc;
-            }, [] as Reservation[])
-          );
+                const [vendorType, vendorName] =
+                  reservation.Vendor__r.Vendor_Type__c.split("-");
+
+                response[`${vendorType.trim().toLowerCase()}`] = [
+                  ...(response[`${vendorType.trim().toLowerCase()}`] || []),
+                  {
+                    id: reservation.Id,
+                    name: reservation.Experience_Name__c,
+                    vendorName,
+                    startDate: reservation.StartDate__c,
+                    endDate: reservation.EndDate__c,
+                    segmentId: record.Id,
+                  },
+                ];
+              }
+            });
+          }
+        } catch (e) {
+          console.log(e);
         }
 
         if (record.Destination_Assignments__r) {
@@ -152,22 +185,22 @@ export const fetchSegmentsByDepartureId = ({
                     id: assignment.Id,
                     startDate: startDate
                       ? new Date(
-                          Math.min(
-                            new Date(startDate).getTime(),
-                            new Date(assignment.Day__r.Date__c).getTime()
-                          )
-                        ).toJSON()
+                        Math.min(
+                          new Date(startDate).getTime(),
+                          new Date(assignment.Day__r.Date__c).getTime()
+                        )
+                      ).toJSON()
                       : assignment.Day__r.Date__c,
                     destinationId: assignment.Destination__c,
                     name: assignment.Destination__r.Name,
                     segmentId: record.Id,
                     endDate: endDate
                       ? new Date(
-                          Math.max(
-                            new Date(endDate).getTime(),
-                            new Date(assignment.Day__r.Date__c).getTime()
-                          )
-                        ).toJSON()
+                        Math.max(
+                          new Date(endDate).getTime(),
+                          new Date(assignment.Day__r.Date__c).getTime()
+                        )
+                      ).toJSON()
                       : assignment.Day__r.Date__c,
                   };
                 }

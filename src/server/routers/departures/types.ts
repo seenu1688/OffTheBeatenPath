@@ -13,6 +13,7 @@ export type RawReservationRecord = {
   Experience_Name__c: string;
   Vendor__r: {
     Name: string;
+    Vendor_Type__c: string;
   };
   StartDate__c: string;
   EndDate__c: string;
@@ -35,6 +36,8 @@ export type RawSegment = {
   Narrative__c: string;
   StartDate__c: string;
   EndDate__c: string;
+  Start_DateTime__c: string;
+  End_DateTime__c: string;
   PrimaryDestinationId__c: string;
   Reservations__r: {
     totalSize: number;
