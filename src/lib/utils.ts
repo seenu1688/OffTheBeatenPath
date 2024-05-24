@@ -45,3 +45,28 @@ export const filter = <T>(
 
   return result;
 };
+
+export const formatTimeString = (hour: number, minute: number) => {
+  let ampm = hour < 12 ? "AM" : "PM";
+  const hourString = (hour === 12 ? 12 : hour % 12).toString().padStart(2, "0");
+  const minuteString = minute.toString().padStart(2, "0");
+
+  return `${hourString}:${minuteString} ${ampm}`;
+};
+
+const generateTimeList = () => {
+  let times = [];
+
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 10) {
+      times.push({
+        label: formatTimeString(hour, minute),
+        value: (hour * 60 + minute).toString(),
+      });
+    }
+  }
+
+  return times;
+};
+
+export const timesList = generateTimeList();

@@ -1,7 +1,17 @@
+"use client";
+
 import dayjs from "dayjs";
 
 import { Button } from "@/components/button";
 import { CalendarPicker } from "@/components/calendar";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogPortal,
+} from "@/components/dialog";
+import AddSegment from "../fragments/AddSegment";
 
 import { Departure } from "@/common/types";
 
@@ -41,7 +51,21 @@ const PlannerHeader = (props: Props) => {
         </CalendarPicker>
       </div>
       <div className="flex items-center">
-        <Button size="sm">Create</Button>
+        <Dialog modal>
+          <DialogTrigger asChild>
+            <Button size="sm">Create</Button>
+          </DialogTrigger>
+          <DialogPortal>
+            <DialogContent
+              className="max-w-5xl"
+              onInteractOutside={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <AddSegment departure={props.departure} />
+            </DialogContent>
+          </DialogPortal>
+        </Dialog>
       </div>
     </header>
   );
