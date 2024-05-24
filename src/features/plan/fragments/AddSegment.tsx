@@ -84,8 +84,21 @@ const AddSegment = (props: Props) => {
     formState: { errors },
     control,
   } = form;
+  const departureStartDate = new Date(props.departure.startDate);
+  const departureEndDate = new Date(props.departure.endDate);
 
   const onSubmit: SubmitHandler<z.infer<typeof schema>> = async (data) => {
+    if (data.startDateTime > data.endDateTime) {
+      toast.error("Start Date Time should be before End Date Time", {
+        style: {
+          backgroundColor: "red",
+          color: "white",
+        },
+        id: "start-end-time-error",
+      });
+      return;
+    }
+
     await mutateAsync({
       departureId: props.departure.id,
       name: data.segmentName,
@@ -122,30 +135,31 @@ const AddSegment = (props: Props) => {
                 name="startDateTime"
                 label="Start Date Time"
                 control={control}
-                render={({ field }) => (
-                  <DateTimeField
-                    field={field}
-                    fromDate={new Date(props.departure.startDate)}
-                    error={errors.startDateTime}
-                    toDate={form.getValues().endDateTime}
-                  />
-                )}
+                render={({ field }) => {
+                  const endDateTime = form.watch("endDateTime");
+                  return (
+                    <DateTimeField
+                      field={field}
+                      fromDate={departureStartDate}
+                      error={errors.startDateTime}
+                      toDate={endDateTime || departureEndDate}
+                    />
+                  );
+                }}
               />
               <FieldRow
                 control={control}
                 name="endDateTime"
                 label="End Date Time"
                 render={({ field }) => {
+                  const startDateTime = form.watch("startDateTime");
                   return (
                     <DateTimeField
-                      fromDate={
-                        form.getValues().startDateTime ||
-                        new Date(props.departure.startDate)
-                      }
+                      fromDate={startDateTime || departureStartDate}
                       field={field}
                       error={errors.endDateTime}
-                      disabled={!form.getValues().startDateTime}
-                      toDate={new Date(props.departure.endDate)}
+                      disabled={!startDateTime}
+                      toDate={departureEndDate}
                     />
                   );
                 }}

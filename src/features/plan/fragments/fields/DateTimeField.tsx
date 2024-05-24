@@ -66,7 +66,7 @@ const DateTimeField = <T extends FieldValues, S extends Path<T>>(
             disableCalender={props.field.disabled || props.disabled}
           >
             {props.field.value ? (
-              dayjs(props.field.value).format("DD MMM YYYY HH:mm:ss A")
+              dayjs(props.field.value).format("DD MMM YYYY")
             ) : (
               <span>Pick a date</span>
             )}
