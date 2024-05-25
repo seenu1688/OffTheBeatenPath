@@ -19,6 +19,7 @@ const QuillEditor = (props: Props) => {
     if (quill) {
       quill.setText(initialValue || "", "user");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quill]);
 
   useEffect(() => {

@@ -152,8 +152,10 @@ export const fetchSegmentsByDepartureId = ({
                 const [vendorType, vendorName] =
                   reservation.Vendor__r.Vendor_Type__c.split("-");
 
-                response[`${vendorType.trim().toLowerCase()}`] = [
-                  ...(response[`${vendorType.trim().toLowerCase()}`] || []),
+                // disable eslint
+                // eslint-disable-next-line
+                (response as any)[`${vendorType.trim().toLowerCase()}`] = [
+                  ...((response as any)[`${vendorType.trim().toLowerCase()}`] || []),
                   {
                     id: reservation.Id,
                     name: reservation.Experience_Name__c,
