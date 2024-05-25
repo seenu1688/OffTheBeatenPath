@@ -9,7 +9,7 @@ export const createSegmentSchema = z
     narrative: z.string().optional(),
   })
   .transform((input) => {
-    const { departureId, endDate, name, primaryDestinationId, startDate, narrative } =
+    const { departureId, endDate, name, startDate, narrative } =
       input;
     return {
       Segment_Name__c: name,
