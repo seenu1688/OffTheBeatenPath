@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   useForm,
   SubmitHandler,
@@ -62,9 +62,11 @@ type Props = {
 };
 
 const AddSegment = (props: Props) => {
+  const cancelRef = useRef<HTMLButtonElement>(null);
   const { mutateAsync, isPending } = trpcClient.segments.create.useMutation({
     onSuccess(data) {
       toast.success(`Segment ${data.name} has been created successfully`);
+      cancelRef.current?.click();
     },
     onError(error) {
       toast.error(`Failed to create segment: ${error.message}`);
@@ -104,6 +106,10 @@ const AddSegment = (props: Props) => {
       name: data.segmentName,
       startDate: dayjs(data.startDateTime).format("YYYY-MM-DD"),
       endDate: dayjs(data.endDateTime).format("YYYY-MM-DD"),
+      startDateTime: dayjs(data.startDateTime).format(
+        "YYYY-MM-DDTHH:mm:ss.SSSZ"
+      ),
+      endDateTime: dayjs(data.endDateTime).format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
       narrative: data.narrative,
     });
   };
@@ -189,7 +195,9 @@ const AddSegment = (props: Props) => {
         </div>
         <div className="flex w-full flex-row items-center justify-between pt-5">
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline" ref={cancelRef}>
+              Close
+            </Button>
           </DialogClose>
 
           <Button type="submit" disabled={isPending}>

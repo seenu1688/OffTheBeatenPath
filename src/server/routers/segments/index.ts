@@ -11,6 +11,8 @@ type CreateSegmentPayload = {
     EndDate__c: string;
     Departure__c: string;
     Narrative__c?: string;
+    start_datetime__c?: string;
+    end_datetime__c?: string;
   };
 };
 
@@ -21,6 +23,8 @@ type SegmentResponse = {
   endDate: string;
   primaryDestinationId: string;
   narrative?: string;
+  startDateTime?: string;
+  endDateTime?: string;
 }
 
 export const segmentsRouter = router({
