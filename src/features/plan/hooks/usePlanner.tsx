@@ -16,12 +16,13 @@ export const usePlanner = (departure: Departure) => {
     const startDate = dayjs(departure.startDate).startOf("day").toDate();
     const endDate = dayjs(departure.endDate).startOf("day").toDate();
     const dayCount = dayjs(endDate).diff(startDate, "day") + 1;
+    const dayWidth = 240;
 
     return {
       startDate,
       endDate,
-      dayWidth: 240,
-      width: dayCount * 240 + 2 * 240,
+      dayWidth,
+      width: dayCount * dayWidth + 2 * dayWidth,
       dayCount,
     };
   });
@@ -38,11 +39,14 @@ export const usePlanner = (departure: Departure) => {
     }
 
     setState((prev) => {
+      const dayCount = dayjs(endDate).diff(startDate, "day") + 1;
+
       return {
         ...prev,
         startDate,
         endDate,
-        dayCount: dayjs(endDate).diff(startDate, "day") + 1,
+        dayCount,
+        width: dayCount * prev.dayWidth + 2 * prev.dayWidth,
       };
     });
   }, [departure.startDate, departure.endDate, state.startDate, state.endDate]);

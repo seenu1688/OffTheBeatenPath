@@ -4,14 +4,20 @@ import { Luggage } from "lucide-react";
 
 import GridLineLabel from "./GridLineLabel";
 
-import { cn } from "@/lib/utils";
 import { PlannerState } from "../hooks/usePlanner";
+
+import { cn } from "@/lib/utils";
 
 type Props = {
   state: PlannerState;
 };
 
 const getDateRanges = (startDate: Date, endDate: Date) => {
+  console.log({
+    startDate,
+    endDate,
+  });
+
   const ranges = [];
   let currentDate = startDate;
 

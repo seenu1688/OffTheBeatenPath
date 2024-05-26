@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import NativeSelect from "react-select";
 import dayjs from "dayjs";
 import {
@@ -10,7 +11,6 @@ import { ChevronDown } from "lucide-react";
 
 import { DateTimePicker } from "@/components/calendar";
 import { FormMessage } from "@/components/form";
-import { Label } from "@/components/label";
 
 import { formatTimeString, timesList } from "@/lib/utils";
 
@@ -26,7 +26,7 @@ type Props<O extends FieldValues, S extends Path<O>> = {
 const DateTimeField = <T extends FieldValues, S extends Path<T>>(
   props: Props<T, S>
 ) => {
-  const { field, fromDate, error } = props;
+  const { field, fromDate, error, toDate } = props;
 
   const fieldTime = field.value
     ? {
@@ -34,6 +34,7 @@ const DateTimeField = <T extends FieldValues, S extends Path<T>>(
         minutes: field.value.getMinutes(),
       }
     : null;
+
   const time =
     field.value && fieldTime
       ? {
@@ -42,11 +43,36 @@ const DateTimeField = <T extends FieldValues, S extends Path<T>>(
         }
       : undefined;
 
+  const memoisedTimesList = useMemo(() => {
+    if ((!fromDate && !toDate) || !field.value) return timesList;
+
+    if (fromDate && dayjs(fromDate).isSame(dayjs(field.value), "day")) {
+      const value = fromDate.getHours() * 60 + fromDate.getMinutes();
+
+      return timesList.filter((time) => {
+        const timeValue = parseInt(time.value);
+
+        return timeValue > value;
+      });
+    }
+
+    if (toDate && dayjs(toDate).isSame(dayjs(field.value), "day")) {
+      const value = toDate.getHours() * 60 + toDate.getMinutes();
+
+      return timesList.filter((time) => {
+        const timeValue = parseInt(time.value);
+
+        return timeValue < value;
+      });
+    }
+
+    return timesList;
+  }, [fromDate, toDate, field.value]);
+
   return (
     <div>
       <div className="flex items-center gap-5">
         <div className="flex flex-col gap-1">
-          <Label className="text-xs font-normal">Date</Label>
           <DateTimePicker
             mode="single"
             fromDate={fromDate}
@@ -73,10 +99,9 @@ const DateTimeField = <T extends FieldValues, S extends Path<T>>(
           </DateTimePicker>
         </div>
         <div className="flex flex-col gap-1">
-          <Label className="text-xs font-normal">Time</Label>
           <NativeSelect
             className="w-[240px] max-w-sm outline-none"
-            options={timesList as any[]}
+            options={memoisedTimesList as any[]}
             value={time}
             onChange={(option) => {
               const minutes = parseInt(option?.value || "");

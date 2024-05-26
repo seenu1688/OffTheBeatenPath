@@ -63,5 +63,28 @@ export const createApexClient = ({
 
       return json as T;
     },
+    put: async <T, B>(url: string, props: PostProps<B>) => {
+      const response = await fetch(`${apiUrl}${url}`, {
+        method: "PUT",
+        headers: {
+          ...defaultHeaders,
+          ...props.headers,
+        },
+        body: JSON.stringify(props.body),
+      });
+
+      const json = await response.json();
+
+      if (response.status >= 400) {
+        throw new Error(
+          JSON.stringify({
+            data: json,
+            code: response.status,
+          })
+        );
+      }
+
+      return json as T;
+    },
   };
 };

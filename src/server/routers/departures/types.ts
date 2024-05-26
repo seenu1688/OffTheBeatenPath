@@ -4,8 +4,8 @@ export type RawDeparture = {
   Trip__r: {
     Name: string;
   };
-  StartDate__c: string;
-  EndDate__c: string;
+  Start_DateTime__c: string;
+  End_DateTime__c: string;
 };
 
 export type RawReservationRecord = {
