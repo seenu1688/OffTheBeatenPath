@@ -7,6 +7,17 @@ import {
   useDestinations,
 } from "../../hooks/useDestinations";
 
+const groupStyles = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+};
+
+type GroupedOption = {
+  label: string;
+  options: { value: string; label: string }[];
+};
+
 const FilterSelect = () => {
   const { enabled, filters, updateIds } = useDestinationFilters((state) => {
     return {
@@ -16,26 +27,70 @@ const FilterSelect = () => {
     };
   });
   const destinations = useDestinations(
-    useShallow((state) =>
-      enabled
-        ? filterDestinations({
-            destinations: state.destinations,
-            filters,
-          })
-            .filter((destination) => destination.vendorType !== "destinations")
-            .map((d) => ({
-              label: d.name,
+    useShallow((state) => {
+      if (!enabled) {
+        return [];
+      }
+
+      const results = filterDestinations({
+        destinations: state.destinations,
+        filters,
+      })
+        .filter((destination) => destination.vendorType !== "destinations")
+        .reduce(
+          (acc, d) => {
+            if (!acc[d.vendorType]) {
+              acc[d.vendorType] = {
+                label: d.vendorName,
+                options: [
+                  {
+                    value: d.id,
+                    label: d.name,
+                  },
+                ],
+              };
+
+              return acc;
+            }
+
+            acc[d.vendorType].options.push({
               value: d.id,
-            }))
-        : []
-    )
+              label: d.name,
+            });
+
+            return acc;
+          },
+          {} as Record<
+            string,
+            {
+              label: string;
+              options: { value: string; label: string }[];
+            }
+          >
+        );
+
+      return Object.values(results);
+    })
   );
   const disabled = filters.length === 1 && filters.includes("destinations");
   const isEnabled = enabled && filters.length > 0 && !disabled;
 
+  const formatGroupLabel = (data: GroupedOption) => (
+    <div style={groupStyles}>
+      <span>{data.label}</span>
+    </div>
+  );
+
   return (
     isEnabled && (
-      <Select
+      <Select<
+        {
+          label: string;
+          value: string;
+        },
+        true,
+        GroupedOption
+      >
         closeMenuOnSelect={false}
         onChange={(value) => {
           updateIds(value.map((v) => v.value));
@@ -46,6 +101,7 @@ const FilterSelect = () => {
         isMulti={true}
         options={destinations}
         placeholder="Select..."
+        formatGroupLabel={formatGroupLabel}
       />
     )
   );
