@@ -1,4 +1,5 @@
 import jsforce from "jsforce";
+import qs from 'qs';
 
 import { Context } from "./context";
 
@@ -31,7 +32,15 @@ export const createApexClient = ({
 
   return {
     get: async <T>(url: string, props: GetProps) => {
-      const response = await fetch(`${apiUrl}${url}`, {
+      const params = qs.stringify(props.searchParams);
+
+      let finalUrl = `${apiUrl}${url}`;
+
+      if (params) {
+        finalUrl = `${apiUrl}${url}?${params}`;
+      }
+
+      const response = await fetch(finalUrl, {
         headers: {
           ...defaultHeaders,
           ...props.headers,

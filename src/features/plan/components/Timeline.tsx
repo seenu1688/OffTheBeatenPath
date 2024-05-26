@@ -13,11 +13,6 @@ type Props = {
 };
 
 const getDateRanges = (startDate: Date, endDate: Date) => {
-  console.log({
-    startDate,
-    endDate,
-  });
-
   const ranges = [];
   let currentDate = startDate;
 

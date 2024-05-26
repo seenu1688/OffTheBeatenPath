@@ -1,11 +1,11 @@
+import { PropsWithChildren, useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpLink, createTRPCClient } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
 
 import { AppRouter } from "@/server";
-import { PropsWithChildren, useState } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function getBaseUrl() {
   if (typeof window !== "undefined")
@@ -62,8 +62,12 @@ export const trpcStandAloneClient = createTRPCClient<AppRouter>({
 export type RouterInput = inferRouterInputs<AppRouter>;
 export type RouterOutput = inferRouterOutputs<AppRouter>;
 
-function ClientProvider(props: PropsWithChildren) {
-  const [queryClient] = useState(() => new QueryClient());
+function ClientProvider(
+  props: PropsWithChildren<{
+    queryClient?: QueryClient;
+  }>
+) {
+  const [queryClient] = useState(() => props.queryClient || new QueryClient());
 
   return (
     <QueryClientProvider client={queryClient}>

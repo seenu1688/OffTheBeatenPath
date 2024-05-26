@@ -1,12 +1,42 @@
 import { useEffect, useRef } from "react";
+import { createRoot } from "react-dom/client";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import type { Marker } from "@googlemaps/markerclusterer";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
+import { useParams } from "next/navigation";
+
+import { CreateSegmentButton } from "./CreateSegment";
 
 import { useFilteredDestinations } from "../hooks/useDestinations";
 import { useLocations } from "../hooks/useLocations";
 
 import { Destination } from "@/common/types";
+import { TrpcClientProvider, trpcClient } from "@/client";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
+
+const InfoWindowContent = ({
+  destination,
+  queryClient,
+  departureId,
+}: {
+  destination: Destination;
+  queryClient: QueryClient;
+  departureId: string;
+}) => {
+  return (
+    <TrpcClientProvider queryClient={queryClient}>
+      <div className="flex flex-col gap-2 p-2">
+        <div>{destination.name}</div>
+        {destination.vendorType === "destinations" && (
+          <CreateSegmentButton
+            destination={destination}
+            departureId={departureId}
+          />
+        )}
+      </div>
+    </TrpcClientProvider>
+  );
+};
 
 const DestinationMarkers = () => {
   const map = useMap();
@@ -16,6 +46,8 @@ const DestinationMarkers = () => {
   const destinations = useFilteredDestinations();
   const markersRef = useRef<{ [key: string]: Marker }>({});
   const addLocation = useLocations((state) => state.addLocation);
+  const queryClient = useQueryClient();
+  const params = useParams<{ id: string }>();
 
   useEffect(() => {
     if (!map || !markers || !mapsLibrary) return;
@@ -52,32 +84,16 @@ const DestinationMarkers = () => {
         callback: () => void
       ) => {
         const container = document.createElement("div");
-        container.style.padding = "8px";
-        container.style.display = "flex";
-        container.style.gap = "8px";
+        const root = createRoot(container);
+        // createPortal(<InfoWindowContent destination={destination} />, container);
 
-        const title = document.createElement("span");
-        title.textContent = destination.name;
-        container.appendChild(title);
-
-        const button = document.createElement("button");
-        button.textContent = "+ Add";
-        button.style.color = "#f97415";
-        button.style.fontWeight = "bold";
-
-        button.addEventListener("click", () => {
-          addLocation({
-            id: destination.id,
-            name: destination.name,
-            lat: destination.geolocation!.lat,
-            lng: destination.geolocation!.lng,
-            placeId: "",
-          });
-
-          callback();
-        });
-
-        container.appendChild(button);
+        root.render(
+          <InfoWindowContent
+            destination={destination}
+            queryClient={queryClient}
+            departureId={params.id}
+          />
+        );
 
         return container;
       };

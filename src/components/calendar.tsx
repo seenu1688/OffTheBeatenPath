@@ -75,12 +75,26 @@ Calendar.displayName = "Calendar";
 const CalendarPicker = (
   props: CalendarProps & {
     children: React.ReactNode;
+    triggerClassName?: string;
+    disableCalender?: boolean;
   }
 ) => {
-  const { children, ...restProps } = props;
+  const { children, triggerClassName, disableCalender, ...restProps } = props;
   return (
     <Popover>
-      <PopoverTrigger asChild={true}>{children}</PopoverTrigger>
+      <PopoverTrigger asChild={true}>
+        <Button
+          variant="outline"
+          className={cn(
+            "w-[240px] pl-3 text-left font-normal",
+            triggerClassName
+          )}
+          disabled={disableCalender}
+        >
+          {children}
+          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+        </Button>
+      </PopoverTrigger>
       <PopoverPortal>
         <PopoverContent className="z-[100] mt-2 rounded-md border border-gray-200 bg-white shadow-sm">
           <Calendar

@@ -11,7 +11,6 @@ const modules = {
         [{ size: ['small', false, 'large', 'huge'] }],
         ['link'],
         [{ color: [] }],
-        ['clean'],
     ],
     clipboard: {
         matchVisual: false,
@@ -30,7 +29,6 @@ const formats = [
     'header',
     'link',
     'color',
-    'clean',
 ];
 
 function assign(target: any, _varArgs: any) {
