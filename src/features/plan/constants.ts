@@ -41,13 +41,6 @@ export const tripPlans = [
     primaryColor: "#0B8B70",
   },
   {
-    id: "reservations",
-    title: "Reservations",
-    Icon: ListOrdered,
-    accentColor: "#D3F8F0",
-    primaryColor: "#0B8B70",
-  },
-  {
     id: "activities",
     title: "Activities",
     Icon: Activity,

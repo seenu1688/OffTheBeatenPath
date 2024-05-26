@@ -26,7 +26,7 @@ const DeparturePlanner = (props: Props) => {
       {showPlanner && <PlannerHeader departure={props.departure} />}
       <div
         className={cn(
-          "h-[calc(100vh-64px)] overflow-y-hidden",
+          "h-[calc(100vh-66px)] overflow-y-hidden",
           !showPlanner && "h-[100vh]"
         )}
       >
