@@ -9,6 +9,7 @@ export const createSegmentSchema = z
     narrative: z.string().optional(),
     startDateTime: z.string().optional(),
     endDateTime: z.string().optional(),
+    primaryDestinationId: z.string().optional(),
   })
   .transform((input) => {
     const { departureId, endDate, name, startDate, narrative, startDateTime, endDateTime } =
@@ -21,5 +22,6 @@ export const createSegmentSchema = z
       Narrative__c: narrative,
       start_datetime__c: startDateTime,
       end_datetime__c: endDateTime,
+      PrimaryDestinationId__c: input.primaryDestinationId,
     };
   });

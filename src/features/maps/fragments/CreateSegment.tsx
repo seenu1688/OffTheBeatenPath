@@ -6,6 +6,9 @@ import {
   SubmitHandler,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRef } from "react";
+import { toast } from "sonner";
+import dayjs from "dayjs";
 
 import {
   Dialog,
@@ -29,9 +32,6 @@ import DateTimeField from "@/features/plan/fragments/fields/DateTimeField";
 import { trpcClient } from "@/client";
 
 import { Destination } from "@/common/types";
-import { useEffect, useRef } from "react";
-import { toast } from "sonner";
-import dayjs from "dayjs";
 
 const schema = z.object({
   segmentName: z.string().min(3, {
@@ -69,10 +69,6 @@ const CreateSegment = (props: Props) => {
     },
   });
 
-  useEffect(() => {
-    utils.departures.getSegments.invalidate(props.departureId);
-  }, []);
-
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -96,6 +92,7 @@ const CreateSegment = (props: Props) => {
         "YYYY-MM-DDTHH:mm:ss.SSSZ"
       ),
       endDateTime: dayjs(data.endDateTime).format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+      primaryDestinationId: props.destination.id,
     });
   };
 

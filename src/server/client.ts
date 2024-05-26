@@ -49,7 +49,7 @@ export const createApexClient = ({
 
       return (await response.json()) as T;
     },
-    post: async <T, B>(url: string, props: PostProps<B>) => {
+    post: async <T, B extends Object>(url: string, props: PostProps<B>) => {
       const response = await fetch(`${apiUrl}${url}`, {
         method: "POST",
         headers: {

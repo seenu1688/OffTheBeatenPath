@@ -13,6 +13,7 @@ type CreateSegmentPayload = {
     Narrative__c?: string;
     start_datetime__c?: string;
     end_datetime__c?: string;
+    primaryDestinationId?: string;
   };
 };
 
@@ -43,6 +44,7 @@ export const segmentsRouter = router({
             Narrative__c?: string;
             Segment_Name__c: string;
             StartDate__c: string;
+            PrimaryDestinationId__c?: string;
           },
           CreateSegmentPayload
         >("/createSegment", {
@@ -56,7 +58,7 @@ export const segmentsRouter = router({
           endDate: response.EndDate__c,
           narrative: response.Narrative__c,
           startDate: response.StartDate__c,
-          primaryDestinationId: ""
+          primaryDestinationId: response.PrimaryDestinationId__c || "",
         };
       } catch (e: any) {
         console.log(e);

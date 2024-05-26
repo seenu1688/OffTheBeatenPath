@@ -4,6 +4,7 @@ import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import type { Marker } from "@googlemaps/markerclusterer";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { useParams } from "next/navigation";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
 import { CreateSegmentButton } from "./CreateSegment";
 
@@ -11,8 +12,7 @@ import { useFilteredDestinations } from "../hooks/useDestinations";
 import { useLocations } from "../hooks/useLocations";
 
 import { Destination } from "@/common/types";
-import { TrpcClientProvider, trpcClient } from "@/client";
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { TrpcClientProvider } from "@/client";
 
 const InfoWindowContent = ({
   destination,
