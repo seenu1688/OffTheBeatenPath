@@ -62,10 +62,12 @@ type Props = {
 };
 
 const AddSegment = (props: Props) => {
+  const utils = trpcClient.useUtils();
   const cancelRef = useRef<HTMLButtonElement>(null);
   const { mutateAsync, isPending } = trpcClient.segments.create.useMutation({
     onSuccess(data) {
       toast.success(`Segment ${data.name} has been created successfully`);
+      utils.departures.getSegments.invalidate(props.departure.id);
       cancelRef.current?.click();
     },
     onError(error) {
