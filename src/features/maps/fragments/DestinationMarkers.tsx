@@ -11,26 +11,26 @@ import { CreateSegmentButton } from "./CreateSegment";
 import { useFilteredDestinations } from "../hooks/useDestinations";
 import { useLocations } from "../hooks/useLocations";
 
-import { Destination } from "@/common/types";
-import { TrpcClientProvider } from "@/client";
+import { Departure, Destination } from "@/common/types";
+import { TrpcClientProvider, trpcClient } from "@/client";
 
 const InfoWindowContent = ({
   destination,
   queryClient,
-  departureId,
+  departure,
 }: {
   destination: Destination;
   queryClient: QueryClient;
-  departureId: string;
+  departure: Departure;
 }) => {
   return (
     <TrpcClientProvider queryClient={queryClient}>
       <div className="flex flex-col gap-2 p-2">
-        <div>{destination.name}</div>
+        <div className="text-sm font-medium">{destination.name}</div>
         {destination.vendorType === "destinations" && (
           <CreateSegmentButton
             destination={destination}
-            departureId={departureId}
+            departure={departure}
           />
         )}
       </div>
@@ -47,6 +47,7 @@ const DestinationMarkers = () => {
   const markersRef = useRef<{ [key: string]: Marker }>({});
   const addLocation = useLocations((state) => state.addLocation);
   const queryClient = useQueryClient();
+  const utils = trpcClient.useUtils();
   const params = useParams<{ id: string }>();
 
   useEffect(() => {
@@ -91,7 +92,7 @@ const DestinationMarkers = () => {
           <InfoWindowContent
             destination={destination}
             queryClient={queryClient}
-            departureId={params.id}
+            departure={utils.departures.getById.getData(params.id)!}
           />
         );
 

@@ -31,7 +31,7 @@ import DateTimeField from "@/features/plan/fragments/fields/DateTimeField";
 
 import { trpcClient } from "@/client";
 
-import { Destination } from "@/common/types";
+import { Departure, Destination } from "@/common/types";
 
 const schema = z.object({
   segmentName: z.string().min(3, {
@@ -46,7 +46,7 @@ const schema = z.object({
 });
 
 type Props = {
-  departureId: string;
+  departure: Departure;
   destination: Destination;
 };
 
@@ -60,8 +60,8 @@ const CreateSegment = (props: Props) => {
   const { mutateAsync, isPending } = trpcClient.segments.create.useMutation({
     onSuccess(data) {
       toast.success(`Segment ${data.name} has been created successfully`);
-      utils.departures.getSegments.invalidate(props.departureId);
-      utils.departures.getById.invalidate(props.departureId);
+      utils.departures.getSegments.invalidate(props.departure.id);
+      utils.departures.getById.invalidate(props.departure.id);
       cancelRef.current?.click();
     },
     onError(error) {
@@ -81,10 +81,12 @@ const CreateSegment = (props: Props) => {
     control,
     formState: { errors },
   } = form;
+  const departureStartDate = new Date(props.departure.startDate);
+  const departureEndDate = new Date(props.departure.endDate);
 
   const onSubmit: SubmitHandler<z.infer<typeof schema>> = async (data) => {
     await mutateAsync({
-      departureId: props.departureId,
+      departureId: props.departure.id,
       name: data.segmentName,
       startDate: dayjs(data.startDateTime).format("YYYY-MM-DD"),
       endDate: dayjs(data.endDateTime).format("YYYY-MM-DD"),
@@ -120,9 +122,17 @@ const CreateSegment = (props: Props) => {
           <Controller
             name="startDateTime"
             control={control}
-            render={({ field }) => (
-              <DateTimeField field={field} error={errors.startDateTime} />
-            )}
+            render={({ field }) => {
+              const endDateTime = form.watch("endDateTime");
+              return (
+                <DateTimeField
+                  field={field}
+                  fromDate={departureStartDate}
+                  error={errors.startDateTime}
+                  toDate={endDateTime || departureEndDate}
+                />
+              );
+            }}
           />
         </div>
         <div>
@@ -130,9 +140,17 @@ const CreateSegment = (props: Props) => {
           <Controller
             name="endDateTime"
             control={control}
-            render={({ field }) => (
-              <DateTimeField field={field} error={errors.endDateTime} />
-            )}
+            render={({ field }) => {
+              const startDateTime = form.watch("startDateTime");
+              return (
+                <DateTimeField
+                  fromDate={startDateTime || departureStartDate}
+                  field={field}
+                  error={errors.endDateTime}
+                  toDate={departureEndDate}
+                />
+              );
+            }}
           />
         </div>
         <div>
