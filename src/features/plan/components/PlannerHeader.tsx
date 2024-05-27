@@ -35,7 +35,7 @@ const PlannerHeader = (props: Props) => {
           {props.departure.tripName}
         </p>
         <Dialog>
-          <DialogTrigger>
+          <DialogTrigger asChild>
             <button
               className={cn(
                 "flex items-center gap-2",

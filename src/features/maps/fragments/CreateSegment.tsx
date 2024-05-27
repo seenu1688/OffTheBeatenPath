@@ -26,12 +26,11 @@ import {
 } from "@/components/accordion";
 import Loader from "@/components/Loader";
 import { Label } from "@/components/label";
-import FormInput from "@/features/plan/fragments/fields/FormInput";
 import DateTimeField from "@/features/plan/fragments/fields/DateTimeField";
 
 import { trpcClient } from "@/client";
 
-import { Departure, Destination } from "@/common/types";
+import { Departure } from "@/common/types";
 
 const schema = z.object({
   segmentName: z.string().min(3, {
@@ -47,7 +46,7 @@ const schema = z.object({
 
 type Props = {
   departure: Departure;
-  destination: Destination;
+  destinationId: string;
 };
 
 const CreateSegment = (props: Props) => {
@@ -55,7 +54,7 @@ const CreateSegment = (props: Props) => {
 
   const utils = trpcClient.useUtils();
   const { data, isLoading } = trpcClient.destinations.getById.useQuery(
-    props.destination.id
+    props.destinationId
   );
   const { mutateAsync, isPending } = trpcClient.segments.create.useMutation({
     onSuccess(data) {
@@ -72,7 +71,7 @@ const CreateSegment = (props: Props) => {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      segmentName: "",
+      segmentName: data?.name || "",
     },
     disabled: isPending,
   });
@@ -94,7 +93,7 @@ const CreateSegment = (props: Props) => {
         "YYYY-MM-DDTHH:mm:ss.SSSZ"
       ),
       endDateTime: dayjs(data.endDateTime).format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-      primaryDestinationId: props.destination.id,
+      primaryDestinationId: props.destinationId,
     });
   };
 
@@ -109,13 +108,7 @@ const CreateSegment = (props: Props) => {
       <div className="flex flex-col gap-5 px-2">
         <div>
           <Label>Segment Name</Label>
-          <Controller
-            name="segmentName"
-            control={control}
-            render={({ field }) => (
-              <FormInput field={field} error={errors.segmentName} />
-            )}
-          />
+          <div>{data.name}</div>
         </div>
         <div>
           <Label>Start Date Time</Label>
@@ -201,19 +194,4 @@ const CreateSegment = (props: Props) => {
   );
 };
 
-const CreateSegmentButton = (props: Props) => {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="text-[#f97415]">
-          + Add Segment
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-3xl">
-        <CreateSegment {...props} />
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-export { CreateSegmentButton };
+export default CreateSegment;

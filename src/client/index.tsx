@@ -14,7 +14,7 @@ function getBaseUrl() {
 
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
 
-  return `http://localhost:${process.env.PORT ?? 3000}`;
+  return `http://localhost:${process.env.PORT ?? 9000}`;
 }
 
 export const trpcClient = createTRPCNext<AppRouter>({

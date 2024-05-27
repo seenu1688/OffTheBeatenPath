@@ -6,10 +6,12 @@ import PlannerHeader from "./components/PlannerHeader";
 import Timeline from "./components/Timeline";
 import GanttView from "./GanttView";
 import MapPlanner from "../maps";
+import Loader from "@/components/Loader";
 
 import { usePlanner } from "./hooks/usePlanner";
 
 import { cn } from "@/lib/utils";
+import { trpcClient } from "@/client";
 
 import { Departure } from "@/common/types";
 
@@ -19,27 +21,30 @@ type Props = {
 
 const DeparturePlanner = (props: Props) => {
   const state = usePlanner(props.departure);
+  const { isLoading, error, isError } =
+    trpcClient.departures.getSegments.useQuery(props.departure.id);
   const [showPlanner, setShowPlanner] = useState(true);
+
+  if (error || isError) return <div>{error.message}</div>;
 
   return (
     <div className="relative overflow-hidden">
-      {showPlanner && <PlannerHeader departure={props.departure} />}
-      <div
-        className={cn(
-          "h-[calc(100vh-66px)] overflow-y-hidden",
-          !showPlanner && "h-[100vh]"
+      {<PlannerHeader departure={props.departure} />}
+      <div className={cn("h-[calc(100vh-66px)] overflow-y-hidden")}>
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <div
+            className={cn(
+              "relative grid h-auto grid-rows-[60px_1fr]",
+              "w-full overflow-x-auto overflow-y-auto",
+              showPlanner ? "visible h-[70%]" : "invisible h-0"
+            )}
+          >
+            <Timeline state={state} />
+            <GanttView state={state} departureId={props.departure.id} />
+          </div>
         )}
-      >
-        <div
-          className={cn(
-            "relative grid h-auto grid-rows-[60px_1fr]",
-            "w-full overflow-x-auto overflow-y-auto",
-            showPlanner ? "visible h-[70%]" : "invisible h-0"
-          )}
-        >
-          <Timeline state={state} />
-          <GanttView state={state} departureId={props.departure.id} />
-        </div>
         <div
           className={cn("relative h-[30%] w-full", !showPlanner && "h-full")}
         >
@@ -51,7 +56,9 @@ const DeparturePlanner = (props: Props) => {
               "cursor-pointer rounded-sm bg-primary px-2 py-1 text-primary-foreground shadow-md"
             )}
             data-state={showPlanner ? "open" : "closed"}
-            onClick={setShowPlanner.bind(null, !showPlanner)}
+            onClick={() => {
+              setShowPlanner((prevShowPlanner) => !prevShowPlanner);
+            }}
           >
             {showPlanner ? <ChevronUp /> : <ChevronDown />}
           </button>

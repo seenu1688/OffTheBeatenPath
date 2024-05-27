@@ -23,8 +23,6 @@ const GanttView = (props: Props) => {
 
   if (isLoading || !data) return <Loader />;
 
-  if (error || isError) return <div>{error.message}</div>;
-
   return (
     <div
       style={{

@@ -20,13 +20,11 @@ export const fetchDepartureById = ({
   departureId: string;
   client: jsforce.Connection;
 }) => {
-  const query = `SELECT Id, Name, Trip__r.Name, Start_DateTime__c, End_DateTime__c FROM Departure__c WHERE Id = '${departureId}'`;
+  const query = `SELECT Id, Name, Trip__r.Name, Start_DateTime__c, End_DateTime__c FROM Departure__c WHERE Id='${departureId}'`;
 
   return new Promise<Departure>((resolve, reject) => {
     client.query(query, {}, (err, result: QueryResult<RawDeparture>) => {
       if (err) {
-        console.log(err?.name === "INVALID_AUTH_HEADER");
-
         if (
           err?.name === "INVALID_SESSION_ID" ||
           err?.name === "INVALID_AUTH_HEADER" ||
@@ -148,14 +146,14 @@ export const fetchSegmentsByDepartureId = ({
           if (record.Reservations__r) {
             record.Reservations__r?.records.forEach((reservation) => {
               if (reservation.Experience_Name__c) {
-
                 const [vendorType, vendorName] =
                   reservation.Vendor__r.Vendor_Type__c.split("-");
 
                 // disable eslint
                 // eslint-disable-next-line
                 (response as any)[`${vendorType.trim().toLowerCase()}`] = [
-                  ...((response as any)[`${vendorType.trim().toLowerCase()}`] || []),
+                  ...((response as any)[`${vendorType.trim().toLowerCase()}`] ||
+                    []),
                   {
                     id: reservation.Id,
                     name: reservation.Experience_Name__c,
@@ -187,22 +185,22 @@ export const fetchSegmentsByDepartureId = ({
                     id: assignment.Id,
                     startDate: startDate
                       ? new Date(
-                        Math.min(
-                          new Date(startDate).getTime(),
-                          new Date(assignment.Day__r.Date__c).getTime()
-                        )
-                      ).toJSON()
+                          Math.min(
+                            new Date(startDate).getTime(),
+                            new Date(assignment.Day__r.Date__c).getTime()
+                          )
+                        ).toJSON()
                       : assignment.Day__r.Date__c,
                     destinationId: assignment.Destination__c,
                     name: assignment.Destination__r.Name,
                     segmentId: record.Id,
                     endDate: endDate
                       ? new Date(
-                        Math.max(
-                          new Date(endDate).getTime(),
-                          new Date(assignment.Day__r.Date__c).getTime()
-                        )
-                      ).toJSON()
+                          Math.max(
+                            new Date(endDate).getTime(),
+                            new Date(assignment.Day__r.Date__c).getTime()
+                          )
+                        ).toJSON()
                       : assignment.Day__r.Date__c,
                   };
                 }

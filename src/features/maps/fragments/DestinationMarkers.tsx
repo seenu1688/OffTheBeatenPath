@@ -1,40 +1,74 @@
-import { useEffect, useRef } from "react";
+import { PropsWithChildren, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
-import type { Marker } from "@googlemaps/markerclusterer";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import { useParams } from "next/navigation";
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import { useShallow } from "zustand/react/shallow";
+import { toast } from "sonner";
+import type { Marker } from "@googlemaps/markerclusterer";
 
-import { CreateSegmentButton } from "./CreateSegment";
+import { Button } from "@/components/button";
 
 import { useFilteredDestinations } from "../hooks/useDestinations";
 import { useLocations } from "../hooks/useLocations";
 
-import { Departure, Destination } from "@/common/types";
-import { TrpcClientProvider, trpcClient } from "@/client";
+import { Destination } from "@/common/types";
+
+const CreateButton = (props: PropsWithChildren & { onClick: () => void }) => {
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      className="text-[#f97415]"
+      onClick={props.onClick}
+    >
+      {props.children}
+    </Button>
+  );
+};
 
 const InfoWindowContent = ({
   destination,
-  queryClient,
-  departure,
+  callback,
 }: {
   destination: Destination;
-  queryClient: QueryClient;
-  departure: Departure;
+  callback: () => void;
 }) => {
+  const handleClick = (entity: "reservation" | "segment" | "route") => {
+    if (entity === "route") {
+      callback();
+      return;
+    }
+
+    const url = new URL(window.location.href);
+
+    Array.from(url.searchParams.entries()).forEach(([key, value]) => {
+      url.searchParams.delete(key);
+    });
+
+    url.searchParams.set("entity", entity);
+    url.searchParams.set("id", destination.id);
+    window.history.pushState(null, "", url.toString());
+  };
+
   return (
-    <TrpcClientProvider queryClient={queryClient}>
-      <div className="flex flex-col gap-2 p-2">
-        <div className="text-sm font-medium">{destination.name}</div>
+    <div className="flex flex-col gap-2 p-2">
+      <div className="text-sm font-medium">{destination.name}</div>
+      <div className="flex flex-col gap-2">
+        <CreateButton onClick={handleClick.bind(null, "route")}>
+          + Add To Route
+        </CreateButton>
         {destination.vendorType === "destinations" && (
-          <CreateSegmentButton
-            destination={destination}
-            departure={departure}
-          />
+          <CreateButton onClick={handleClick.bind(null, "segment")}>
+            + Add To Segment
+          </CreateButton>
+        )}
+        {destination.vendorType !== "destinations" && (
+          <CreateButton onClick={handleClick.bind(null, "reservation")}>
+            + Add To Reservation
+          </CreateButton>
         )}
       </div>
-    </TrpcClientProvider>
+    </div>
   );
 };
 
@@ -45,10 +79,7 @@ const DestinationMarkers = () => {
   const clusterer = useRef<MarkerClusterer | null>(null);
   const destinations = useFilteredDestinations();
   const markersRef = useRef<{ [key: string]: Marker }>({});
-  const addLocation = useLocations((state) => state.addLocation);
-  const queryClient = useQueryClient();
-  const utils = trpcClient.useUtils();
-  const params = useParams<{ id: string }>();
+  const addLocation = useLocations(useShallow((state) => state.addLocation));
 
   useEffect(() => {
     if (!map || !markers || !mapsLibrary) return;
@@ -59,6 +90,44 @@ const DestinationMarkers = () => {
     }
 
     const infoWindow = new mapsLibrary.InfoWindow();
+
+    infoWindow.addListener("closeclick", () => {
+      const url = new URL(window.location.href);
+
+      Array.from(url.searchParams.entries()).forEach(([key, value]) => {
+        url.searchParams.delete(key);
+      });
+      window.history.pushState(null, "", url.toString());
+    });
+
+    const handleMarkerClick = (destination: Destination, marker: Marker) => {
+      infoWindow.close();
+
+      const container = document.createElement("div");
+      const root = createRoot(container);
+
+      root.render(
+        <InfoWindowContent
+          destination={destination}
+          callback={() => {
+            if (!destination.geolocation.lat || !destination.geolocation.lng) {
+              toast.error("Destination does not have a valid geolocation");
+              return;
+            }
+            addLocation({
+              id: destination.id,
+              name: destination.name,
+              lat: destination.geolocation!.lat,
+              lng: destination.geolocation!.lng,
+              placeId: "",
+            });
+          }}
+        />
+      );
+
+      infoWindow.setContent(container);
+      infoWindow.open(map, marker);
+    };
 
     const elements = destinations.reduce((acc, destination) => {
       const { lat, lng } = destination.geolocation || {};
@@ -80,34 +149,10 @@ const DestinationMarkers = () => {
         content: pin.element,
       });
 
-      const createInfoContent = (
-        destination: Destination,
-        callback: () => void
-      ) => {
-        const container = document.createElement("div");
-        const root = createRoot(container);
-        // createPortal(<InfoWindowContent destination={destination} />, container);
-
-        root.render(
-          <InfoWindowContent
-            destination={destination}
-            queryClient={queryClient}
-            departure={utils.departures.getById.getData(params.id)!}
-          />
-        );
-
-        return container;
-      };
-
-      marker.addListener("click", () => {
-        infoWindow.close();
-        infoWindow.setContent(
-          createInfoContent(destination, () => {
-            infoWindow.close();
-          })
-        );
-        infoWindow.open(map, marker);
-      });
+      marker.addListener(
+        "click",
+        handleMarkerClick.bind(null, destination, marker)
+      );
 
       markersRef.current[destination.id] = marker;
 

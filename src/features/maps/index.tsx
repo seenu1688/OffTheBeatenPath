@@ -1,13 +1,9 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useApiIsLoaded } from "@vis.gl/react-google-maps";
 import { Loader } from "lucide-react";
-
-import { useDestinations } from "./hooks/useDestinations";
-
-import { trpcStandAloneClient } from "@/client";
+import ParamModal from "./ParamModal";
 
 const MapPreview = dynamic(() => import("./MapPreview"), {
   ssr: false,
@@ -31,6 +27,7 @@ const MapPlanner = () => {
     <div className="relative flex h-full w-full">
       <Sidebar />
       <MapPreview />
+      <ParamModal />
     </div>
   );
 };
