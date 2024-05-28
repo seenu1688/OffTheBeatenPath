@@ -86,7 +86,7 @@ export const fetchSegmentsByDepartureId = ({
   client: jsforce.Connection;
 }) => {
   const query = `SELECT Id, Segment_Name__c, Narrative__c,StartDate__c,EndDate__c, Start_DateTime__c, End_DateTime__c, PrimaryDestinationId__c, 
-  (SELECT Id, Experience_Name__c, Vendor__r.Name, Vendor__r.Vendor_Type__c, StartDate__c, EndDate__c FROM Reservations__r), (
+  (SELECT Id, Experience_Name__c, Vendor__r.Name, Vendor__r.Vendor_Type__c, StartDate__c,Start_DateTime__c,End_DateTime__c, EndDate__c FROM Reservations__r), (
     SELECT Id, Day__r.Date__c, Destination__c, Destination__r.Name FROM Destination_Assignments__r)
      FROM Segment__c WHERE Departure__c = '${departureId}'`;
 
@@ -158,8 +158,10 @@ export const fetchSegmentsByDepartureId = ({
                     id: reservation.Id,
                     name: reservation.Experience_Name__c,
                     vendorName,
-                    startDate: reservation.StartDate__c,
-                    endDate: reservation.EndDate__c,
+                    startDate:
+                      reservation.Start_DateTime__c ?? reservation.StartDate__c,
+                    endDate:
+                      reservation.End_DateTime__c ?? reservation.EndDate__c,
                     segmentId: record.Id,
                   },
                 ];

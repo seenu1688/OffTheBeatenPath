@@ -28,23 +28,23 @@ export const filters = [
   },
   {
     name: "Activities",
-    id: "activities",
+    id: "Activities",
   },
   {
     name: "Lodging",
-    id: "lodging",
+    id: "Lodging",
   },
   {
     name: "Transportation",
-    id: "transportation",
+    id: "Transportation",
   },
   {
     name: "Guide Service",
-    id: "guide service",
+    id: "Guide service",
   },
   {
     name: "Other",
-    id: "other",
+    id: "Other",
   },
 ] as const;
 

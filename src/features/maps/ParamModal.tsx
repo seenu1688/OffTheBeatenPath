@@ -2,9 +2,11 @@ import { useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 
 import { Dialog, DialogContent } from "@/components/dialog";
+import CreateReservation from "./fragments/CreateReservation";
 import CreateSegment from "./fragments/CreateSegment";
 
 import { trpcClient } from "@/client";
+import ErrorBoundary from "@/components/error-boundary";
 
 const ParamModal = () => {
   const searchParams = useSearchParams();
@@ -40,12 +42,22 @@ const ParamModal = () => {
     if (entity === "segment") {
       return <CreateSegment departure={data} destinationId={id} />;
     }
+
+    return (
+      <CreateReservation
+        destinationId={id}
+        departure={data}
+        onClose={handleClose}
+      />
+    );
   };
 
   return (
-    <Dialog open={!!id} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl">{renderContent()}</DialogContent>
-    </Dialog>
+    <ErrorBoundary>
+      <Dialog open={!!id} onOpenChange={handleClose}>
+        <DialogContent className="max-w-4xl">{renderContent()}</DialogContent>
+      </Dialog>
+    </ErrorBoundary>
   );
 };
 

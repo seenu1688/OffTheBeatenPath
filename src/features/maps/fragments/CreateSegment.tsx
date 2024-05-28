@@ -10,13 +10,7 @@ import { useRef } from "react";
 import { toast } from "sonner";
 import dayjs from "dayjs";
 
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/dialog";
+import { DialogClose, DialogTitle } from "@/components/dialog";
 import { Button } from "@/components/button";
 import {
   Accordion,
@@ -60,7 +54,6 @@ const CreateSegment = (props: Props) => {
     onSuccess(data) {
       toast.success(`Segment ${data.name} has been created successfully`);
       utils.departures.getSegments.invalidate(props.departure.id);
-      utils.departures.getById.invalidate(props.departure.id);
       cancelRef.current?.click();
     },
     onError(error) {

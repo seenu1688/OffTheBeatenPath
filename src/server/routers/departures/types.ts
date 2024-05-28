@@ -17,6 +17,8 @@ export type RawReservationRecord = {
   };
   StartDate__c: string;
   EndDate__c: string;
+  Start_DateTime__c: string;
+  End_DateTime__c: string;
 };
 
 export type RawDestinationAssignmentRecord = {

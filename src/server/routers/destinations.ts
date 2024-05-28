@@ -24,7 +24,6 @@ type RawAccount = {
   Vendor_Type__c: string;
 };
 
-
 type RawDestinationDetail = {
   Id: string;
   Name: string;
@@ -36,7 +35,7 @@ type RawDestinationDetail = {
   Things_to_See_and_Do__c: string;
   Background__c: string;
   Background_Chapter_Header__c: string;
-}
+};
 
 export const destinationsRouter = router({
   list: authProcedure.query<Destination[]>(({ ctx }) => {
@@ -83,9 +82,12 @@ export const destinationsRouter = router({
     });
   }),
   getById: authProcedure.input(z.string()).query(async ({ ctx, input }) => {
-    const response = await ctx.apexClient.get<RawDestinationDetail>("/getRecord", {
-      searchParams: { sObjectName: "Destination__c", recordId: input },
-    });
+    const response = await ctx.apexClient.get<RawDestinationDetail>(
+      "/getRecord",
+      {
+        searchParams: { sObjectName: "Destination__c", recordId: input },
+      }
+    );
 
     return {
       id: response.Id,
@@ -102,8 +104,8 @@ export const destinationsRouter = router({
       },
       thingsToDo: {
         header: response.Things_to_See_and_Do_Chapter_Header__c,
-        content: response.Things_to_See_and_Do__c
-      }
+        content: response.Things_to_See_and_Do__c,
+      },
     };
   }),
   accounts: authProcedure.query<Destination[]>(({ ctx }) => {
@@ -145,7 +147,7 @@ export const destinationsRouter = router({
                 lat: record.Geolocation__Latitude__s,
                 lng: record.Geolocation__Longitude__s,
               },
-              vendorType: vendorType.trim().toLowerCase(),
+              vendorType: vendorType.trim(),
               vendorName: vendorName.trim(),
             };
           });

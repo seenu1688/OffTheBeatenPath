@@ -1,5 +1,6 @@
 import { departuresRouter } from "./routers/departures";
 import { destinationsRouter } from "./routers/destinations";
+import { reservationsRouter } from "./routers/reservations";
 import { segmentsRouter } from "./routers/segments";
 import { publicProcedure, router } from "./trpc";
 
@@ -10,6 +11,7 @@ export const appRouter = router({
   destinations: destinationsRouter,
   departures: departuresRouter,
   segments: segmentsRouter,
+  reservations: reservationsRouter
 });
 
 export type AppRouter = typeof appRouter;
