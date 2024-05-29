@@ -22,7 +22,7 @@ export const usePlanner = (departure: Departure) => {
       startDate,
       endDate,
       dayWidth,
-      width: dayCount * dayWidth + 2 * dayWidth,
+      width: dayCount * dayWidth + 2 * dayWidth + 100,
       dayCount,
     };
   });

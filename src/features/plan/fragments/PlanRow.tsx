@@ -1,8 +1,10 @@
-import dayjs from "dayjs";
+import { PopoverArrow, PopoverPortal } from "@radix-ui/react-popover";
 
 import { PlannerState } from "../hooks/usePlanner";
 
 import { useDeparture } from "../hooks/useDeparture";
+
+import { getItemPlacement } from "../helpers";
 
 import { PlanType } from "../constants";
 
@@ -24,7 +26,7 @@ const PlanRow = ({ plan, data, state }: Props) => {
       className="relative grid min-h-16 w-full border-b-1.5 border-b-[#C59D89]"
       key={plan.id}
       style={{
-        gridTemplateColumns: `${state.dayWidth}px 1fr ${state.dayWidth}px`,
+        gridTemplateColumns: `${state.dayWidth}px 50px 1fr ${state.dayWidth}px`,
       }}
     >
       <div className="sticky left-0 z-10 h-full  bg-[#EAEADD] py-2">
@@ -33,25 +35,22 @@ const PlanRow = ({ plan, data, state }: Props) => {
           {plan.title}
         </div>
       </div>
+      <div className="w-full"></div>
       <div className="flex flex-col py-2">
         {gridData.map((line, index) => {
           return (
             <div key={index} className="relative flex h-[40px] items-center">
               {line.map((segment, i) => {
-                const { startDate, endDate } = segment;
+                const { position, width, ...rest } = getItemPlacement(
+                  segment,
+                  { startDate: state.startDate, endDate: state.endDate },
+                  state.dayWidth
+                );
 
-                const dayCount = dayjs(endDate).diff(startDate, "day") + 1;
-
-                const position =
-                  dayjs(startDate).diff(dayjs(state.startDate), "day") *
-                    state.dayWidth +
-                  5;
-                const width = dayCount * state.dayWidth;
-
-                return (
+                const children = (
                   <div
                     style={{
-                      width: `${width - 5}px`,
+                      width: `${width}px`,
                       transform: `translateX(${position}px)`,
                       background: plan.accentColor,
                       borderColor: plan.primaryColor,
@@ -67,6 +66,8 @@ const PlanRow = ({ plan, data, state }: Props) => {
                     </div>
                   </div>
                 );
+
+                return children;
               })}
             </div>
           );

@@ -4,7 +4,7 @@ const GridLines = ({ dayWidth }: { dayWidth: number }) => {
       <div
         className="absolute bottom-0 top-0 h-full translate-x-1/2 bg-black"
         style={{
-          left: `${dayWidth}px`,
+          left: `${dayWidth + 45}px`,
           width: 2,
           zIndex: -1,
         }}
