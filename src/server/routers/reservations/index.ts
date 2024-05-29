@@ -1,9 +1,9 @@
 import { z } from "zod";
+import { QueryResult } from "jsforce";
 
 import { authProcedure, router } from "@/server/trpc";
 import { TRPCError } from "@trpc/server";
 import { createReservationsSchema } from "./schema";
-import { QueryResult } from "jsforce";
 
 type RawCreateReservationResponse = {
   Id: string;
@@ -177,4 +177,18 @@ export const reservationsRouter = router({
         });
       }
     }),
+  delete: authProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
+    const response = await ctx.apexClient.delete("/deleteRecord", {
+      searchParams: { sObjectName: "Reservation__c", recordId: input },
+    });
+
+    if (Array.isArray(response) && response[0]?.errorCode === "APEX_ERROR") {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: response[0].message,
+      });
+    }
+
+    return response;
+  }),
 });

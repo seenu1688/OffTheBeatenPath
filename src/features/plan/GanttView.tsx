@@ -32,7 +32,13 @@ const GanttView = (props: Props) => {
     >
       {tripPlans.map((plan) => {
         return (
-          <PlanRow key={plan.id} state={props.state} plan={plan} data={data} />
+          <PlanRow
+            key={plan.id}
+            departureId={props.departureId}
+            state={props.state}
+            plan={plan}
+            data={data}
+          />
         );
       })}
       <GridTileArea count={dayCount} />

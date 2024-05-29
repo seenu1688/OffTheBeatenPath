@@ -1,22 +1,58 @@
-import { trpcClient } from "@/client";
+import { useRef } from "react";
+import { Loader } from "lucide-react";
+import { toast } from "sonner";
+
 import { Button } from "@/components/button";
-import dayjs from "dayjs";
+
+import { trpcClient } from "@/client";
+import { DialogClose } from "@/components/dialog";
 
 const ReservationPopoverCard = ({
   reservationId,
+  departureId,
 }: {
   reservationId: string;
+  departureId: string;
 }) => {
+  const utils = trpcClient.useUtils();
+  const closeRef = useRef<HTMLButtonElement>(null);
   const { data, isLoading } =
     trpcClient.reservations.getById.useQuery(reservationId);
+  const { isPending, mutateAsync } = trpcClient.reservations.delete.useMutation(
+    {
+      onSuccess() {
+        toast.success("Reservation deleted successfully");
+        utils.departures.getSegments.invalidate(departureId);
+        closeRef.current?.click();
+      },
+      onError(error) {
+        console.log(error);
+
+        toast.error("Error deleting reservation", {
+          style: {
+            backgroundColor: "#FF0000",
+            color: "#FFFFFF",
+          },
+        });
+      },
+    }
+  );
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
 
   if (!data) {
     return <div>Reservation not found</div>;
   }
+
+  const handleDelete = async () => {
+    await mutateAsync(data.id);
+  };
 
   return (
     <div>
@@ -57,8 +93,12 @@ const ReservationPopoverCard = ({
         </div>
         <div className="my-2 w-full border-b border-[#C7A08D] "></div>
         <div className="flex items-center justify-end gap-4">
-          <Button variant="outline">Delete</Button>
-          <Button>Edit</Button>
+          <Button variant="outline" disabled={isPending} onClick={handleDelete}>
+            Delete
+          </Button>
+          <DialogClose asChild ref={closeRef}>
+            <Button disabled={isPending}>Edit</Button>
+          </DialogClose>
         </div>
       </div>
     </div>

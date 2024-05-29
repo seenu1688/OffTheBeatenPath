@@ -1,5 +1,5 @@
 import jsforce from "jsforce";
-import qs from 'qs';
+import qs from "qs";
 
 import { Context } from "./context";
 
@@ -15,7 +15,7 @@ type GetProps = {
   headers?: Record<string, string>;
 };
 
-type PostProps<B> = GetProps & { body: B };
+type PostProps<B> = GetProps & { body?: B };
 
 export const createApexClient = ({
   accessToken,
@@ -94,6 +94,25 @@ export const createApexClient = ({
       }
 
       return json as T;
+    },
+    delete: async <T>(url: string, props: GetProps) => {
+      const params = qs.stringify(props.searchParams);
+
+      let finalUrl = `${apiUrl}${url}`;
+
+      if (params) {
+        finalUrl = `${apiUrl}${url}?${params}`;
+      }
+
+      const response = await fetch(finalUrl, {
+        method: "DELETE",
+        headers: {
+          ...defaultHeaders,
+          ...props.headers,
+        },
+      });
+
+      return (await response.json()) as T;
     },
   };
 };

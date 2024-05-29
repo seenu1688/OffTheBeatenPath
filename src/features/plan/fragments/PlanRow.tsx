@@ -17,9 +17,10 @@ type Props = {
   plan: PlanType;
   data: DeparturesResponse;
   state: PlannerState;
+  departureId: string;
 };
 
-const PlanRow = ({ plan, data, state }: Props) => {
+const PlanRow = ({ plan, data, state, departureId }: Props) => {
   const gridData = useDeparture<
     DeparturesResponse[(typeof plan)["id"]][number]
   >(data[plan.id] ?? []);
@@ -79,7 +80,10 @@ const PlanRow = ({ plan, data, state }: Props) => {
                     <PopoverTrigger asChild>{children}</PopoverTrigger>
                     <PopoverPortal>
                       <PopoverContent className="w-[350px] border border-orange-500 shadow-md">
-                        <ReservationPopoverCard reservationId={segment.id} />
+                        <ReservationPopoverCard
+                          departureId={departureId}
+                          reservationId={segment.id}
+                        />
                         <PopoverArrow fill="#fff" className="drop-shadow" />
                       </PopoverContent>
                     </PopoverPortal>
