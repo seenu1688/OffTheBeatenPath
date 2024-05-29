@@ -1,5 +1,8 @@
 import { PopoverArrow, PopoverPortal } from "@radix-ui/react-popover";
 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
+import ReservationPopoverCard from "./ReservationPopoverCard";
+
 import { PlannerState } from "../hooks/usePlanner";
 
 import { useDeparture } from "../hooks/useDeparture";
@@ -67,7 +70,21 @@ const PlanRow = ({ plan, data, state }: Props) => {
                   </div>
                 );
 
-                return children;
+                if (plan.id === "segments" || plan.id === "destinations") {
+                  return children;
+                }
+
+                return (
+                  <Popover key={segment.id}>
+                    <PopoverTrigger asChild>{children}</PopoverTrigger>
+                    <PopoverPortal>
+                      <PopoverContent className="w-[330px] border border-orange-500 shadow-md">
+                        <ReservationPopoverCard reservationId={segment.id} />
+                        <PopoverArrow fill="#fff" className="drop-shadow" />
+                      </PopoverContent>
+                    </PopoverPortal>
+                  </Popover>
+                );
               })}
             </div>
           );

@@ -50,12 +50,66 @@ type Reservation = {
 };
 
 export const reservationsRouter = router({
-  getById: authProcedure.input(z.string()).query(async ({ ctx, input }) => {
-    const query = `SELECT Id, Name, Phone, Website, Summary_Description__c, 
+  getExperiences: authProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const query = `SELECT Id, Name, Phone, Website, Summary_Description__c, 
     Commission__c, TaxRate__c, (select Id,name, Vendor__c from Activities__r) from Account WHERE Id='${input}'`;
 
-    return new Promise<Reservation>(async (resolve, reject) => {
-      ctx.salesforceClient.query<RawReservation>(query, {}, (err, result) => {
+      return new Promise<Reservation>(async (resolve, reject) => {
+        ctx.salesforceClient.query<RawReservation>(query, {}, (err, result) => {
+          if (err) {
+            console.log(err);
+
+            reject(err);
+          }
+
+          const record = result.records[0];
+
+          resolve({
+            id: record.Id,
+            name: record.Name,
+            phone: record.Phone,
+            website: record.Website,
+            summary: record.Summary_Description__c,
+            commission: record.Commission__c,
+            taxRate: record.TaxRate__c,
+            experiences:
+              record.Activities__r?.records.map((activity) => ({
+                id: activity.Id,
+                name: activity.Name,
+                vendor: activity.Vendor__c,
+              })) || [],
+          });
+        });
+      });
+    }),
+  getById: authProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    const query = `SELECT Id, Name,Experience_Name__c, Departure__c, Vendor__c,  Start_DateTime__c, End_DateTime__c, RecordType.Name, 
+    Experience__r.Name,Vendor__r.Id,Vendor__r.Name,Sum_of_payables_paid__c,Sum_of_payables_unpaid__c, Net_Cost__c 
+    FROM Reservation__c WHERE Id='${input}'`;
+
+    return new Promise<{
+      id: string;
+      name: string;
+      departure: string;
+      vendor: {
+        id: string;
+        name: string;
+      };
+      startDateTime: string;
+      endDateTime: string;
+      recordType: string;
+      experience: {
+        name: string;
+      };
+      payables: {
+        paid: number;
+        unpaid: number;
+      };
+      netCost: number;
+    }>(async (resolve, reject) => {
+      ctx.salesforceClient.query<any>(query, {}, (err, result) => {
         if (err) {
           console.log(err);
 
@@ -67,17 +121,22 @@ export const reservationsRouter = router({
         resolve({
           id: record.Id,
           name: record.Name,
-          phone: record.Phone,
-          website: record.Website,
-          summary: record.Summary_Description__c,
-          commission: record.Commission__c,
-          taxRate: record.TaxRate__c,
-          experiences:
-            record.Activities__r?.records.map((activity) => ({
-              id: activity.Id,
-              name: activity.Name,
-              vendor: activity.Vendor__c,
-            })) || [],
+          departure: record.Departure__c,
+          vendor: {
+            id: record.Vendor__r.Id,
+            name: record.Vendor__r.Name,
+          },
+          startDateTime: record.Start_DateTime__c,
+          endDateTime: record.End_DateTime__c,
+          recordType: record.RecordType.Name,
+          experience: {
+            name: record.Experience_Name__c,
+          },
+          payables: {
+            paid: record.Sum_of_payables_paid__c,
+            unpaid: record.Sum_of_payables_unpaid__c,
+          },
+          netCost: record.Net_Cost__c,
         });
       });
     });
