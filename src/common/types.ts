@@ -18,6 +18,7 @@ export type Departure = {
   tripName: string;
   startDate: string;
   endDate: string;
+  routeInfo?: string;
 };
 
 //

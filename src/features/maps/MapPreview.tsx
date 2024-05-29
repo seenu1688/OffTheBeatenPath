@@ -11,23 +11,41 @@ import {
 } from "@/components/tooltip";
 
 import Directions from "./fragments/Directions";
+import DestinationMarkers from "./fragments/DestinationMarkers";
 
 import { Location, useLocations } from "./hooks/useLocations";
-import DestinationMarkers from "./fragments/DestinationMarkers";
+import { trpcClient } from "@/client";
+import { Departure } from "@/common/types";
 
 const DEFAULT_CENTER = {
   lat: 45.6823097,
   lng: -111.0394193,
 };
 
-const MapPreview = () => {
+const MapPreview = (props: { departure: Departure }) => {
   const locations = useLocations((state) => state.locations);
   const map = useMap();
+
+  const { mutate: saveRouteInfo } =
+    trpcClient.departures.saveRouteInfo.useMutation();
+  const { id: departureId } = props.departure;
+
+  useEffect(() => {
+    const unsubscribe = useLocations.subscribe((state) => {
+      const { locations } = state;
+      saveRouteInfo({
+        departureId: departureId,
+        routeInfo: JSON.stringify(locations),
+      });
+    });
+
+    return unsubscribe;
+  }, [departureId, saveRouteInfo]);
 
   useEffect(() => {
     if (!map) return;
 
-    useLocations.subscribe((state) => {
+    const unsubscribe = useLocations.subscribe((state) => {
       var latlngbounds = new google.maps.LatLngBounds();
 
       state.locations.forEach((location) => {
@@ -38,6 +56,8 @@ const MapPreview = () => {
       map.setCenter(latlngbounds.getCenter());
       map.fitBounds(latlngbounds);
     });
+
+    return unsubscribe;
   }, [map]);
 
   const getBoundes = (locations: Location[]) => {

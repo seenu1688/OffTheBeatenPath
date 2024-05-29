@@ -62,7 +62,7 @@ const DeparturePlanner = (props: Props) => {
           >
             {showPlanner ? <ChevronUp /> : <ChevronDown />}
           </button>
-          <MapPlanner />
+          <MapPlanner departure={props.departure} />
         </div>
       </div>
     </div>

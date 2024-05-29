@@ -6,6 +6,7 @@ export type RawDeparture = {
   };
   Start_DateTime__c: string;
   End_DateTime__c: string;
+  Route_Information__c?: string;
 };
 
 export type RawReservationRecord = {

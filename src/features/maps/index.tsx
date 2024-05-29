@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useApiIsLoaded } from "@vis.gl/react-google-maps";
 import { Loader } from "lucide-react";
 import ParamModal from "./ParamModal";
+import { Departure } from "@/common/types";
 
 const MapPreview = dynamic(() => import("./MapPreview"), {
   ssr: false,
@@ -12,7 +13,7 @@ const Sidebar = dynamic(() => import("./Sidebar"), {
   ssr: false,
 });
 
-const MapPlanner = () => {
+const MapPlanner = (props: { departure: Departure }) => {
   const isApiLoaded = useApiIsLoaded();
 
   if (!isApiLoaded) {
@@ -26,7 +27,7 @@ const MapPlanner = () => {
   return (
     <div className="relative flex h-full w-full">
       <Sidebar />
-      <MapPreview />
+      <MapPreview departure={props.departure} />
       <ParamModal />
     </div>
   );

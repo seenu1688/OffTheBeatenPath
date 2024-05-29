@@ -20,7 +20,8 @@ export const fetchDepartureById = ({
   departureId: string;
   client: jsforce.Connection;
 }) => {
-  const query = `SELECT Id, Name, Trip__r.Name, Start_DateTime__c, End_DateTime__c FROM Departure__c WHERE Id='${departureId}'`;
+  const query = `SELECT Id, Name, Trip__r.Name, Start_DateTime__c, End_DateTime__c, 
+  Route_Information__c FROM Departure__c WHERE Id='${departureId}'`;
 
   return new Promise<Departure>((resolve, reject) => {
     client.query(query, {}, (err, result: QueryResult<RawDeparture>) => {
@@ -70,6 +71,7 @@ export const fetchDepartureById = ({
           startDate: record.Start_DateTime__c,
           endDate: record.End_DateTime__c,
           tripName: record.Trip__r.Name,
+          routeInfo: record.Route_Information__c || "[]",
         };
       });
 

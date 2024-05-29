@@ -12,6 +12,7 @@ import { useFilteredDestinations } from "../hooks/useDestinations";
 import { useLocations } from "../hooks/useLocations";
 
 import { Destination } from "@/common/types";
+import { trpcClient } from "@/client";
 
 const CreateButton = (props: PropsWithChildren & { onClick: () => void }) => {
   return (

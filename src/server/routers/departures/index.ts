@@ -58,10 +58,37 @@ export const departuresRouter = router({
   saveRouteInfo: authProcedure
     .input(z.object({ departureId: z.string(), routeInfo: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const { salesforceClient } = ctx;
+      console.log(
+        JSON.stringify({
+          jsonData: [
+            {
+              attributes: { type: "Departure__c" },
+              Id: input.departureId,
+              Route_Information__c: input.routeInfo,
+            },
+          ],
+        })
+      );
 
       try {
+        const response = await ctx.apexClient.put("/updateRecords", {
+          body: {
+            jsonData: JSON.stringify([
+              {
+                attributes: { type: "Departure__c" },
+                Id: input.departureId,
+                Route_Information__c: input.routeInfo,
+              },
+            ]),
+          },
+        });
+
+        return response;
       } catch (err) {
+        console.log("error");
+
+        console.log(err);
+
         throw err;
       }
     }),
