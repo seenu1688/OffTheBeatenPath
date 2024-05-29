@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/button";
 
 import { trpcClient } from "@/client";
-import { DialogClose } from "@/components/dialog";
+import { PopoverClose } from "@radix-ui/react-popover";
 
 const ReservationPopoverCard = ({
   reservationId,
@@ -96,9 +96,9 @@ const ReservationPopoverCard = ({
           <Button variant="outline" disabled={isPending} onClick={handleDelete}>
             Delete
           </Button>
-          <DialogClose asChild ref={closeRef}>
+          <PopoverClose asChild ref={closeRef}>
             <Button disabled={isPending}>Edit</Button>
-          </DialogClose>
+          </PopoverClose>
         </div>
       </div>
     </div>
