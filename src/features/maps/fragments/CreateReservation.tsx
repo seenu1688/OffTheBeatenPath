@@ -134,6 +134,9 @@ const CreateReservation = (props: Props) => {
     return null;
   }
 
+  const segmentId = form.watch("segmentId");
+  const segment = data.segments.find((s) => s.id === segmentId);
+
   return (
     <FormProvider {...form}>
       <DialogTitle>Create Reservation</DialogTitle>
@@ -229,8 +232,7 @@ const CreateReservation = (props: Props) => {
               control={control}
               render={({ field }) => {
                 const endDateTime = form.watch("endDateTime");
-                const segmentId = form.watch("segmentId");
-                const segment = data.segments.find((s) => s.id === segmentId);
+
                 return (
                   <DateTimeField
                     field={field}
@@ -238,7 +240,10 @@ const CreateReservation = (props: Props) => {
                       new Date(segment?.startDate || departureStartDate)
                     }
                     error={errors.startDateTime}
-                    toDate={endDateTime || departureEndDate}
+                    toDate={
+                      endDateTime ||
+                      new Date(segment?.endDate || departureEndDate)
+                    }
                     disabled={field.disabled || !segmentId}
                   />
                 );
@@ -257,7 +262,7 @@ const CreateReservation = (props: Props) => {
                     fromDate={startDateTime || departureStartDate}
                     field={field}
                     error={errors.endDateTime}
-                    toDate={departureEndDate}
+                    toDate={new Date(segment?.endDate || departureEndDate)}
                     disabled={field.disabled || !startDateTime}
                   />
                 );
