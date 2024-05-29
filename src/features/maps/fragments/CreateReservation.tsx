@@ -54,7 +54,7 @@ const CreateReservation = (props: Props) => {
     data: reservation,
     isLoading,
     error,
-  } = trpcClient.reservations.getById.useQuery(props.destinationId, {
+  } = trpcClient.reservations.getExperiences.useQuery(props.destinationId, {
     enabled: !!destination,
   });
   const { data, isLoading: loading } =
@@ -229,13 +229,17 @@ const CreateReservation = (props: Props) => {
               control={control}
               render={({ field }) => {
                 const endDateTime = form.watch("endDateTime");
+                const segmentId = form.watch("segmentId");
+                const segment = data.segments.find((s) => s.id === segmentId);
                 return (
                   <DateTimeField
                     field={field}
-                    fromDate={departureStartDate}
+                    fromDate={
+                      new Date(segment?.startDate || departureStartDate)
+                    }
                     error={errors.startDateTime}
                     toDate={endDateTime || departureEndDate}
-                    disabled={field.disabled}
+                    disabled={field.disabled || !segmentId}
                   />
                 );
               }}

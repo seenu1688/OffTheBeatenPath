@@ -40,7 +40,7 @@ export const filters = [
   },
   {
     name: "Guide Service",
-    id: "Guide service",
+    id: "Guide Service",
   },
   {
     name: "Other",
