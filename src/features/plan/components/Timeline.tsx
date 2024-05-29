@@ -72,7 +72,7 @@ const Timeline = (props: Props) => {
       <GridLineLabel
         className={cn("absolute bottom-[5px] -translate-x-1/2")}
         style={{
-          left: `${width - dayWidth}px`,
+          left: `${width - dayWidth - 45}px`,
         }}
         label="Departure"
         icon={<Luggage size={14} />}
