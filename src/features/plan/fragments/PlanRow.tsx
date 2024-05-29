@@ -78,7 +78,7 @@ const PlanRow = ({ plan, data, state }: Props) => {
                   <Popover key={segment.id}>
                     <PopoverTrigger asChild>{children}</PopoverTrigger>
                     <PopoverPortal>
-                      <PopoverContent className="w-[330px] border border-orange-500 shadow-md">
+                      <PopoverContent className="w-[350px] border border-orange-500 shadow-md">
                         <ReservationPopoverCard reservationId={segment.id} />
                         <PopoverArrow fill="#fff" className="drop-shadow" />
                       </PopoverContent>
