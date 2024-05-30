@@ -42,7 +42,7 @@ const GanttView = (props: Props) => {
         );
       })}
       <GridTileArea count={dayCount} />
-      <GridLines dayWidth={dayWidth} />
+      <GridLines state={props.state} />
     </div>
   );
 };

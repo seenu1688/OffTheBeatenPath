@@ -29,7 +29,7 @@ const getDateRanges = (startDate: Date, endDate: Date) => {
 };
 
 const Timeline = (props: Props) => {
-  const { dayWidth, startDate, endDate, width } = props.state;
+  const { dayWidth, startDate, endDate, width, dayCount } = props.state;
 
   const ranges = useMemo(
     () => getDateRanges(startDate, endDate),
@@ -72,7 +72,7 @@ const Timeline = (props: Props) => {
       <GridLineLabel
         className={cn("absolute bottom-[5px] -translate-x-1/2")}
         style={{
-          left: `${width - dayWidth - 45}px`,
+          left: `${dayCount * dayWidth + 46}px`,
         }}
         label="Departure"
         icon={<Luggage size={14} />}

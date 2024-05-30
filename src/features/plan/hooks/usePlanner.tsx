@@ -15,8 +15,12 @@ export const usePlanner = (departure: Departure) => {
   const [state, setState] = useState(() => {
     const startDate = dayjs(departure.startDate).startOf("day").toDate();
     const endDate = dayjs(departure.endDate).startOf("day").toDate();
-    const dayCount = dayjs(endDate).diff(startDate, "day") + 1;
+    let dayCount = dayjs(endDate).diff(startDate, "day") + 1;
     const dayWidth = 240;
+
+    if (dayCount < 7) {
+      dayCount = 7;
+    }
 
     return {
       startDate,

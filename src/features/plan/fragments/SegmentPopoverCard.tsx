@@ -40,10 +40,15 @@ const SegmentPopoverCard = (props: Props) => {
   return (
     <div className="p-3">
       <div className="flex items-center justify-end gap-4">
-        <Button variant="outline" disabled={isPending} onClick={handleDelete}>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={isPending}
+          onClick={handleDelete}
+        >
           Delete
         </Button>
-        <Button disabled={isPending} onClick={onEdit}>
+        <Button disabled={isPending} onClick={onEdit} size="sm">
           Edit
         </Button>
       </div>

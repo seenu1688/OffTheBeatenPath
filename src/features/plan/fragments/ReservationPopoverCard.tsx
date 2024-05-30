@@ -14,8 +14,8 @@ const LabelItem = ({
   value: string | number;
 }) => {
   return (
-    <div className="grid grid-cols-2 gap-3 text-sm">
-      <div className="text-sm text-gray-700">{label}</div>
+    <div className="grid grid-cols-2 items-center gap-3 text-sm">
+      <div className="text-xs text-gray-700">{label}</div>
       <div>{value}</div>
     </div>
   );
@@ -80,12 +80,12 @@ const ReservationPopoverCard = ({
   return (
     <div className="p-3">
       <div>
-        <div>{data.recordType}</div>
-        <div className="text-lg">{data.experience?.name}</div>
+        <div className="text-sm">{data.recordType}</div>
+        <div className="text-base">{data.experience?.name}</div>
       </div>
       <Divider />
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <LabelItem label="Reservation Number" value={data.recordType} />
         <LabelItem label="Record Type" value={data.recordType} />
         <LabelItem label="Vendor" value={data.vendor.name} />
@@ -97,10 +97,15 @@ const ReservationPopoverCard = ({
         <Divider />
 
         <div className="flex items-center justify-end gap-4">
-          <Button variant="outline" disabled={isPending} onClick={handleDelete}>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isPending}
+            onClick={handleDelete}
+          >
             Delete
           </Button>
-          <Button disabled={isPending} onClick={onEdit}>
+          <Button size="sm" disabled={isPending} onClick={onEdit}>
             Edit
           </Button>
         </div>
