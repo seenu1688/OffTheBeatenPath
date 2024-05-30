@@ -1,8 +1,15 @@
 import { Loader2 as BaseLoader } from "lucide-react";
 
-const Loader = () => {
+import { cn } from "@/lib/utils";
+
+const Loader = (props: { className?: string }) => {
   return (
-    <div className="flex h-full w-full items-center justify-center">
+    <div
+      className={cn(
+        "flex h-full w-full items-center justify-center",
+        props.className
+      )}
+    >
       <BaseLoader size={64} className="animate-spin text-primary" />
     </div>
   );

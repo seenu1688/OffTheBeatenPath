@@ -1,10 +1,6 @@
-import { PopoverArrow, PopoverPortal } from "@radix-ui/react-popover";
-
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/popover";
-import ReservationPopoverCard from "./ReservationPopoverCard";
+import PlanLineItem from "./PlanLineItem";
 
 import { PlannerState } from "../hooks/usePlanner";
-
 import { useDeparture } from "../hooks/useDeparture";
 
 import { getItemPlacement } from "../helpers";
@@ -44,57 +40,29 @@ const PlanRow = ({ plan, data, state, departureId }: Props) => {
         {gridData.map((line, index) => {
           return (
             <div key={index} className="relative flex h-[40px] items-center">
-              {line.map((segment, i) => {
-                const { position, width, ...rest } = getItemPlacement(
-                  segment,
+              {line.map((lineItem) => {
+                const { position, width } = getItemPlacement(
+                  lineItem,
                   { startDate: state.startDate, endDate: state.endDate },
                   state.dayWidth
                 );
 
-                const children = (
-                  <div
-                    style={{
-                      width: `${width}px`,
-                      transform: `translateX(${position}px)`,
-                      background: plan.accentColor,
-                      borderColor: plan.primaryColor,
-                    }}
-                    key={segment.id}
-                    className="z-1 absolute cursor-pointer rounded-sm border-1.5  px-3 py-1 text-left text-xs"
-                  >
-                    <div
-                      title={segment.name}
-                      className="w-auto overflow-hidden text-ellipsis whitespace-nowrap"
-                    >
-                      {segment.name}
-                    </div>
-                  </div>
-                );
-
-                if (plan.id === "segments" || plan.id === "destinations") {
-                  return children;
-                }
-
                 return (
-                  <Popover key={segment.id}>
-                    <PopoverTrigger asChild>{children}</PopoverTrigger>
-                    <PopoverPortal>
-                      <PopoverContent className="w-[350px] border border-orange-500 shadow-md">
-                        <ReservationPopoverCard
-                          departureId={departureId}
-                          reservationId={segment.id}
-                        />
-                        <PopoverArrow fill="#fff" className="drop-shadow" />
-                      </PopoverContent>
-                    </PopoverPortal>
-                  </Popover>
+                  <PlanLineItem
+                    key={lineItem.id}
+                    item={lineItem}
+                    plan={plan}
+                    width={width}
+                    position={position}
+                    departureId={departureId}
+                  />
                 );
               })}
             </div>
           );
         })}
       </div>
-      <div></div>
+      <div className="w-full"></div>
     </div>
   );
 };

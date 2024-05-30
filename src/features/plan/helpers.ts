@@ -71,7 +71,5 @@ export const getItemPlacement = <
   return {
     width: hoursCount * hourWidth,
     position: diff * hourWidth,
-    diff,
-    hoursCount,
   };
 };

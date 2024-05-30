@@ -5,15 +5,39 @@ import { toast } from "sonner";
 import { Button } from "@/components/button";
 
 import { trpcClient } from "@/client";
-import { PopoverClose } from "@radix-ui/react-popover";
+
+const LabelItem = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) => {
+  return (
+    <div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="text-sm text-gray-700">{label}</div>
+      <div>{value}</div>
+    </div>
+  );
+};
+
+const Divider = () => {
+  return <div className="my-2 w-full border-b border-[#C7A08D] "></div>;
+};
+
+type Props = {
+  reservationId: string;
+  departureId: string;
+  onEdit?: () => void;
+  onClose: () => void;
+};
 
 const ReservationPopoverCard = ({
   reservationId,
   departureId,
-}: {
-  reservationId: string;
-  departureId: string;
-}) => {
+  onEdit,
+  onClose,
+}: Props) => {
   const utils = trpcClient.useUtils();
   const closeRef = useRef<HTMLButtonElement>(null);
   const { data, isLoading } =
@@ -23,7 +47,6 @@ const ReservationPopoverCard = ({
       onSuccess() {
         toast.success("Reservation deleted successfully");
         utils.departures.getSegments.invalidate(departureId);
-        closeRef.current?.click();
       },
       onError(error) {
         console.log(error);
@@ -40,7 +63,7 @@ const ReservationPopoverCard = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center">
+      <div className="flex animate-spin items-center justify-center p-3">
         <Loader />
       </div>
     );
@@ -52,53 +75,35 @@ const ReservationPopoverCard = ({
 
   const handleDelete = async () => {
     await mutateAsync(data.id);
+    await onClose();
   };
 
   return (
-    <div>
+    <div className="p-3">
       <div>
         <div>{data.recordType}</div>
         <div className="text-lg">{data.experience?.name}</div>
       </div>
-      <div className="my-2 w-full border-b border-[#C7A08D] "></div>
+      <Divider />
+
       <div className="flex flex-col gap-2">
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="text-sm text-gray-700">Reservation Number</div>
-          <div>{data.recordType}</div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="text-sm text-gray-700">Record Type</div>
-          <div>{data.recordType}</div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="text-sm text-gray-700">Vendor</div>
-          <div>{data.vendor.name}</div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="text-sm text-gray-700">Experience Name</div>
-          <div>{data.vendor.name}</div>
-        </div>
-        <div className="my-2 w-full border-b border-[#C7A08D] "></div>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="text-sm text-gray-700">Net Pay total</div>
-          <div>{data.netCost}</div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="text-sm text-gray-700">Sum of payables</div>
-          <div>{data.payables.paid ?? "NA"}</div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="text-sm text-gray-700">Payables due</div>
-          <div>{data.payables.unpaid ?? "NA"}</div>
-        </div>
-        <div className="my-2 w-full border-b border-[#C7A08D] "></div>
+        <LabelItem label="Reservation Number" value={data.recordType} />
+        <LabelItem label="Record Type" value={data.recordType} />
+        <LabelItem label="Vendor" value={data.vendor.name} />
+        <LabelItem label="Experience Name" value={data.vendor.name} />
+        <Divider />
+        <LabelItem label="Net Pay total" value={data.netCost} />
+        <LabelItem label="Sum of payables" value={data.payables.paid ?? "NA"} />
+        <LabelItem label="Payables due" value={data.payables.unpaid ?? "NA"} />
+        <Divider />
+
         <div className="flex items-center justify-end gap-4">
           <Button variant="outline" disabled={isPending} onClick={handleDelete}>
             Delete
           </Button>
-          <PopoverClose asChild ref={closeRef}>
-            <Button disabled={isPending}>Edit</Button>
-          </PopoverClose>
+          <Button disabled={isPending} onClick={onEdit}>
+            Edit
+          </Button>
         </div>
       </div>
     </div>

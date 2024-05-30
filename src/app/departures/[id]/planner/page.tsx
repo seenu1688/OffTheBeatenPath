@@ -44,7 +44,6 @@ const PlannerPage = () => {
   useEffect(() => {
     if (data && data.routeInfo) {
       const routeInfo = JSON.parse(data.routeInfo);
-      console.log(routeInfo);
 
       setLocations(routeInfo);
     }
