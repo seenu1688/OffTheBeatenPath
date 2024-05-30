@@ -1,3 +1,4 @@
+import { accountsRouter } from "./routers/accounts";
 import { departuresRouter } from "./routers/departures";
 import { destinationsRouter } from "./routers/destinations";
 import { reservationsRouter } from "./routers/reservations";
@@ -11,7 +12,8 @@ export const appRouter = router({
   destinations: destinationsRouter,
   departures: departuresRouter,
   segments: segmentsRouter,
-  reservations: reservationsRouter
+  reservations: reservationsRouter,
+  accounts: accountsRouter,
 });
 
 export type AppRouter = typeof appRouter;

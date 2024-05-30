@@ -62,3 +62,24 @@ export type DeparturesResponse = {
   transportation: any[];
   other: any[];
 };
+
+export type ReservationResponse = {
+  id: string;
+  name: string;
+  departure: string;
+  vendor: {
+    id: string;
+    name: string;
+  };
+  startDateTime: string;
+  endDateTime: string;
+  recordType: string;
+  experience: {
+    name: string;
+  };
+  payables: {
+    paid: number;
+    unpaid: number;
+  };
+  netCost: number;
+};
