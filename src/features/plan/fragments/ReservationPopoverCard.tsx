@@ -39,7 +39,6 @@ const ReservationPopoverCard = ({
   onClose,
 }: Props) => {
   const utils = trpcClient.useUtils();
-  const closeRef = useRef<HTMLButtonElement>(null);
   const { data, isLoading } =
     trpcClient.reservations.getById.useQuery(reservationId);
   const { isPending, mutateAsync } = trpcClient.reservations.delete.useMutation(
@@ -75,7 +74,7 @@ const ReservationPopoverCard = ({
 
   const handleDelete = async () => {
     await mutateAsync(data.id);
-    await onClose();
+    onClose();
   };
 
   return (

@@ -2,18 +2,15 @@ import { useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 import PopoverCard from "./PopoverCard";
-import {
-  Dialog,
-  DialogContent,
-  DialogOverlay,
-  DialogPortal,
-} from "@/components/dialog";
+import { Dialog, DialogOverlay, DialogPortal } from "@/components/dialog";
+import AccountView from "./AccountView";
 
 import { cn } from "@/lib/utils";
 import { PlanType } from "../constants";
 
 import { DeparturesResponse } from "@/common/types";
-import AccountView from "./AccountView";
+import SegmentPopoverCard from "./SegmentPopoverCard";
+import ReservationPopoverCard from "./ReservationPopoverCard";
 
 type Props = {
   item: DeparturesResponse[
@@ -46,7 +43,7 @@ const PlanLineItem = (props: Props) => {
         }}
         key={item.id}
         className={cn(
-          "z-1 cursor-pointer rounded-sm border-1.5  px-3 py-1 text-left text-xs"
+          "z-1 absolute cursor-pointer rounded-sm  border-1.5 px-3 py-1 text-left text-xs"
         )}
       >
         <div
@@ -59,22 +56,53 @@ const PlanLineItem = (props: Props) => {
     );
   };
 
-  if (props.plan.id === "segments" || props.plan.id === "destinations") {
+  if (props.plan.id === "destinations") {
     return renderContent();
   }
+
+  const renderPopperContent = () => {
+    if (props.plan.id === "destinations") {
+      return null;
+    }
+
+    if (props.plan.id === "segments") {
+      return (
+        <SegmentPopoverCard
+          departureId={props.departureId}
+          segmentId={props.item.id}
+          onClose={() => {
+            if (modalType === "detail") {
+              setModalType(null);
+            }
+          }}
+        />
+      );
+    }
+
+    return (
+      <ReservationPopoverCard
+        departureId={props.departureId}
+        reservationId={props.item.id}
+        onClose={() => {
+          if (modalType === "detail") {
+            setModalType(null);
+          }
+        }}
+        onEdit={() => {
+          setModalType("edit");
+        }}
+      />
+    );
+  };
 
   return (
     <>
       <PopoverCard
         show={modalType === "detail"}
-        departureId={departureId}
-        item={item}
         onClose={() => {
           if (modalType === "detail") setModalType(null);
         }}
-        onEdit={() => {
-          setModalType("edit");
-        }}
+        popperContent={renderPopperContent()}
       >
         {({ setReferenceElement }) =>
           renderContent(setReferenceElement, () => {
@@ -90,7 +118,6 @@ const PlanLineItem = (props: Props) => {
       >
         <DialogPortal>
           <DialogOverlay />
-
           <DialogPrimitive.Content
             className={cn(
               "fixed left-0 top-0 h-full max-h-full w-full max-w-full rounded-none bg-background",

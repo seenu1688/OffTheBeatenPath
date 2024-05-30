@@ -10,11 +10,9 @@ type Props = {
   children: (props: {
     setReferenceElement: (element: HTMLElement | null) => void;
   }) => React.ReactNode;
+  popperContent: React.ReactNode;
   show: boolean;
-  departureId: string;
-  item: any;
   onClose: () => void;
-  onEdit: () => void;
 };
 
 const PopoverCard = (props: Props) => {
@@ -75,12 +73,7 @@ const PopoverCard = (props: Props) => {
               "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
             )}
           >
-            <ReservationPopoverCard
-              departureId={props.departureId}
-              reservationId={props.item.id}
-              onClose={onClose}
-              onEdit={props.onEdit}
-            />
+            {props.popperContent}
             <div ref={setArrowElement} style={styles.arrow} />
           </div>,
           document.body

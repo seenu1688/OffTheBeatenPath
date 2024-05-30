@@ -95,7 +95,15 @@ export const createApexClient = ({
 
       return json as T;
     },
-    delete: async <T>(url: string, props: GetProps) => {
+    delete: async <T>(
+      url: string,
+      props: GetProps & {
+        searchParams: {
+          sObjectName: string;
+          recordId: string;
+        };
+      }
+    ) => {
       const params = qs.stringify(props.searchParams);
 
       let finalUrl = `${apiUrl}${url}`;

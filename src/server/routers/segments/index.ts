@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 import { authProcedure, router } from "@/server/trpc";
@@ -26,7 +27,17 @@ type SegmentResponse = {
   narrative?: string;
   startDateTime?: string;
   endDateTime?: string;
-}
+};
+
+type RawResponse = {
+  Departure__c: string;
+  EndDate__c: string;
+  Id: string;
+  Narrative__c?: string;
+  Segment_Name__c: string;
+  StartDate__c: string;
+  PrimaryDestinationId__c?: string;
+};
 
 export const segmentsRouter = router({
   create: authProcedure
@@ -37,20 +48,11 @@ export const segmentsRouter = router({
           pNewSegment: input,
         };
         const response = await ctx.apexClient.post<
-          {
-            Departure__c: string;
-            EndDate__c: string;
-            Id: string;
-            Narrative__c?: string;
-            Segment_Name__c: string;
-            StartDate__c: string;
-            PrimaryDestinationId__c?: string;
-          },
+          RawResponse,
           CreateSegmentPayload
         >("/createSegment", {
           body: payload,
         });
-
 
         return {
           id: response.Id,
@@ -68,4 +70,28 @@ export const segmentsRouter = router({
         });
       }
     }),
+  delete: authProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
+    try {
+      const response = await ctx.apexClient.delete(`/deleteRecord`, {
+        searchParams: {
+          recordId: input,
+          sObjectName: "Segment__c",
+        },
+      });
+
+      if (Array.isArray(response) && response[0]?.errorCode === "APEX_ERROR") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: response[0].message,
+        });
+      }
+
+      return response;
+    } catch (e: any) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: e.message,
+      });
+    }
+  }),
 });
