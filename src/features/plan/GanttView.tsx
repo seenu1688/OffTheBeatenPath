@@ -85,7 +85,7 @@ const GanttView = (props: Props) => {
         const delta = e.delta.x;
 
         // 4 hours
-        if ((delta > 0 && delta < 40) || (delta < 0 && delta > -40)) {
+        if ((delta >= 0 && delta < 40) || (delta <= 0 && delta > -40)) {
           return;
         }
 
