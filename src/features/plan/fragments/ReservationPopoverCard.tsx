@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { Loader } from "lucide-react";
 import { toast } from "sonner";
 
@@ -86,10 +85,10 @@ const ReservationPopoverCard = ({
       <Divider />
 
       <div className="flex flex-col gap-1">
-        <LabelItem label="Reservation Number" value={data.recordType} />
-        <LabelItem label="Record Type" value={data.recordType} />
+        <LabelItem label="Reservation Number" value={data.name} />
+        <LabelItem label="Record Type" value={data.recordTypeName} />
         <LabelItem label="Vendor" value={data.vendor.name} />
-        <LabelItem label="Experience Name" value={data.vendor.name} />
+        <LabelItem label="Experience Name" value={data.experience.name} />
         <Divider />
         <LabelItem label="Net Pay total" value={data.netCost} />
         <LabelItem label="Sum of payables" value={data.payables.paid ?? "NA"} />

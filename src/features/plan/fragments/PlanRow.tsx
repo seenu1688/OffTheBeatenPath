@@ -1,3 +1,5 @@
+import { useDroppable } from "@dnd-kit/core";
+
 import PlanLineItem from "./PlanLineItem";
 
 import { PlannerState } from "../hooks/usePlanner";
@@ -20,6 +22,9 @@ const PlanRow = ({ plan, data, state, departureId }: Props) => {
   const gridData = useDeparture<
     DeparturesResponse[(typeof plan)["id"]][number]
   >(data[plan.id] ?? []);
+  const { isOver, setNodeRef } = useDroppable({
+    id: plan.id,
+  });
 
   return (
     <div
@@ -36,7 +41,7 @@ const PlanRow = ({ plan, data, state, departureId }: Props) => {
         </div>
       </div>
       <div className="w-full"></div>
-      <div className="flex flex-col py-2">
+      <div className="flex flex-col py-2" ref={setNodeRef}>
         {gridData.map((line, index) => {
           return (
             <div key={index} className="relative flex h-[40px] items-center">

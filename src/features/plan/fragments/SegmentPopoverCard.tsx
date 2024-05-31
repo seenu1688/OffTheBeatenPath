@@ -33,8 +33,12 @@ const SegmentPopoverCard = (props: Props) => {
   });
 
   const handleDelete = async () => {
-    await mutateAsync(segmentId);
-    onClose();
+    try {
+      await mutateAsync(segmentId);
+      onClose();
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (

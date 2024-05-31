@@ -94,4 +94,29 @@ export const segmentsRouter = router({
       });
     }
   }),
+  update: authProcedure
+    .input(
+      z.object({
+        startDateTime: z.string(),
+        endDateTime: z.string(),
+        segmentId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const response = await ctx.apexClient.put(`/updateRecords`, {
+        body: {
+          jsonData: JSON.stringify([
+            {
+              attributes: { type: "Segment__c" },
+              Id: input.segmentId,
+              start_datetime__c: input.startDateTime,
+              end_datetime__c: input.endDateTime,
+            },
+          ]),
+        },
+      });
+      console.log(response);
+
+      return response;
+    }),
 });

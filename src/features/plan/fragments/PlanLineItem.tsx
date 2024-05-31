@@ -1,16 +1,17 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { useDraggable } from "@dnd-kit/core";
 
 import PopoverCard from "./PopoverCard";
 import { Dialog, DialogOverlay, DialogPortal } from "@/components/dialog";
 import AccountView from "./AccountView";
+import SegmentPopoverCard from "./SegmentPopoverCard";
+import ReservationPopoverCard from "./ReservationPopoverCard";
 
 import { cn } from "@/lib/utils";
 import { PlanType } from "../constants";
 
 import { DeparturesResponse } from "@/common/types";
-import SegmentPopoverCard from "./SegmentPopoverCard";
-import ReservationPopoverCard from "./ReservationPopoverCard";
 
 type Props = {
   item: DeparturesResponse[
@@ -24,8 +25,25 @@ type Props = {
 };
 
 const PlanLineItem = (props: Props) => {
-  const { item, plan, width, position, departureId } = props;
+  const { item, plan, width, position } = props;
   const [modalType, setModalType] = useState<"detail" | "edit" | null>(null);
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id: props.item.id,
+      data: {
+        item: props.item,
+        position,
+        type: plan.id,
+        width,
+      },
+      disabled: !!modalType,
+    });
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x + position}px, ${transform.y}px, 0)`,
+      }
+    : undefined;
+  const timeRef = useRef<number | null>(null);
 
   const renderContent = (
     ref?: (element: HTMLElement | null) => void,
@@ -33,24 +51,46 @@ const PlanLineItem = (props: Props) => {
   ) => {
     return (
       <div
-        onClick={onClick}
-        ref={ref}
+        {...listeners}
+        onPointerDown={(e) => {
+          timeRef.current = Date.now();
+          listeners?.onPointerDown(e);
+        }}
+        {...attributes}
+        ref={(node) => {
+          ref && ref(node);
+          setNodeRef(node);
+        }}
+        onMouseUp={(e) => {
+          if (
+            onClick &&
+            timeRef.current &&
+            Date.now() - timeRef.current < 200
+          ) {
+            onClick();
+          }
+          timeRef.current = null;
+        }}
         style={{
           width: `${width}px`,
           transform: `translateX(${position}px)`,
           background: plan.accentColor,
           borderColor: plan.primaryColor,
+          ...style,
+          zIndex: isDragging ? 100 : 1,
         }}
         key={item.id}
         className={cn(
           "z-1 absolute cursor-pointer rounded-sm  border-1.5 px-3 py-1 text-left text-xs"
         )}
       >
-        <div
-          title={item.name}
-          className="w-auto overflow-hidden text-ellipsis whitespace-nowrap"
-        >
-          {item.name}
+        <div onClick={onClick} className="h-full w-full">
+          <div
+            title={item.name}
+            className="w-auto overflow-hidden text-ellipsis whitespace-nowrap"
+          >
+            {item.name}
+          </div>
         </div>
       </div>
     );
