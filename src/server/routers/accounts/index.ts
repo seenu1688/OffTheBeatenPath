@@ -23,6 +23,11 @@ type RawAccount = {
   Email_1__c?: string;
   Email_2__c?: string;
   Email_Note__c?: string;
+  Gross_Cost__c?: number;
+  Total_Commission__c?: number;
+  Net_Cost__c?: number;
+  Sum_of_payables_paid__c?: number;
+  Sum_of_payables_unpaid__c?: number;
 };
 
 export const accountsRouter = router({

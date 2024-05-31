@@ -67,6 +67,7 @@ export type ReservationResponse = {
   id: string;
   name: string;
   departure: string;
+  recordTypeName: string;
   vendor: {
     id: string;
     name: string;

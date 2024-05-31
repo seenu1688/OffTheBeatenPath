@@ -106,6 +106,7 @@ export const reservationsRouter = router({
             id: record.Id,
             name: record.Name,
             departure: record.Departure__c,
+            recordTypeName: record.RecordType.Name,
             vendor: {
               id: record.Vendor__r.Id,
               name: record.Vendor__r.Name,

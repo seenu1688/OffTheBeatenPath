@@ -39,8 +39,8 @@ export type RawSegment = {
   Narrative__c: string;
   StartDate__c: string;
   EndDate__c: string;
-  Start_DateTime__c: string;
-  End_DateTime__c: string;
+  start_datetime__c: string;
+  end_datetime__c: string;
   PrimaryDestinationId__c: string;
   Reservations__r: {
     totalSize: number;

@@ -139,8 +139,8 @@ export const fetchSegmentsByDepartureId = ({
           id: record.Id,
           name: record.Segment_Name__c,
           narrative: record.Narrative__c,
-          startDate: record.Start_DateTime__c ?? record.StartDate__c,
-          endDate: record.End_DateTime__c ?? record.EndDate__c,
+          startDate: record.start_datetime__c ?? record.StartDate__c,
+          endDate: record.end_datetime__c ?? record.EndDate__c,
           primaryDestinationId: record.PrimaryDestinationId__c,
         });
 

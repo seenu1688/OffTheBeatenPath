@@ -27,7 +27,7 @@ const Header = (props: {
 
   return (
     <div className="flex items-center justify-between">
-      <div className="flex w-[60%] justify-between gap-10 rounded-lg border bg-white p-2">
+      <div className="flex w-[70%] justify-between gap-10 rounded-lg border bg-white p-3">
         <div>
           <div className="text-ellipsis font-medium">
             {reservation.experience?.name}
@@ -93,7 +93,7 @@ const AccountView = (props: Props) => {
   return (
     <div className="h-full bg-[#f7f7f7] p-5">
       <Header reservation={reservation!} departure={departure!} />
-      <div className="mt-5 h-[450px] overflow-y-scroll rounded-md border border-gray-300 bg-white p-4">
+      <div className="mt-5 h-[400px] overflow-y-scroll rounded-md border border-gray-300 bg-white p-4">
         <Accordion
           type="multiple"
           defaultValue={["user-details", "additional-details"]}
@@ -185,23 +185,23 @@ const AccountView = (props: Props) => {
             </div>
             <div className="grid grid-cols-2 border-b py-1">
               <div>Gross Pay Total:</div>
-              <div>NA</div>
+              <div>{data?.Gross_Cost__c ?? "NA"}</div>
             </div>
             <div className="grid grid-cols-2 border-b py-1">
               <div>Commission Due:</div>
-              <div>{"NA"}</div>
+              <div>{data.Total_Commission__c ?? "NA"}</div>
             </div>
             <div className="grid grid-cols-2 border-b py-1">
               <div>Net Pay Total:</div>
-              <div>NA</div>
+              <div>{data.Net_Cost__c ?? "NA"}</div>
             </div>
             <div className="grid grid-cols-2 border-b py-1">
               <div>Sum of payables:</div>
-              <div>{"NA"}</div>
+              <div>{data.Sum_of_payables_paid__c ?? "NA"}</div>
             </div>
             <div className="grid grid-cols-2 py-1">
               <div>payables Due:</div>
-              <div>{reservation?.payables.unpaid ?? "NA"}</div>
+              <div>{data.Sum_of_payables_unpaid__c ?? "NA"}</div>
             </div>
           </div>
         </div>
