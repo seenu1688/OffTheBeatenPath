@@ -115,7 +115,6 @@ export const segmentsRouter = router({
           ]),
         },
       });
-      console.log(response);
 
       return response;
     }),

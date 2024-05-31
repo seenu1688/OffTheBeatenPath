@@ -73,6 +73,16 @@ const GanttView = (props: Props) => {
       toast.error("Failed to update segment");
     },
   });
+  const { mutate: mutateReservation } =
+    trpcClient.reservations.update.useMutation({
+      onSuccess: () => {
+        toast.success("Updated reservation");
+        refetch();
+      },
+      onError: () => {
+        toast.error("Failed to update reservation");
+      },
+    });
 
   if (isLoading || !data) return <Loader />;
 
@@ -89,22 +99,28 @@ const GanttView = (props: Props) => {
           return;
         }
 
-        if (data?.type === "segments") {
-          if (startDate) {
-            const hours = Math.round(e.delta.x / (dayWidth / 24));
+        if (startDate) {
+          const hours = Math.round(e.delta.x / (dayWidth / 24));
 
-            const newStartDate = dayjs(startDate).add(hours, "hour");
-            const newEndDate = dayjs(data.item.endDate).add(hours, "hour");
-            console.log({
-              newStartDate: newStartDate.toDate(),
-              newEndDate: newEndDate.toDate(),
-              startDate: new Date(startDate),
-              delta: e.delta.x,
-              position: data?.position,
-            });
+          const newStartDate = dayjs(startDate).add(hours, "hour");
+          const newEndDate = dayjs(data.item.endDate).add(hours, "hour");
+          console.log({
+            newStartDate: newStartDate.toDate(),
+            newEndDate: newEndDate.toDate(),
+            startDate: new Date(startDate),
+            delta: e.delta.x,
+            position: data?.position,
+          });
 
+          if (data?.type === "segments") {
             mutateSegment({
               segmentId: data.item.id,
+              startDateTime: newStartDate.toISOString(),
+              endDateTime: newEndDate.toISOString(),
+            });
+          } else {
+            mutateReservation({
+              reservationId: data.item.id,
               startDateTime: newStartDate.toISOString(),
               endDateTime: newEndDate.toISOString(),
             });
