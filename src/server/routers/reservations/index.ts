@@ -89,7 +89,7 @@ export const reservationsRouter = router({
     .input(z.string())
     .query<ReservationResponse>(async ({ ctx, input }) => {
       const query = `SELECT Id, Name,Experience_Name__c, Departure__c, Vendor__c,  Start_DateTime__c, End_DateTime__c, RecordType.Name, 
-    Experience__r.Name,Vendor__r.Id,Vendor__r.Name,Sum_of_payables_paid__c,Sum_of_payables_unpaid__c, Net_Cost__c 
+    Experience__r.Name,Vendor__r.Id,Vendor__r.Name,Sum_of_payables_paid__c,Sum_of_payables_unpaid__c, Net_Cost__c, Gross_Cost__c, Total_Commission__c
     FROM Reservation__c WHERE Id='${input}'`;
 
       return new Promise<ReservationResponse>(async (resolve, reject) => {
@@ -122,6 +122,8 @@ export const reservationsRouter = router({
               unpaid: record.Sum_of_payables_unpaid__c,
             },
             netCost: record.Net_Cost__c,
+            grossCost: record.Gross_Cost__c,
+            totalCommission: record.Total_Commission__c,
           });
         });
       });

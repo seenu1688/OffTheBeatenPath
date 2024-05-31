@@ -83,4 +83,6 @@ export type ReservationResponse = {
     unpaid: number;
   };
   netCost: number;
+  totalCommission: number;
+  grossCost: number;
 };
