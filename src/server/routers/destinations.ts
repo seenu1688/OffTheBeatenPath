@@ -37,6 +37,17 @@ type RawDestinationDetail = {
   Background_Chapter_Header__c: string;
 };
 
+type RawField = {
+  picklistValues: {
+    active: boolean;
+    defaultValue: boolean;
+    label: string;
+    validFor: null;
+    value: string;
+  }[];
+  name: string;
+};
+
 export const destinationsRouter = router({
   list: authProcedure.query<Destination[]>(({ ctx }) => {
     const { salesforceClient } = ctx;
@@ -156,5 +167,25 @@ export const destinationsRouter = router({
         }
       );
     });
+  }),
+  getAccountSubFilters: authProcedure.query(async ({ ctx }) => {
+    const response = await ctx.apexClient.get<{
+      fields: RawField[];
+    }>("/services/data/v58.0/sobjects/Account/describe", { replaceUrl: true });
+
+    const vendorFilters = response?.fields
+      ?.find((field) => field.name === "Vendor_Type__c")
+      ?.picklistValues?.map((value) => {
+        const type = value.value.split("-")[0].trim();
+        const label = value.label.split("-")[1].trim();
+
+        return {
+          value: value.value,
+          label,
+          type,
+        };
+      });
+
+    return vendorFilters;
   }),
 });

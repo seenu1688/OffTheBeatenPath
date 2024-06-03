@@ -13,6 +13,7 @@ export const salesforceClient = (session: Context["session"]) => {
 type GetProps = {
   searchParams?: Record<string, string>;
   headers?: Record<string, string>;
+  replaceUrl?: boolean;
 };
 
 type PostProps<B> = GetProps & { body?: B };
@@ -35,6 +36,10 @@ export const createApexClient = ({
       const params = qs.stringify(props.searchParams);
 
       let finalUrl = `${apiUrl}${url}`;
+
+      if (props.replaceUrl) {
+        finalUrl = `${instanceUrl}${url}`;
+      }
 
       if (params) {
         finalUrl = `${apiUrl}${url}?${params}`;

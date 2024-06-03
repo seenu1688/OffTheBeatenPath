@@ -1,11 +1,9 @@
+import { useMemo } from "react";
 import Select from "react-select";
-import { useShallow } from "zustand/react/shallow";
 
-import {
-  filterDestinations,
-  useDestinationFilters,
-  useDestinations,
-} from "../../hooks/useDestinations";
+import { useDestinationFilters } from "../../hooks/useDestinations";
+
+import { trpcClient } from "@/client";
 
 const groupStyles = {
   display: "flex",
@@ -19,6 +17,8 @@ type GroupedOption = {
 };
 
 const FilterSelect = () => {
+  const { data } = trpcClient.destinations.getAccountSubFilters.useQuery();
+
   const { enabled, filters, updateIds } = useDestinationFilters((state) => {
     return {
       filters: state.filters,
@@ -26,52 +26,49 @@ const FilterSelect = () => {
       updateIds: state.updateIds,
     };
   });
-  const destinations = useDestinations(
-    useShallow((state) => {
-      if (!enabled) {
-        return [];
-      }
 
-      const results = filterDestinations({
-        destinations: state.destinations,
-        filters,
-      })
-        .filter((destination) => destination.vendorType !== "destinations")
-        .reduce(
-          (acc, d) => {
-            if (!acc[d.vendorType]) {
-              acc[d.vendorType] = {
-                label: d.vendorName,
-                options: [
-                  {
-                    value: d.id,
-                    label: d.name,
-                  },
-                ],
-              };
+  const subFilters = useMemo(() => {
+    if (!enabled || !data) {
+      return [];
+    }
 
-              return acc;
-            }
+    const results = data!.reduce(
+      (acc, d) => {
+        if (!filters.includes(d.type)) return acc;
 
-            acc[d.vendorType].options.push({
-              value: d.id,
-              label: d.name,
-            });
+        if (!acc[d.type])
+          acc[d.type] = {
+            label: d.type,
+            options: [
+              {
+                label: d.label,
+                value: d.value,
+              },
+            ],
+          };
 
-            return acc;
-          },
-          {} as Record<
-            string,
-            {
-              label: string;
-              options: { value: string; label: string }[];
-            }
-          >
-        );
+        // remove invalid options
+        if (d.value !== "DO NOT USE - OLD OR DUPLICATE VENDOR") {
+          acc[d.type].options.push({
+            value: d.value,
+            label: d.label,
+          });
+        }
 
-      return Object.values(results);
-    })
-  );
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          label: string;
+          options: { value: string; label: string }[];
+        }
+      >
+    );
+
+    return Object.values(results);
+  }, [data, enabled, filters]);
+
   const disabled = filters.length === 1 && filters.includes("destinations");
   const isEnabled = enabled && filters.length > 0 && !disabled;
 
@@ -93,13 +90,15 @@ const FilterSelect = () => {
       >
         closeMenuOnSelect={false}
         onChange={(value) => {
-          updateIds(value.map((v) => v.value));
+          console.log(value);
+
+          // updateIds(value.map((v) => v.value));
         }}
         components={{
           DropdownIndicator: () => null,
         }}
         isMulti={true}
-        options={destinations}
+        options={subFilters}
         placeholder="Select..."
         formatGroupLabel={formatGroupLabel}
       />

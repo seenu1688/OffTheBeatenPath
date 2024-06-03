@@ -187,17 +187,6 @@ export const reservationsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      console.log({
-        jsonData: JSON.stringify([
-          {
-            attributes: { type: "Reservation__c" },
-            Id: input.reservationId,
-            Start_DateTime__c: input.startDateTime,
-            End_DateTime__c: input.endDateTime,
-          },
-        ]),
-      });
-
       const response = await ctx.apexClient.put(`/updateRecords`, {
         body: {
           jsonData: JSON.stringify([
