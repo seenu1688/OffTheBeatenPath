@@ -61,8 +61,8 @@ const DepartureDatesForm = (props: Props) => {
   const onSubmit: SubmitHandler<z.infer<typeof schema>> = async (data) => {
     await mutateAsync({
       departureId: props.departure.id,
-      startDate: dayjs(data.startDateTime).format("YYYY-MM-DD"),
-      endDate: dayjs(data.endDateTime).format("YYYY-MM-DD"),
+      startDate: dayjs(data.startDateTime).toISOString(),
+      endDate: dayjs(data.endDateTime).toISOString(),
     });
   };
 
