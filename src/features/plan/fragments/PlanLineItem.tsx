@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useDeferredValue } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useDraggable } from "@dnd-kit/core";
 
@@ -38,12 +38,13 @@ const PlanLineItem = (props: Props) => {
       },
       disabled: !!modalType,
     });
-  const style = transform
+  const styles = transform
     ? {
         transform: `translate3d(${transform.x + position}px, ${transform.y}px, 0)`,
       }
     : undefined;
   const timeRef = useRef<number | null>(null);
+  const style = useDeferredValue(styles);
 
   const renderContent = (
     ref?: (element: HTMLElement | null) => void,
