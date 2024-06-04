@@ -103,6 +103,8 @@ const DeparturePlanner = (props: Props) => {
   if (error || isError) return <div>{error.message}</div>;
 
   const handelDragEnd = (e: DragEndEvent) => {
+    scrollRef.current?.style.setProperty("overflow-y", "auto");
+
     const data = e.active.data.current;
     const startDate = data?.item.startDate;
     const delta = e.delta.x;
@@ -153,15 +155,25 @@ const DeparturePlanner = (props: Props) => {
   };
 
   const getScrollPosition = () => {
-    if (!scrollRef.current) return 0;
+    if (!scrollRef.current)
+      return {
+        x: 0,
+        y: 0,
+      };
 
-    return scrollRef.current.scrollLeft;
+    return {
+      x: scrollRef.current.scrollLeft,
+      y: scrollRef.current.scrollTop,
+    };
   };
 
   return (
     <DndContext
       modifiers={[restrictToHorizontalAxis, snapToGrid, snapToDates]}
       onDragEnd={handelDragEnd}
+      onDragStart={(e) => {
+        scrollRef.current?.style.setProperty("overflow-y", "hidden");
+      }}
     >
       <div className="relative overflow-hidden">
         {<PlannerHeader departure={props.departure} />}
@@ -220,7 +232,10 @@ const TimelineMonitor = ({
   getScrollPosition,
 }: {
   departure: Departure;
-  getScrollPosition: () => number;
+  getScrollPosition: () => {
+    x: number;
+    y: number;
+  };
 }) => {
   const [range, setRange] = useState<{
     startDate: Date | null;
@@ -260,13 +275,14 @@ const TimelineMonitor = ({
   );
   const hourWidth = dayWidth / 24;
   const position = diff * hourWidth + 290;
+  const { x, y } = getScrollPosition();
 
   return (
     <>
       <GridLineLabel
         className={cn("fixed top-[90px] -translate-x-[50%]")}
         style={{
-          left: `${position - getScrollPosition()}px`,
+          left: `${position - x}px`,
           zIndex: 100,
         }}
         label={dayjs(range.startDate).format("DD MMM YYYY hh:mm A")}
@@ -275,7 +291,7 @@ const TimelineMonitor = ({
       <div
         className="absolute z-[100] h-full -translate-x-1/2 bg-black text-white"
         style={{
-          top: 0,
+          top: 60 + y,
           left: `${position}px`,
           width: 2,
         }}
