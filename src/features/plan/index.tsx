@@ -118,12 +118,12 @@ const DeparturePlanner = (props: Props) => {
       const newStartDate = dayjs(startDate).add(hours, "hour");
       const newEndDate = dayjs(data.item.endDate).add(hours, "hour");
 
-      utils.departures.getSegments.setData(props.departure.id, (prev) => {
+      utils.departures.getSegments.setData(props.departure.id, (prev: any) => {
         if (!prev) return prev;
 
         return {
           ...prev,
-          [data.type]: (prev[data.type] as unknown as any[])?.map((segment) => {
+          [data.type]: (prev[data.type] as any[])?.map((segment) => {
             if (segment.id === data.item.id) {
               return {
                 ...segment,
