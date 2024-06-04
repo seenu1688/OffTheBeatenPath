@@ -59,13 +59,12 @@ function Directions() {
   // Use directions service
   useEffect(() => {
     if (!directionsService || !directionsRenderer) return;
+    const state = useLocations.getState();
 
-    createRoutes(useLocations.getState().locations);
+    createRoutes(state.enabled ? state.locations : []);
 
     const routesUnsubscribe = useLocations.subscribe((state) => {
-      console.log({ locations: state.locations });
-
-      createRoutes(state.locations);
+      createRoutes(state.enabled ? state.locations : []);
     });
 
     const unsubscribe = usePathHighlights.subscribe((state) => {

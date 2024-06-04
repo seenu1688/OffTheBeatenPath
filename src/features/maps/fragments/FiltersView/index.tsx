@@ -3,7 +3,7 @@
 import React, { useCallback } from "react";
 
 import FilterItem from "./FilterItem";
-import FilterToggle from "./FilterToggle";
+import TogglePins from "./TogglePins";
 import FilterSelect from "./FilterSelect";
 import DestinationSearch from "./DestinationSearch";
 
@@ -36,7 +36,7 @@ const FiltersView = () => {
   return (
     <div className="h-full overflow-auto p-5 pb-10">
       <div className="mb-6">
-        <FilterToggle />
+        <TogglePins />
       </div>
       <DestinationSearch />
       <FilterSelect />

@@ -3,7 +3,7 @@ import { Switch } from "@/components/switch";
 
 import { useDestinationFilters } from "../../hooks/useDestinations";
 
-const FilterToggle = () => {
+const TogglePins = () => {
   const { toggleFilters, enabled } = useDestinationFilters();
 
   return (
@@ -14,4 +14,4 @@ const FilterToggle = () => {
   );
 };
 
-export default FilterToggle;
+export default TogglePins;

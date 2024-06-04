@@ -23,7 +23,9 @@ const DEFAULT_CENTER = {
 };
 
 const MapPreview = (props: { departure: Departure }) => {
-  const locations = useLocations((state) => state.locations);
+  const locations = useLocations((state) =>
+    state.enabled ? state.locations : []
+  );
   const map = useMap();
 
   const { mutate: saveRouteInfo } =
@@ -62,7 +64,7 @@ const MapPreview = (props: { departure: Departure }) => {
 
   const getBoundes = (locations: Location[]) => {
     if (locations.length === 0) {
-      return undefined;
+      return map?.getBounds()?.toJSON();
     }
 
     var latlngbounds = new google.maps.LatLngBounds();

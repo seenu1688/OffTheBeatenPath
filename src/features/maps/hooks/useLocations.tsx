@@ -65,15 +65,21 @@ export type Location = {
 
 type LocationsState = {
   locations: Location[];
+  enabled: boolean;
   addLocation: (location: Location) => void;
   deleteLocation: (id: string) => void;
   updateLocation: (location: Partial<Location>) => void;
   setLocations: (locations: Location[]) => void;
+  toggleLocations: (enabled: boolean) => void;
 };
 
 export const useLocations = create<LocationsState>((set) => {
   return {
     locations: [],
+    enabled: true,
+    toggleLocations: (enabled: boolean) => {
+      set({ enabled });
+    },
     addLocation: (location: Location) => {
       set((state) => {
         if (state.locations.length === 0) {

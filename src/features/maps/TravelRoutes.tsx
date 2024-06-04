@@ -11,7 +11,8 @@ import LocationCard from "./components/LocationCard";
 import { useLocations, Location } from "./hooks/useLocations";
 import { useDistance } from "./hooks/useDistance";
 import { debounce } from "@/lib/utils";
-import FilterToggle from "./fragments/FiltersView/FilterToggle";
+import TogglePins from "./fragments/FiltersView/TogglePins";
+import ToggleRoutes from "./fragments/FiltersView/ToggleRoutes";
 
 const TravelRoutes = () => {
   const { locations, deleteLocation, updateLocation, setLocations } =
@@ -67,7 +68,7 @@ const TravelRoutes = () => {
   return (
     <div className="h-auto w-full">
       <div className="mb-6">
-        <FilterToggle />
+        <ToggleRoutes />
       </div>
       <Reorder.Group
         axis="y"
