@@ -138,18 +138,57 @@ const DeparturePlanner = (props: Props) => {
         };
       });
 
+      const reset = () => {
+        utils.departures.getSegments.setData(
+          props.departure.id,
+          (prev: any) => {
+            if (!prev) return prev;
+
+            return {
+              ...prev,
+              [data.type]: (prev[data.type] as any[])?.map((element) => {
+                if (element.id === data.item.id) {
+                  return {
+                    ...element,
+                    startDate: startDate,
+                    endDate: data.item.endDate,
+                  };
+                }
+                return element;
+              }),
+            };
+          }
+        );
+      };
+
       if (data?.type === "segments") {
-        mutateSegment({
-          segmentId: data.item.id,
-          startDateTime: newStartDate.toISOString(),
-          endDateTime: newEndDate.toISOString(),
-        });
+        mutateSegment(
+          {
+            segmentId: data.item.id,
+            startDateTime: newStartDate.toISOString(),
+            endDateTime: newEndDate.toISOString(),
+          },
+          {
+            onError() {
+              // revert the changes
+              reset();
+            },
+          }
+        );
       } else {
-        mutateReservation({
-          reservationId: data.item.id,
-          startDateTime: newStartDate.toISOString(),
-          endDateTime: newEndDate.toISOString(),
-        });
+        mutateReservation(
+          {
+            reservationId: data.item.id,
+            startDateTime: newStartDate.toISOString(),
+            endDateTime: newEndDate.toISOString(),
+          },
+          {
+            onError() {
+              // revert the changes
+              reset();
+            },
+          }
+        );
       }
     }
   };
@@ -189,7 +228,7 @@ const DeparturePlanner = (props: Props) => {
               )}
               ref={scrollRef}
             >
-              <Timeline state={state} />
+              <Timeline departure={props.departure} state={state} />
               <GanttView state={state} departure={props.departure} />
               <TimelineMonitor
                 departure={props.departure}
