@@ -1,5 +1,4 @@
 import { test, describe, expect } from "vitest";
-import data from "./data.json";
 
 import { dateRangeOverlaps } from "../helpers";
 import dayjs from "dayjs";

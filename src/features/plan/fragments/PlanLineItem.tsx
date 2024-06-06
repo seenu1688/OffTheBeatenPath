@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { PlanType } from "../constants";
 
 import { DeparturesResponse } from "@/common/types";
+import { useEdgeResizable } from "../hooks/useEdgeResizable";
 
 type Props = {
   item: DeparturesResponse[
@@ -38,13 +39,37 @@ const PlanLineItem = (props: Props) => {
       },
       disabled: !!modalType,
     });
+  const {
+    listeners: resizeListeners,
+    style,
+    isResizing,
+  } = useEdgeResizable({
+    id: props.item.id,
+    data: {
+      item: props.item,
+      position,
+      type: plan.id,
+    },
+  });
+
   const styles = transform
     ? {
         transform: `translate3d(${transform.x + position}px, ${transform.y}px, 0)`,
       }
-    : undefined;
+    : {};
+  const resizeStyles = style
+    ? {
+        width: width + style.width,
+      }
+    : {};
+
+  const finalStyles = {
+    ...styles,
+    ...resizeStyles,
+  };
+
   const timeRef = useRef<number | null>(null);
-  const style = useDeferredValue(styles);
+  const deferredStyles = useDeferredValue(finalStyles);
 
   const renderContent = (
     ref?: (element: HTMLElement | null) => void,
@@ -77,13 +102,14 @@ const PlanLineItem = (props: Props) => {
           transform: `translateX(${position}px)`,
           background: plan.accentColor,
           borderColor: plan.primaryColor,
-          ...style,
+          ...deferredStyles,
           zIndex: isDragging ? 100 : 1,
         }}
         key={item.id}
         className={cn(
-          "z-1 absolute cursor-pointer rounded-sm  border-1.5 px-3 py-1 text-left text-xs"
+          "z-1 group absolute cursor-pointer  rounded-sm border-1.5 px-3 py-1 text-left text-xs"
         )}
+        data-state={isDragging ? "dragging" : "idle"}
       >
         <div onClick={onClick} className="h-full w-full">
           <div
@@ -93,6 +119,15 @@ const PlanLineItem = (props: Props) => {
             {item.name}
           </div>
         </div>
+        <div
+          {...resizeListeners}
+          data-state={isResizing ? "resizing" : "idle"}
+          className={cn(
+            "absolute right-[-2px] top-[-3px] h-[30px] w-[3px] cursor-col-resize bg-orange-500",
+            "hidden group-hover:block",
+            "data-[state=resizing]:block group-data-[state=dragging]:hidden"
+          )}
+        ></div>
       </div>
     );
   };
@@ -139,6 +174,7 @@ const PlanLineItem = (props: Props) => {
   return (
     <>
       <PopoverCard
+        key={item.id}
         show={modalType === "detail"}
         onClose={() => {
           if (modalType === "detail") setModalType(null);

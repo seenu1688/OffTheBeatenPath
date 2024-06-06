@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { ChevronDown, ChevronUp, Loader2, Luggage } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import {
   restrictToHorizontalAxis,
   createSnapModifier,
@@ -19,14 +19,10 @@ import { trpcClient } from "@/client";
 
 import { Departure } from "@/common/types";
 import dayjs from "dayjs";
-import {
-  DndContext,
-  DragEndEvent,
-  Modifier,
-  useDndMonitor,
-} from "@dnd-kit/core";
+import { DndContext, DragEndEvent, Modifier } from "@dnd-kit/core";
 import { toast } from "sonner";
-import GridLineLabel from "./components/GridLineLabel";
+import { ResizeContext, ResizeEndEvent } from "./hooks/useEdgeResizable";
+import TimelineMonitor from "./TimelineMonitor";
 
 type Props = {
   departure: Departure;
@@ -193,6 +189,49 @@ const DeparturePlanner = (props: Props) => {
     }
   };
 
+  const handleResize = (e: ResizeEndEvent) => {
+    const data = e.data;
+    const endDate = data?.item.endDate;
+    const startDate = data?.item.startDate;
+    const delta = e.delta.x;
+
+    if (endDate) {
+      const hours = Math.round(delta / (dayWidth / 24));
+      const newEndDate = dayjs(endDate).add(hours, "hour");
+
+      utils.departures.getSegments.setData(props.departure.id, (prev: any) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          [data.type]: (prev[data.type] as any[])?.map((element) => {
+            if (element.id === data.item.id) {
+              return {
+                ...element,
+                endDate: newEndDate.toISOString(),
+              };
+            }
+            return element;
+          }),
+        };
+      });
+
+      if (data?.type === "segments") {
+        mutateSegment({
+          segmentId: data.item.id,
+          startDateTime: dayjs(startDate).toISOString(),
+          endDateTime: newEndDate.toISOString(),
+        });
+      } else {
+        mutateReservation({
+          reservationId: data.item.id,
+          startDateTime: dayjs(startDate).toISOString(),
+          endDateTime: newEndDate.toISOString(),
+        });
+      }
+    }
+  };
+
   const getScrollPosition = () => {
     if (!scrollRef.current)
       return {
@@ -214,128 +253,60 @@ const DeparturePlanner = (props: Props) => {
         scrollRef.current?.style.setProperty("overflow-y", "hidden");
       }}
     >
-      <div className="relative overflow-hidden">
-        {<PlannerHeader departure={props.departure} />}
-        <div className={cn("h-[calc(100vh-66px)] overflow-y-hidden")}>
-          {isLoading ? (
-            <Loader />
-          ) : (
+      <ResizeContext onResize={handleResize}>
+        <div className="relative overflow-hidden">
+          {<PlannerHeader departure={props.departure} />}
+          <div className={cn("h-[calc(100vh-66px)] overflow-y-hidden")}>
+            {isLoading ? (
+              <Loader />
+            ) : (
+              <div
+                className={cn(
+                  "relative grid h-auto grid-rows-[60px_1fr]",
+                  "w-full overflow-x-auto overflow-y-auto",
+                  showPlanner ? "visible h-[70%]" : "invisible h-0"
+                )}
+                ref={scrollRef}
+              >
+                <Timeline departure={props.departure} state={state} />
+                <GanttView state={state} departure={props.departure} />
+                <TimelineMonitor
+                  departure={props.departure}
+                  getScrollPosition={getScrollPosition}
+                />
+              </div>
+            )}
             <div
               className={cn(
-                "relative grid h-auto grid-rows-[60px_1fr]",
-                "w-full overflow-x-auto overflow-y-auto",
-                showPlanner ? "visible h-[70%]" : "invisible h-0"
+                "relative h-[30%] w-full",
+                !showPlanner && "h-full"
               )}
-              ref={scrollRef}
             >
-              <Timeline departure={props.departure} state={state} />
-              <GanttView state={state} departure={props.departure} />
-              <TimelineMonitor
-                departure={props.departure}
-                getScrollPosition={getScrollPosition}
-              />
+              <button
+                title="Toggle Planner"
+                aria-label="Toggle Planner"
+                className={cn(
+                  "absolute right-10 top-10 z-[10] h-10 duration-200 ease-in-out data-[state=open]:bottom-1/2",
+                  "cursor-pointer rounded-sm bg-primary px-2 py-1 text-primary-foreground shadow-md"
+                )}
+                data-state={showPlanner ? "open" : "closed"}
+                onClick={() => {
+                  setShowPlanner((prevShowPlanner) => !prevShowPlanner);
+                }}
+              >
+                {showPlanner ? <ChevronUp /> : <ChevronDown />}
+              </button>
+              <MapPlanner departure={props.departure} />
+            </div>
+          </div>
+          {(isFetching || isPending) && (
+            <div className="fixed bottom-0 left-0 right-0 top-0 z-[100] flex h-full w-full items-center justify-center bg-gray-600/20">
+              <Loader2 size={36} className="animate-spin text-orange-500" />
             </div>
           )}
-          <div
-            className={cn("relative h-[30%] w-full", !showPlanner && "h-full")}
-          >
-            <button
-              title="Toggle Planner"
-              aria-label="Toggle Planner"
-              className={cn(
-                "absolute right-10 top-10 z-[10] h-10 duration-200 ease-in-out data-[state=open]:bottom-1/2",
-                "cursor-pointer rounded-sm bg-primary px-2 py-1 text-primary-foreground shadow-md"
-              )}
-              data-state={showPlanner ? "open" : "closed"}
-              onClick={() => {
-                setShowPlanner((prevShowPlanner) => !prevShowPlanner);
-              }}
-            >
-              {showPlanner ? <ChevronUp /> : <ChevronDown />}
-            </button>
-            <MapPlanner departure={props.departure} />
-          </div>
         </div>
-        {(isFetching || isPending) && (
-          <div className="fixed bottom-0 left-0 right-0 top-0 z-[100] flex h-full w-full items-center justify-center bg-gray-600/20">
-            <Loader2 size={36} className="animate-spin text-orange-500" />
-          </div>
-        )}
-      </div>
+      </ResizeContext>
     </DndContext>
-  );
-};
-
-const TimelineMonitor = ({
-  departure,
-  getScrollPosition,
-}: {
-  departure: Departure;
-  getScrollPosition: () => {
-    x: number;
-    y: number;
-  };
-}) => {
-  const [range, setRange] = useState<{
-    startDate: Date | null;
-    endDate: Date | null;
-  }>({ startDate: null, endDate: null });
-  const dayWidth = 240;
-
-  useDndMonitor({
-    onDragMove(e) {
-      const data = e.active.data.current;
-      const startDate = data?.item.startDate;
-      const delta = e.delta.x;
-
-      if (startDate) {
-        const hours = Math.round(delta / (dayWidth / 24));
-        const newStartDate = dayjs(startDate).add(hours, "hour");
-        const newEndDate = dayjs(data.item.endDate).add(hours, "hour");
-
-        setRange({
-          startDate: newStartDate.toDate(),
-          endDate: newEndDate.toDate(),
-        });
-      }
-    },
-    onDragEnd() {
-      setRange({
-        startDate: null,
-        endDate: null,
-      });
-    },
-  });
-
-  if (!range.startDate || !range.endDate) return null;
-
-  const diff = Math.abs(
-    dayjs(range.startDate).diff(departure.startDate, "hour")
-  );
-  const hourWidth = dayWidth / 24;
-  const position = diff * hourWidth + 290;
-  const { x, y } = getScrollPosition();
-
-  return (
-    <>
-      <GridLineLabel
-        className={cn("fixed top-[90px] -translate-x-[50%]")}
-        style={{
-          left: `${position - x}px`,
-          zIndex: 100,
-        }}
-        label={dayjs(range.startDate).format("DD MMM YYYY hh:mm A")}
-        icon={<Luggage size={14} />}
-      />
-      <div
-        className="absolute z-[100] h-full -translate-x-1/2 bg-black text-white"
-        style={{
-          top: 60 + y,
-          left: `${position}px`,
-          width: 2,
-        }}
-      />
-    </>
   );
 };
 
