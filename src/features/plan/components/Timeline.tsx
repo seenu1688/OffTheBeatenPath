@@ -2,14 +2,19 @@ import { useMemo } from "react";
 import dayjs from "dayjs";
 import { Luggage } from "lucide-react";
 
+import { Dialog, DialogContent, DialogTrigger } from "@/components/dialog";
 import GridLineLabel from "./GridLineLabel";
+import InfoDialog from "./InfoDialog";
 
 import { PlannerState } from "../hooks/usePlanner";
 
 import { cn } from "@/lib/utils";
 
+import { Departure } from "@/common/types";
+
 type Props = {
   state: PlannerState;
+  departure: Departure;
 };
 
 const getDateRanges = (startDate: Date, endDate: Date) => {
@@ -61,22 +66,36 @@ const Timeline = (props: Props) => {
           </div>
         ))}
       </div>
-      <GridLineLabel
-        className={cn("absolute bottom-[5px] -translate-x-[48%]")}
-        style={{
-          left: `${dayWidth + 45}px`,
-        }}
-        label="Arrival"
-        icon={<Luggage size={14} />}
-      />
-      <GridLineLabel
-        className={cn("absolute bottom-[5px] -translate-x-1/2")}
-        style={{
-          left: `${dayCount * dayWidth + 46}px`,
-        }}
-        label="Departure"
-        icon={<Luggage size={14} />}
-      />
+      <Dialog>
+        <DialogTrigger>
+          <GridLineLabel
+            className={cn("absolute bottom-[5px] -translate-x-[48%]")}
+            style={{
+              left: `${dayWidth + 45}px`,
+            }}
+            label="Arrival"
+            icon={<Luggage size={14} />}
+          />
+        </DialogTrigger>
+        <DialogContent className="max-w-xl">
+          <InfoDialog departure={props.departure} type="arrival" />
+        </DialogContent>
+      </Dialog>
+      <Dialog>
+        <DialogTrigger>
+          <GridLineLabel
+            className={cn("absolute bottom-[5px] -translate-x-1/2")}
+            style={{
+              left: `${dayCount * dayWidth + 46}px`,
+            }}
+            label="Departure"
+            icon={<Luggage size={14} />}
+          />
+        </DialogTrigger>
+        <DialogContent className="max-w-xl">
+          <InfoDialog departure={props.departure} type="departure" />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

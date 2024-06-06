@@ -4,6 +4,32 @@ import { authProcedure, router } from "@/server/trpc";
 
 import { fetchDepartureById, fetchSegmentsByDepartureId } from "./apis";
 
+const departureUpdateSchema = z
+  .object({
+    departureId: z.string(),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
+    arrivalInfo: z.string().optional(),
+    departureInfo: z.string().optional(),
+  })
+  .transform((data) => {
+    const input = {
+      Start_DateTime__c: data.startDate,
+      End_DateTime__c: data.endDate,
+      Id: data.departureId,
+      Arrival_Information__c: data.arrivalInfo,
+      Departure_Information__c: data.departureInfo,
+    };
+
+    for (const key in input) {
+      if ((input as any)[key] === undefined) {
+        delete (input as any)[key];
+      }
+    }
+
+    return input;
+  });
+
 export const departuresRouter = router({
   getById: authProcedure.input(z.string()).query(({ ctx, input }) => {
     const { salesforceClient } = ctx;
@@ -23,14 +49,8 @@ export const departuresRouter = router({
       departureId: input,
     });
   }),
-  updateDepartureDates: authProcedure
-    .input(
-      z.object({
-        departureId: z.string(),
-        startDate: z.string(),
-        endDate: z.string(),
-      })
-    )
+  update: authProcedure
+    .input(departureUpdateSchema)
     .mutation(async ({ ctx, input }) => {
       const { apexClient } = ctx;
 
@@ -40,14 +60,11 @@ export const departuresRouter = router({
             jsonData: JSON.stringify([
               {
                 attributes: { type: "Departure__c" },
-                Start_DateTime__c: input.startDate,
-                End_DateTime__c: input.endDate,
-                Id: input.departureId,
+                ...input,
               },
             ]),
           },
         });
-
         return response;
       } catch (err) {
         console.log(err);

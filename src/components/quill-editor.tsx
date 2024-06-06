@@ -17,7 +17,11 @@ const QuillEditor = (props: Props) => {
 
   useEffect(() => {
     if (quill) {
-      quill.setText(initialValue || "", "user");
+      const delta = quill.clipboard.convert({
+        html: initialValue || "",
+      });
+
+      quill.setContents(delta, "silent");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quill]);
@@ -31,7 +35,7 @@ const QuillEditor = (props: Props) => {
   }, [onChange, quill]);
 
   return (
-    <div style={{ width: 500, height: 120 }}>
+    <div style={{ width: 500, height: 140 }}>
       <div ref={quillContainerRef as RefObject<HTMLDivElement>} />
     </div>
   );

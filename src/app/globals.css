@@ -131,3 +131,7 @@
 .tooltip-primary[data-place="top"]:before {
   border-bottom-color: hsl(var(--primary));
 }
+
+.ql-container{
+  height: calc(100% - 45px)!important;
+}

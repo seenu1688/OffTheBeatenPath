@@ -36,18 +36,17 @@ const DepartureDatesForm = (props: Props) => {
   const utils = trpcClient.useUtils();
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  const { mutateAsync, isPending } =
-    trpcClient.departures.updateDepartureDates.useMutation({
-      onSuccess() {
-        toast.success("Departure dates updated successfully");
-        utils.departures.getSegments.invalidate(props.departure.id);
-        utils.departures.getById.invalidate(props.departure.id);
-        closeRef.current?.click();
-      },
-      onError(error) {
-        toast.error("Failed to update departure dates");
-      },
-    });
+  const { mutateAsync, isPending } = trpcClient.departures.update.useMutation({
+    onSuccess() {
+      toast.success("Departure dates updated successfully");
+      utils.departures.getSegments.invalidate(props.departure.id);
+      utils.departures.getById.invalidate(props.departure.id);
+      closeRef.current?.click();
+    },
+    onError(error) {
+      toast.error("Failed to update departure dates");
+    },
+  });
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),

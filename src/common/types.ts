@@ -19,6 +19,8 @@ export type Departure = {
   startDate: string;
   endDate: string;
   routeInfo?: string;
+  arrivalInfo?: string;
+  departureInfo?: string;
 };
 
 //

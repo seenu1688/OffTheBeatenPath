@@ -55,24 +55,7 @@ const PlannerHeader = (props: Props) => {
       <div className="flex items-center">
         <Dialog modal>
           <DialogTrigger asChild>
-            <Button
-              size="sm"
-              // onClick={() => {
-              //   mutate({
-              //     pNewRes: {
-              //       Departure__c: props.departure.id,
-              //       Start_DateTime__c: dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-              //       End_DateTime__c: dayjs().format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
-              //       Vendor__c: "001d0000021HWYkAAO",
-              //       Experience__c: "a04d000001WrvdhAAB",
-              //       Segment__c: "a0ENq000001pKybMAE",
-              //     },
-              //     pRecordName: "Meals",
-              //   });
-              // }}
-            >
-              Create
-            </Button>
+            <Button size="sm">Create</Button>
           </DialogTrigger>
           <DialogPortal>
             <DialogContent
