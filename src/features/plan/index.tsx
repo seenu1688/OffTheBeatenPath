@@ -16,12 +16,13 @@ import MapPlanner from "../maps";
 import TimelineMonitor from "./TimelineMonitor";
 
 import { usePlanner } from "./hooks/usePlanner";
-import { ResizeContext, ResizeEndEvent } from "./hooks/useEdgeResizable";
+import { ResizeContext } from "./hooks/useEdgeResizable";
 
 import { cn } from "@/lib/utils";
 import { trpcClient } from "@/client";
 
 import { Departure } from "@/common/types";
+import { ResizeEvent } from "./hooks/types";
 
 type Props = {
   departure: Departure;
@@ -188,7 +189,7 @@ const DeparturePlanner = (props: Props) => {
     }
   };
 
-  const handleResize = (e: ResizeEndEvent) => {
+  const handleResize = (e: ResizeEvent) => {
     const data = e.data;
     const endDate = data?.item.endDate;
     const startDate = data?.item.startDate;

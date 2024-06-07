@@ -27,7 +27,7 @@ type Props = {
 };
 
 const holderStyles = cn(
-  "absolute top-[-3px] h-[30px] w-[3px] cursor-col-resize bg-orange-500",
+  "absolute top-[-3px] h-[30px] w-[3px] cursor-col-resize bg-orange-500 z-[110]",
   "hidden group-hover:block",
   "data-[state=resizing]:block group-data-[state=dragging]:hidden"
 );

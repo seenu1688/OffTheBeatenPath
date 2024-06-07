@@ -5,6 +5,8 @@ import { Luggage } from "lucide-react";
 
 import GridLineLabel from "./components/GridLineLabel";
 
+import { useResizeMonitor } from "./hooks/useEdgeResizable";
+
 import { cn } from "@/lib/utils";
 
 import { Departure } from "@/common/types";
@@ -50,12 +52,44 @@ const TimelineMonitor = ({
     },
   });
 
+  useResizeMonitor({
+    onResize(e) {
+      const data = e.data;
+      const startDate = data.item.startDate;
+      const endDate = data.item.endDate;
+      const delta = e.delta.x;
+
+      const hours = Math.round(delta / (dayWidth / 24));
+      const newEndDate =
+        e.resizeSide === "right"
+          ? dayjs(endDate).add(hours, "hour")
+          : dayjs(endDate);
+      const newStartDate =
+        e.resizeSide === "left"
+          ? dayjs(startDate).add(hours, "hour")
+          : dayjs(startDate);
+
+      setRange({
+        startDate: newStartDate.toDate(),
+        endDate: newEndDate.toDate(),
+      });
+    },
+    onResizeEnd() {
+      setRange({
+        startDate: null,
+        endDate: null,
+      });
+    },
+  });
+
   if (!range.startDate || !range.endDate) return null;
 
   const diff = Math.abs(
     dayjs(range.startDate).diff(departure.startDate, "hour")
   );
   const hourWidth = dayWidth / 24;
+  const width =
+    Math.abs(dayjs(range.endDate).diff(range.startDate, "hour")) * hourWidth;
   const position = diff * hourWidth + 290;
   const { x, y } = getScrollPosition();
 
@@ -75,6 +109,23 @@ const TimelineMonitor = ({
         style={{
           top: 60 + y,
           left: `${position}px`,
+          width: 2,
+        }}
+      />
+      <GridLineLabel
+        className={cn("fixed top-[90px] -translate-x-[50%]")}
+        style={{
+          left: `${position + width - x}px`,
+          zIndex: 100,
+        }}
+        label={dayjs(range.endDate).format("DD MMM YYYY hh:mm A")}
+        icon={<Luggage size={14} />}
+      />
+      <div
+        className="absolute z-[100] h-full -translate-x-1/2 bg-black text-white"
+        style={{
+          top: 60 + y,
+          left: `${position + width}px`,
           width: 2,
         }}
       />
