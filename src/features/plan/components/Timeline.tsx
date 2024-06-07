@@ -41,6 +41,8 @@ const Timeline = (props: Props) => {
     [startDate, endDate]
   );
 
+  console.log(props);
+
   return (
     <div
       className="sticky top-0 z-20 h-full w-full bg-white"
@@ -86,7 +88,7 @@ const Timeline = (props: Props) => {
           <GridLineLabel
             className={cn("absolute bottom-[5px] -translate-x-1/2")}
             style={{
-              left: `${dayCount * dayWidth + 46}px`,
+              left: `${dayCount * dayWidth + dayWidth + 46}px`,
             }}
             label="Departure"
             icon={<Luggage size={14} />}

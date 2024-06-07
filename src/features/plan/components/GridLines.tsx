@@ -16,7 +16,7 @@ const GridLines = (props: { state: PlannerState }) => {
       <div
         className="absolute bottom-0 top-0 h-full translate-x-1/2 bg-black"
         style={{
-          left: `${dayCount * dayWidth + 45}px`,
+          left: `${dayCount * dayWidth + dayWidth + 45}px`,
           width: 2,
         }}
       />
