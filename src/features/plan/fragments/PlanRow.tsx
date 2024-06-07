@@ -13,15 +13,15 @@ import { DeparturesResponse } from "@/common/types";
 
 type Props = {
   plan: PlanType;
-  data: DeparturesResponse;
   state: PlannerState;
   departureId: string;
+  data?: DeparturesResponse;
 };
 
 const PlanRow = ({ plan, data, state, departureId }: Props) => {
   const gridData = useDeparture<
     DeparturesResponse[(typeof plan)["id"]][number]
-  >(data[plan.id] ?? []);
+  >(data ? data[plan.id] : []);
   const { setNodeRef } = useDroppable({
     id: plan.id,
   });

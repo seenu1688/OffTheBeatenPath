@@ -1,6 +1,9 @@
 "use client";
 import { useRef, useState } from "react";
+import dayjs from "dayjs";
+import { toast } from "sonner";
 import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { DndContext, DragEndEvent, Modifier } from "@dnd-kit/core";
 import {
   restrictToHorizontalAxis,
   createSnapModifier,
@@ -10,19 +13,15 @@ import PlannerHeader from "./components/PlannerHeader";
 import Timeline from "./components/Timeline";
 import GanttView from "./GanttView";
 import MapPlanner from "../maps";
-import Loader from "@/components/Loader";
+import TimelineMonitor from "./TimelineMonitor";
 
 import { usePlanner } from "./hooks/usePlanner";
+import { ResizeContext, ResizeEndEvent } from "./hooks/useEdgeResizable";
 
 import { cn } from "@/lib/utils";
 import { trpcClient } from "@/client";
 
 import { Departure } from "@/common/types";
-import dayjs from "dayjs";
-import { DndContext, DragEndEvent, Modifier } from "@dnd-kit/core";
-import { toast } from "sonner";
-import { ResizeContext, ResizeEndEvent } from "./hooks/useEdgeResizable";
-import TimelineMonitor from "./TimelineMonitor";
 
 type Props = {
   departure: Departure;
@@ -195,9 +194,21 @@ const DeparturePlanner = (props: Props) => {
     const startDate = data?.item.startDate;
     const delta = e.delta.x;
 
+    // 4 hours
+    if ((delta >= 0 && delta < 40) || (delta <= 0 && delta > -40)) {
+      return;
+    }
+
     if (endDate) {
       const hours = Math.round(delta / (dayWidth / 24));
-      const newEndDate = dayjs(endDate).add(hours, "hour");
+      const newEndDate =
+        e.resizeSide === "right"
+          ? dayjs(endDate).add(hours, "hour")
+          : dayjs(endDate);
+      const newStartDate =
+        e.resizeSide === "left"
+          ? dayjs(startDate).add(hours, "hour")
+          : dayjs(startDate);
 
       utils.departures.getSegments.setData(props.departure.id, (prev: any) => {
         if (!prev) return prev;
@@ -209,6 +220,7 @@ const DeparturePlanner = (props: Props) => {
               return {
                 ...element,
                 endDate: newEndDate.toISOString(),
+                startDate: newStartDate.toISOString(),
               };
             }
             return element;
@@ -243,7 +255,7 @@ const DeparturePlanner = (props: Props) => {
         mutateSegment(
           {
             segmentId: data.item.id,
-            startDateTime: dayjs(startDate).toISOString(),
+            startDateTime: newStartDate.toISOString(),
             endDateTime: newEndDate.toISOString(),
           },
           {
@@ -257,7 +269,7 @@ const DeparturePlanner = (props: Props) => {
         mutateReservation(
           {
             reservationId: data.item.id,
-            startDateTime: dayjs(startDate).toISOString(),
+            startDateTime: newStartDate.toISOString(),
             endDateTime: newEndDate.toISOString(),
           },
           {
@@ -296,25 +308,21 @@ const DeparturePlanner = (props: Props) => {
         <div className="relative overflow-hidden">
           {<PlannerHeader departure={props.departure} />}
           <div className={cn("h-[calc(100vh-66px)] overflow-y-hidden")}>
-            {isLoading ? (
-              <Loader />
-            ) : (
-              <div
-                className={cn(
-                  "relative grid h-auto grid-rows-[60px_1fr]",
-                  "w-full overflow-x-auto overflow-y-auto",
-                  showPlanner ? "visible h-[70%]" : "invisible h-0"
-                )}
-                ref={scrollRef}
-              >
-                <Timeline departure={props.departure} state={state} />
-                <GanttView state={state} departure={props.departure} />
-                <TimelineMonitor
-                  departure={props.departure}
-                  getScrollPosition={getScrollPosition}
-                />
-              </div>
-            )}
+            <div
+              className={cn(
+                "relative grid h-auto grid-rows-[60px_1fr]",
+                "w-full overflow-x-auto overflow-y-auto",
+                showPlanner ? "visible h-[70%]" : "invisible h-0"
+              )}
+              ref={scrollRef}
+            >
+              <Timeline departure={props.departure} state={state} />
+              <GanttView state={state} departure={props.departure} />
+              <TimelineMonitor
+                departure={props.departure}
+                getScrollPosition={getScrollPosition}
+              />
+            </div>
             <div
               className={cn(
                 "relative h-[30%] w-full",

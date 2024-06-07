@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { usePopper } from "react-popper";
 
-import ReservationPopoverCard from "./ReservationPopoverCard";
-
 import { cn } from "@/lib/utils";
 
 type Props = {

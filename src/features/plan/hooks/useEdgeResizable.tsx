@@ -1,9 +1,11 @@
 import { Data } from "@dnd-kit/core";
 import {
-  PointerEventHandler,
   PropsWithChildren,
   createContext,
+  useCallback,
   useContext,
+  useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -14,6 +16,7 @@ export type ResizeEndEvent = {
   delta: {
     x: number;
   };
+  resizeSide: "left" | "right" | null;
 };
 
 type ContextProps = {
@@ -24,16 +27,14 @@ type ContextProps = {
 const Context = createContext<ContextProps>({});
 
 export const ResizeContext = (props: PropsWithChildren<ContextProps>) => {
-  return (
-    <Context.Provider
-      value={{
-        onResize: props.onResize,
-        modifiers: props.modifiers,
-      }}
-    >
-      {props.children}
-    </Context.Provider>
-  );
+  const context = useMemo(() => {
+    return {
+      onResize: props.onResize,
+      modifiers: props.modifiers,
+    };
+  }, []);
+
+  return <Context.Provider value={context}>{props.children}</Context.Provider>;
 };
 
 export const useResizeContext = () => {
@@ -45,61 +46,74 @@ export const useResizeContext = () => {
 type Props = {
   id: string;
   data: Data;
+  onComplete?: () => void;
 };
 
 export const useEdgeResizable = (props: Props) => {
-  const startX = useRef(0);
-  const [isResizing, setIsResizing] = useState(false);
-  const [width, setWidth] = useState(0);
+  const [resizeSide, setResizeSide] = useState<"left" | "right" | null>(null);
+  const [delta, setDelta] = useState(0);
   const context = useResizeContext();
+  const startX = useRef(0);
 
-  const onPointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    startX.current = e.clientX;
-    setIsResizing(true);
-
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
-  };
-
-  const onPointerMove = (e: PointerEvent) => {
+  const onPointerMove = useCallback((e: PointerEvent) => {
     const diff = e.clientX - startX.current;
 
-    setWidth(diff);
-  };
+    setDelta(diff);
+  }, []);
 
-  const onPointerUp = (e: PointerEvent) => {
-    const diff = e.clientX - startX.current;
-    startX.current = 0;
+  const onPointerUp = useCallback(
+    (e: PointerEvent) => {
+      const diff = e.clientX - startX.current;
+      startX.current = 0;
 
-    setIsResizing(false);
-    setWidth(0);
+      setDelta(0);
 
-    window.removeEventListener("pointermove", onPointerMove);
-    window.removeEventListener("pointerup", onPointerUp);
-
-    if (context?.onResize) {
-      context!.onResize({
+      context?.onResize?.({
         id: props.id,
         data: props.data,
         delta: {
           x: diff,
         },
+        resizeSide,
       });
+
+      setResizeSide(null);
+    },
+    [props.id, resizeSide, context]
+  );
+
+  const onPointerDown = useCallback(
+    (side: "left" | "right", e: React.PointerEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      setResizeSide(side);
+      startX.current = e.clientX;
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!!resizeSide) {
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerup", onPointerUp);
     }
-  };
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    };
+  }, [onPointerMove, onPointerUp, resizeSide]);
 
   return {
-    isResizing,
-    style: isResizing
+    style: !!resizeSide
       ? {
-          width,
+          delta,
         }
       : null,
     listeners: {
       onPointerDown,
     },
+    resizeSide,
   };
 };

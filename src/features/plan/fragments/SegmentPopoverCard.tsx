@@ -60,4 +60,6 @@ const SegmentPopoverCard = (props: Props) => {
   );
 };
 
+SegmentPopoverCard.displayName = "SegmentPopoverCard";
+
 export default SegmentPopoverCard;

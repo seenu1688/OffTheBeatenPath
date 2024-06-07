@@ -1,4 +1,4 @@
-import { useRef, useState, useDeferredValue } from "react";
+import { useRef, useState, useDeferredValue, Fragment } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useDraggable } from "@dnd-kit/core";
 
@@ -8,11 +8,12 @@ import AccountView from "./AccountView";
 import SegmentPopoverCard from "./SegmentPopoverCard";
 import ReservationPopoverCard from "./ReservationPopoverCard";
 
+import { useEdgeResizable } from "../hooks/useEdgeResizable";
+
 import { cn } from "@/lib/utils";
 import { PlanType } from "../constants";
 
 import { DeparturesResponse } from "@/common/types";
-import { useEdgeResizable } from "../hooks/useEdgeResizable";
 
 type Props = {
   item: DeparturesResponse[
@@ -24,6 +25,12 @@ type Props = {
   position: number;
   departureId: string;
 };
+
+const holderStyles = cn(
+  "absolute top-[-3px] h-[30px] w-[3px] cursor-col-resize bg-orange-500",
+  "hidden group-hover:block",
+  "data-[state=resizing]:block group-data-[state=dragging]:hidden"
+);
 
 const PlanLineItem = (props: Props) => {
   const { item, plan, width, position } = props;
@@ -42,7 +49,7 @@ const PlanLineItem = (props: Props) => {
   const {
     listeners: resizeListeners,
     style,
-    isResizing,
+    resizeSide,
   } = useEdgeResizable({
     id: props.item.id,
     data: {
@@ -52,6 +59,7 @@ const PlanLineItem = (props: Props) => {
     },
   });
 
+  const positionX = resizeSide === "left" && style ? position + style.delta : 0;
   const styles = transform
     ? {
         transform: `translate3d(${transform.x + position}px, ${transform.y}px, 0)`,
@@ -59,7 +67,9 @@ const PlanLineItem = (props: Props) => {
     : {};
   const resizeStyles = style
     ? {
-        width: width + style.width,
+        width:
+          resizeSide === "left" ? width - style.delta : width + style.delta,
+        transform: `translate3d(${positionX}px, 0, 0)`,
       }
     : {};
 
@@ -75,14 +85,22 @@ const PlanLineItem = (props: Props) => {
     ref?: (element: HTMLElement | null) => void,
     onClick?: () => void
   ) => {
+    const barStyles = {
+      width: `${width}px`,
+      transform: `translate3d(${position}px, 0, 0)`,
+      background: plan.accentColor,
+      borderColor: plan.primaryColor,
+      zIndex: isDragging ? 100 : 1,
+      ...deferredStyles,
+    };
+
     return (
       <div
-        {...listeners}
+        {...attributes}
         onPointerDown={(e) => {
           timeRef.current = Date.now();
           listeners?.onPointerDown(e);
         }}
-        {...attributes}
         ref={(node) => {
           ref && ref(node);
           setNodeRef(node);
@@ -97,20 +115,25 @@ const PlanLineItem = (props: Props) => {
           }
           timeRef.current = null;
         }}
-        style={{
-          width: `${width}px`,
-          transform: `translateX(${position}px)`,
-          background: plan.accentColor,
-          borderColor: plan.primaryColor,
-          ...deferredStyles,
-          zIndex: isDragging ? 100 : 1,
-        }}
+        style={barStyles}
         key={item.id}
         className={cn(
           "z-1 group absolute cursor-pointer  rounded-sm border-1.5 px-3 py-1 text-left text-xs"
         )}
         data-state={isDragging ? "dragging" : "idle"}
       >
+        <div
+          onPointerDown={(e) => {
+            resizeListeners.onPointerDown("left", e);
+          }}
+          data-state={resizeSide === "left" ? "resizing" : "idle"}
+          className={cn(
+            holderStyles,
+            "left-[-2px]",
+            (resizeSide === "right" || isDragging || !!modalType) &&
+              "group-hover:hidden"
+          )}
+        />
         <div onClick={onClick} className="h-full w-full">
           <div
             title={item.name}
@@ -120,14 +143,17 @@ const PlanLineItem = (props: Props) => {
           </div>
         </div>
         <div
-          {...resizeListeners}
-          data-state={isResizing ? "resizing" : "idle"}
+          onPointerDown={(e) => {
+            resizeListeners.onPointerDown("right", e);
+          }}
+          data-state={resizeSide === "right" ? "resizing" : "idle"}
           className={cn(
-            "absolute right-[-2px] top-[-3px] h-[30px] w-[3px] cursor-col-resize bg-orange-500",
-            "hidden group-hover:block",
-            "data-[state=resizing]:block group-data-[state=dragging]:hidden"
+            holderStyles,
+            "right-[-2px]",
+            (resizeSide === "left" || isDragging || !!modalType) &&
+              "group-hover:hidden"
           )}
-        ></div>
+        />
       </div>
     );
   };
@@ -144,6 +170,7 @@ const PlanLineItem = (props: Props) => {
     if (props.plan.id === "segments") {
       return (
         <SegmentPopoverCard
+          key={props.item.id}
           departureId={props.departureId}
           segmentId={props.item.id}
           onClose={() => {
@@ -157,6 +184,7 @@ const PlanLineItem = (props: Props) => {
 
     return (
       <ReservationPopoverCard
+        key={props.item.id}
         departureId={props.departureId}
         reservationId={props.item.id}
         onClose={() => {
@@ -172,7 +200,7 @@ const PlanLineItem = (props: Props) => {
   };
 
   return (
-    <>
+    <Fragment key={item.id}>
       <PopoverCard
         key={item.id}
         show={modalType === "detail"}
@@ -210,7 +238,7 @@ const PlanLineItem = (props: Props) => {
           </DialogPrimitive.Content>
         </DialogPortal>
       </Dialog>
-    </>
+    </Fragment>
   );
 };
 
