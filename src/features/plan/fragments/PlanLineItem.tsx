@@ -59,7 +59,8 @@ const PlanLineItem = (props: Props) => {
     },
   });
 
-  const positionX = resizeSide === "left" && style ? position + style.delta : 0;
+  const positionX =
+    resizeSide === "left" && style ? position + style.delta : position;
   const styles = transform
     ? {
         transform: `translate3d(${transform.x + position}px, ${transform.y}px, 0)`,
