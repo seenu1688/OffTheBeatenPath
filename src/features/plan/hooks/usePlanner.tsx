@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import dayjs from "dayjs";
 
 import { Departure } from "@/common/types";
@@ -9,12 +9,14 @@ export type PlannerState = {
   dayWidth: number;
   width: number;
   dayCount: number;
+  startOffset: number;
 };
 
 export const usePlanner = (departure: Departure) => {
   const [state, setState] = useState(() => {
-    const startDate = dayjs(departure.startDate).startOf("day").toDate();
-    const endDate = dayjs(departure.endDate).startOf("day").toDate();
+    const startDate = dayjs(departure.startDate).toDate();
+    const endDate = dayjs(departure.endDate).toDate();
+
     let dayCount = dayjs(endDate).diff(startDate, "day") + 1;
     const dayWidth = 240;
 
@@ -31,9 +33,17 @@ export const usePlanner = (departure: Departure) => {
     };
   });
 
+  const startOffset = useMemo(() => {
+    return dayjs(state.startDate).diff(
+      dayjs(state.startDate).startOf("D"),
+      "hour",
+      true
+    );
+  }, [state.startDate]);
+
   useEffect(() => {
-    const startDate = dayjs(departure.startDate).startOf("day").toDate();
-    const endDate = dayjs(departure.endDate).startOf("day").toDate();
+    const startDate = dayjs(departure.startDate).toDate();
+    const endDate = dayjs(departure.endDate).toDate();
 
     if (
       dayjs(startDate).isSame(state.startDate) &&
@@ -55,5 +65,8 @@ export const usePlanner = (departure: Departure) => {
     });
   }, [departure.startDate, departure.endDate, state.startDate, state.endDate]);
 
-  return state;
+  return {
+    ...state,
+    startOffset,
+  };
 };

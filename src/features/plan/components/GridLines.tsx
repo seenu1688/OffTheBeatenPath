@@ -1,14 +1,14 @@
 import { PlannerState } from "../hooks/usePlanner";
 
 const GridLines = (props: { state: PlannerState }) => {
-  const { dayWidth, dayCount } = props.state;
+  const { dayWidth, dayCount, startOffset } = props.state;
 
   return (
     <>
       <div
-        className="absolute bottom-0 top-0 h-full translate-x-1/2 bg-black"
+        className="absolute bottom-0 top-0 z-[100] h-full translate-x-1/2 bg-black"
         style={{
-          left: `${dayWidth + 45}px`,
+          left: `${dayWidth + 45 + startOffset * 10}px`,
           width: 2,
           zIndex: -1,
         }}

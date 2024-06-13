@@ -65,10 +65,10 @@ const DeparturePlanner = (props: Props) => {
   const state = usePlanner(props.departure);
   const { dayWidth, startDate, endDate } = state;
 
-  const snapToGrid = createSnapModifier(dayWidth / 24);
+  const snapToGrid = createSnapModifier(5);
   const snapToDates = createSnapToDates(startDate, endDate);
 
-  const { isLoading, error, isError, refetch, isFetching } =
+  const { error, isError, refetch, isFetching } =
     trpcClient.departures.getSegments.useQuery(props.departure.id);
   const [showPlanner, setShowPlanner] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -105,13 +105,12 @@ const DeparturePlanner = (props: Props) => {
     const startDate = data?.item.startDate;
     const delta = e.delta.x;
 
-    // 4 hours
-    if ((delta >= 0 && delta < 40) || (delta <= 0 && delta > -40)) {
+    if ((delta >= 0 && delta < 5) || (delta <= 0 && delta > -5)) {
       return;
     }
 
     if (startDate) {
-      const hours = Math.round(e.delta.x / (dayWidth / 24));
+      const hours = e.delta.x / (dayWidth / 24);
 
       const newStartDate = dayjs(startDate).add(hours, "hour");
       const newEndDate = dayjs(data.item.endDate).add(hours, "hour");
@@ -195,13 +194,12 @@ const DeparturePlanner = (props: Props) => {
     const startDate = data?.item.startDate;
     const delta = e.delta.x;
 
-    // 4 hours
-    if ((delta >= 0 && delta < 40) || (delta <= 0 && delta > -40)) {
+    if ((delta >= 0 && delta < 5) || (delta <= 0 && delta > -5)) {
       return;
     }
 
     if (endDate) {
-      const hours = Math.round(delta / (dayWidth / 24));
+      const hours = delta / (dayWidth / 24);
       const newEndDate =
         e.resizeSide === "right"
           ? dayjs(endDate).add(hours, "hour")

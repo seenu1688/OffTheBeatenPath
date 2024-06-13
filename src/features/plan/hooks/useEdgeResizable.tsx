@@ -29,7 +29,7 @@ const createSnapModifier = (
   };
 };
 
-const snapModifier = createSnapModifier(10);
+const snapModifier = createSnapModifier(5);
 
 const Context = createContext<ResizeContextProps>({});
 

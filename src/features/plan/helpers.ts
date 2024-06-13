@@ -63,9 +63,13 @@ export const getItemPlacement = <
   dayWidth: number
 ) => {
   const diff = Math.abs(
-    dayjs(item.startDate).diff(dayjs(range.startDate), "hour")
+    dayjs(item.startDate).diff(
+      dayjs(range.startDate).startOf("day"),
+      "hour",
+      true
+    )
   );
-  const hoursCount = dayjs(item.endDate).diff(item.startDate, "hour");
+  const hoursCount = dayjs(item.endDate).diff(item.startDate, "hour", true);
   const hourWidth = dayWidth / 24;
 
   return {

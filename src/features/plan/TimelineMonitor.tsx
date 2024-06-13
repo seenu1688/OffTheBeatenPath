@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useDndMonitor } from "@dnd-kit/core";
 import dayjs from "dayjs";
 import { Luggage } from "lucide-react";
@@ -26,6 +26,7 @@ const TimelineMonitor = ({
     endDate: Date | null;
   }>({ startDate: null, endDate: null });
   const dayWidth = 240;
+  const hourWidth = dayWidth / 24;
 
   useDndMonitor({
     onDragMove(e) {
@@ -34,7 +35,7 @@ const TimelineMonitor = ({
       const delta = e.delta.x;
 
       if (startDate) {
-        const hours = Math.round(delta / (dayWidth / 24));
+        const hours = delta / hourWidth;
         const newStartDate = dayjs(startDate).add(hours, "hour");
         const newEndDate = dayjs(data.item.endDate).add(hours, "hour");
 
@@ -59,7 +60,8 @@ const TimelineMonitor = ({
       const endDate = data.item.endDate;
       const delta = e.delta.x;
 
-      const hours = Math.round(delta / (dayWidth / 24));
+      const hours = delta / hourWidth;
+
       const newEndDate =
         e.resizeSide === "right"
           ? dayjs(endDate).add(hours, "hour")
@@ -85,11 +87,15 @@ const TimelineMonitor = ({
   if (!range.startDate || !range.endDate) return null;
 
   const diff = Math.abs(
-    dayjs(range.startDate).diff(departure.startDate, "hour")
+    dayjs(range.startDate).diff(
+      dayjs(departure.startDate).startOf("day"),
+      "hour",
+      true
+    )
   );
-  const hourWidth = dayWidth / 24;
   const width =
-    Math.abs(dayjs(range.endDate).diff(range.startDate, "hour")) * hourWidth;
+    Math.abs(dayjs(range.endDate).diff(range.startDate, "hour", true)) *
+    hourWidth;
   const position = diff * hourWidth + 290;
   const { x, y } = getScrollPosition();
 
