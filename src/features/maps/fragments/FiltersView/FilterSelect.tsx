@@ -90,9 +90,11 @@ const FilterSelect = () => {
       >
         closeMenuOnSelect={false}
         onChange={(value) => {
-          console.log(value);
-
-          // updateIds(value.map((v) => v.value));
+          updateIds(
+            value.map((v) => {
+              return v.label;
+            })
+          );
         }}
         components={{
           DropdownIndicator: () => null,

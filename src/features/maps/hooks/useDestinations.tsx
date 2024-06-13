@@ -94,7 +94,8 @@ export const filterDestinations = (props: {
     }
 
     return (
-      filters.includes(destination.vendorType) && ids.includes(destination.id)
+      filters.includes(destination.vendorType) &&
+      ids.includes(destination.vendorName)
     );
   });
 };

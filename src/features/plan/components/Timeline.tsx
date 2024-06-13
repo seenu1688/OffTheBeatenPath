@@ -41,8 +41,6 @@ const Timeline = (props: Props) => {
     [startDate, endDate]
   );
 
-  console.log(props);
-
   return (
     <div
       className="sticky top-0 z-20 h-full w-full bg-white"
