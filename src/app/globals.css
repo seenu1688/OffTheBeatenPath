@@ -132,6 +132,15 @@
   border-bottom-color: hsl(var(--primary));
 }
 
-.ql-container{
-  height: calc(100% - 45px)!important;
+.ql-container {
+  height: calc(100% - 45px) !important;
+}
+
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #bbbbbb #f7f7f7;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  border-radius: 8px;
 }

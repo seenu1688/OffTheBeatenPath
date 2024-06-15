@@ -310,7 +310,7 @@ const DeparturePlanner = (props: Props) => {
             <div
               className={cn(
                 "relative grid h-auto grid-rows-[60px_1fr]",
-                "w-full overflow-x-auto overflow-y-auto",
+                "custom-scroll w-full overflow-x-auto overflow-y-auto",
                 showPlanner ? "visible h-[70%]" : "invisible h-0"
               )}
               ref={scrollRef}
