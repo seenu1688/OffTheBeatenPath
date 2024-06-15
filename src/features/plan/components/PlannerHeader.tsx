@@ -1,7 +1,14 @@
 "use client";
 
 import dayjs from "dayjs";
-import { CalendarRangeIcon } from "lucide-react";
+import {
+  CalendarRangeIcon,
+  BarChart4,
+  ChevronDown,
+  WandSparkles,
+  Share,
+  Share2,
+} from "lucide-react";
 
 import { Button } from "@/components/button";
 import DepartureDatesForm from "./DepartureDatesForm";
@@ -11,6 +18,14 @@ import {
   DialogTrigger,
   DialogPortal,
 } from "@/components/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/dropdown-menu";
 import AddSegment from "../fragments/AddSegment";
 
 import { cn } from "@/lib/utils";
@@ -52,10 +67,12 @@ const PlannerHeader = (props: Props) => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center gap-8 pr-6 text-[#343434]">
         <Dialog modal>
           <DialogTrigger asChild>
-            <Button size="sm">Create</Button>
+            <Button size="sm" className="px-6">
+              Create
+            </Button>
           </DialogTrigger>
           <DialogPortal>
             <DialogContent
@@ -68,6 +85,41 @@ const PlannerHeader = (props: Props) => {
             </DialogContent>
           </DialogPortal>
         </Dialog>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-2 text-sm">
+            <BarChart4 size={14} />
+            <span>Generate</span>
+            <ChevronDown size={15} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Reservation Report</DropdownMenuItem>
+            <DropdownMenuItem>Guidebook</DropdownMenuItem>
+            <DropdownMenuItem>Travel Brief</DropdownMenuItem>
+            <DropdownMenuItem>CTS Trip Description</DropdownMenuItem>
+            <DropdownMenuItem>GTS Final Cover</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Button
+          variant="ghost"
+          className="flex items-center gap-2 px-0 font-normal"
+        >
+          <WandSparkles size={14} />
+          <span>Clone</span>
+        </Button>
+        <Button
+          variant="ghost"
+          className="flex items-center gap-2 px-0 font-normal"
+        >
+          <Share2 size={14} />
+          <span>View</span>
+        </Button>
+        <Button
+          variant="ghost"
+          className="flex items-center gap-2 px-0 font-normal"
+        >
+          <Share size={14} />
+          <span>Export</span>
+        </Button>
       </div>
     </header>
   );
