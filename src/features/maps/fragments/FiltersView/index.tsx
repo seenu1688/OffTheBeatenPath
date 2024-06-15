@@ -34,7 +34,7 @@ const FiltersView = () => {
   );
 
   return (
-    <div className="h-full overflow-auto p-5 pb-10">
+    <div className="h-full select-none overflow-auto p-5 pb-10">
       <div className="mb-6">
         <TogglePins />
       </div>

@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { trpcClient } from "@/client";
 
 import { Departure } from "@/common/types";
+import { usePlanResizer } from "./usePlanResizer";
 
 type Props = {
   departure: Departure;
@@ -22,6 +23,7 @@ type Props = {
 
 const DeparturePlanner = (props: Props) => {
   const state = usePlanner(props.departure);
+  const { resizeRef, listeners, delta } = usePlanResizer();
 
   const { error, isError, refetch, isFetching } =
     trpcClient.departures.getSegments.useQuery(props.departure.id);
@@ -43,6 +45,16 @@ const DeparturePlanner = (props: Props) => {
 
   if (error || isError) return <div>{error.message}</div>;
 
+  const totalHeight = window.innerHeight - 66;
+  const initialPlanHeight = totalHeight * 0.7;
+  let planHeight = initialPlanHeight + delta;
+
+  if (planHeight < 200) {
+    planHeight = 200;
+  } else if (planHeight > initialPlanHeight) {
+    planHeight = initialPlanHeight;
+  }
+
   return (
     <PlanProviders
       departure={props.departure}
@@ -61,6 +73,9 @@ const DeparturePlanner = (props: Props) => {
               "custom-scroll w-full overflow-x-auto overflow-y-auto",
               showPlanner ? "visible h-[70%]" : "invisible h-0"
             )}
+            style={{
+              height: planHeight,
+            }}
             ref={scrollRef}
           >
             <Timeline departure={props.departure} state={state} />
@@ -71,7 +86,15 @@ const DeparturePlanner = (props: Props) => {
             />
           </div>
           <div
+            ref={resizeRef}
+            {...listeners}
+            className="h-[4px] w-full cursor-row-resize bg-transparent"
+          />
+          <div
             className={cn("relative h-[30%] w-full", !showPlanner && "h-full")}
+            style={{
+              height: totalHeight - planHeight,
+            }}
           >
             <button
               title="Toggle Planner"
