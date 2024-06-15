@@ -96,7 +96,7 @@ const TimelineMonitor = ({
   const width =
     Math.abs(dayjs(range.endDate).diff(range.startDate, "hour", true)) *
     hourWidth;
-  const position = diff * hourWidth + 290;
+  const position = diff * hourWidth + 240;
   const { x, y } = getScrollPosition();
 
   return (

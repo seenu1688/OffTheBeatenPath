@@ -52,10 +52,9 @@ const Timeline = (props: Props) => {
       <div
         className="relative grid h-full w-full border-b-2 border-[#C59D89] text-sm last:border-b-0"
         style={{
-          gridTemplateColumns: `${dayWidth}px 50px repeat(${ranges.length}, ${dayWidth}px)`,
+          gridTemplateColumns: `repeat(${ranges.length + 1}, ${dayWidth}px)`,
         }}
       >
-        <div className="sticky left-0 z-50 h-full w-full"></div>
         <div className="sticky left-0 z-50 h-full w-full"></div>
         {ranges.map((date) => (
           <div
@@ -72,7 +71,7 @@ const Timeline = (props: Props) => {
           <GridLineLabel
             className={cn("absolute bottom-[5px] -translate-x-[48%]")}
             style={{
-              left: `${dayWidth + startOffset * 10 + 45}px`,
+              left: `${dayWidth + startOffset * 10}px`,
             }}
             label="Arrival"
             icon={<Luggage size={14} />}
@@ -85,9 +84,11 @@ const Timeline = (props: Props) => {
       <Dialog>
         <DialogTrigger>
           <GridLineLabel
-            className={cn("absolute bottom-[5px] -translate-x-1/2")}
+            className={cn(
+              "before:-translate-x-1/1 absolute bottom-[5px] -translate-x-[48%]"
+            )}
             style={{
-              left: `${dayCount * dayWidth + dayWidth + 46}px`,
+              left: `${dayCount * dayWidth + dayWidth}px`,
             }}
             label="Departure"
             icon={<Luggage size={14} />}

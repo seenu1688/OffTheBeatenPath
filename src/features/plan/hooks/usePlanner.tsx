@@ -28,7 +28,7 @@ export const usePlanner = (departure: Departure) => {
       startDate,
       endDate,
       dayWidth,
-      width: dayCount * dayWidth + 2 * dayWidth + 100,
+      width: dayCount * dayWidth + dayWidth + 100,
       dayCount,
     };
   });

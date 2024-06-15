@@ -31,7 +31,7 @@ const PlanRow = ({ plan, data, state, departureId }: Props) => {
       className="relative grid min-h-16 w-full border-b-1.5 border-b-[#C59D89]"
       key={plan.id}
       style={{
-        gridTemplateColumns: `${state.dayWidth}px 50px 1fr ${state.dayWidth}px`,
+        gridTemplateColumns: `${state.dayWidth}px 1fr ${state.dayWidth}px`,
       }}
     >
       <div className="sticky left-0 z-10 h-full  bg-[#EAEADD] py-2">
@@ -40,7 +40,6 @@ const PlanRow = ({ plan, data, state, departureId }: Props) => {
           {plan.title}
         </div>
       </div>
-      <div className="w-full"></div>
       <div className="flex flex-col py-2" ref={setNodeRef}>
         {gridData.map((line, index) => {
           return (
