@@ -3,16 +3,17 @@ import { toast } from "sonner";
 import { Button } from "@/components/button";
 
 import { trpcClient } from "@/client";
+import { Segment } from "@/common/types";
 
 type Props = {
-  segmentId: string;
+  segment: Segment;
   departureId: string;
   onClose: () => void;
   onEdit?: () => void;
 };
 
 const SegmentPopoverCard = (props: Props) => {
-  const { segmentId, departureId, onEdit, onClose } = props;
+  const { segment, departureId, onEdit, onClose } = props;
 
   const utils = trpcClient.useUtils();
   const { isPending, mutateAsync } = trpcClient.segments.delete.useMutation({
@@ -34,7 +35,7 @@ const SegmentPopoverCard = (props: Props) => {
 
   const handleDelete = async () => {
     try {
-      await mutateAsync(segmentId);
+      await mutateAsync(segment.id);
       onClose();
     } catch (e) {
       console.log(e);
@@ -42,8 +43,21 @@ const SegmentPopoverCard = (props: Props) => {
   };
 
   return (
-    <div className="p-3">
-      <div className="flex items-center justify-end gap-4">
+    <div className="relative max-h-[360px] p-3">
+      <div>
+        <div className="w-full text-ellipsis pb-2 text-lg font-semibold">
+          {segment.name}
+        </div>
+        <div className="pb-2 text-sm">
+          {`Total Reservations: ${segment.count}`}
+        </div>
+        {segment.narrative && (
+          <div className="custom-scroll h-[200px] overflow-y-auto pb-4 text-sm text-gray-800">
+            {segment.narrative}
+          </div>
+        )}
+      </div>
+      <div className=" bottom-0 flex w-full items-center justify-end gap-4 pt-2">
         <Button
           variant="outline"
           size="sm"

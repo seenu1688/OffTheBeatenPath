@@ -145,6 +145,7 @@ export const fetchSegmentsByDepartureId = ({
           startDate: record.start_datetime__c ?? record.StartDate__c,
           endDate: record.end_datetime__c ?? record.EndDate__c,
           primaryDestinationId: record.PrimaryDestinationId__c,
+          count: record.Reservations__r?.totalSize ?? 0,
         });
 
         try {

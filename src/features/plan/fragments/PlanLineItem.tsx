@@ -13,7 +13,7 @@ import { useEdgeResizable } from "../hooks/useEdgeResizable";
 import { cn } from "@/lib/utils";
 import { PlanType } from "../constants";
 
-import { DeparturesResponse } from "@/common/types";
+import { DeparturesResponse, Segment } from "@/common/types";
 
 type Props = {
   item: DeparturesResponse[
@@ -173,7 +173,7 @@ const PlanLineItem = (props: Props) => {
         <SegmentPopoverCard
           key={props.item.id}
           departureId={props.departureId}
-          segmentId={props.item.id}
+          segment={props.item as Segment}
           onClose={() => {
             if (modalType === "detail") {
               setModalType(null);
