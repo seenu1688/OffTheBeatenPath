@@ -64,7 +64,7 @@ const DeparturePlanner = (props: Props) => {
         scrollRef.current?.style.setProperty("overflow-y", "auto");
       }}
     >
-      <div className="relative overflow-hidden">
+      <div className="relative select-none overflow-hidden">
         {<PlannerHeader departure={props.departure} />}
         <div className={cn("h-[calc(100vh-66px)] overflow-y-hidden")}>
           <div
