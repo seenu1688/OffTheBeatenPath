@@ -62,15 +62,15 @@ const DestinationInfoWindowContent = ({
       <hr className="border-[#C59D89]" />
       <div>
         <div className="grid grid-cols-[150px_1fr] gap-2 pb-2 text-xs font-medium">
-          <div className="text-gray-800">Parent Destination:</div>
+          <div className="text-gray-500">Parent Destination:</div>
           <div>{destination.parentDestination.name}</div>
         </div>
         <div className="grid grid-cols-[150px_1fr] gap-2 pb-2 text-xs font-medium">
-          <div className="text-gray-800">Record Type:</div>
+          <div className="text-gray-500">Record Type:</div>
           <div>{destination.recordType.name}</div>
         </div>
         <div className="grid grid-cols-[150px_1fr] gap-2 pb-2 text-xs font-medium">
-          <div className="text-gray-800">Verification Status:</div>
+          <div className="text-gray-500">Verification Status:</div>
           <div>{destination.verificationStatus}</div>
         </div>
       </div>
