@@ -27,9 +27,6 @@ import { trpcClient } from "@/client";
 import { Departure } from "@/common/types";
 
 const schema = z.object({
-  segmentName: z.string().min(3, {
-    message: "Segment Name must be at least 3 characters",
-  }),
   startDateTime: z.date({
     message: "Please select a Start Date Time",
   }),
@@ -63,9 +60,6 @@ const CreateSegment = (props: Props) => {
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      segmentName: data?.name || "",
-    },
     disabled: isPending,
   });
   const {
@@ -76,16 +70,18 @@ const CreateSegment = (props: Props) => {
   const departureStartDate = new Date(props.departure.startDate);
   const departureEndDate = new Date(props.departure.endDate);
 
-  const onSubmit: SubmitHandler<z.infer<typeof schema>> = async (data) => {
+  const onSubmit: SubmitHandler<z.infer<typeof schema>> = async (formData) => {
     await mutateAsync({
       departureId: props.departure.id,
-      name: data.segmentName,
-      startDate: dayjs(data.startDateTime).format("YYYY-MM-DD"),
-      endDate: dayjs(data.endDateTime).format("YYYY-MM-DD"),
-      startDateTime: dayjs(data.startDateTime).format(
+      name: data!.name,
+      startDate: dayjs(formData.startDateTime).format("YYYY-MM-DD"),
+      endDate: dayjs(formData.endDateTime).format("YYYY-MM-DD"),
+      startDateTime: dayjs(formData.startDateTime).format(
         "YYYY-MM-DDTHH:mm:ss.SSSZ"
       ),
-      endDateTime: dayjs(data.endDateTime).format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+      endDateTime: dayjs(formData.endDateTime).format(
+        "YYYY-MM-DDTHH:mm:ss.SSSZ"
+      ),
       primaryDestinationId: props.destinationId,
     });
   };
