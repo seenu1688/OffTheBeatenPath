@@ -61,10 +61,12 @@ const DestinationInfoWindowContent = ({
       </div>
       <hr className="border-[#C59D89]" />
       <div>
-        <div className="grid grid-cols-[150px_1fr] gap-2 pb-2 text-xs font-medium">
-          <div className="text-gray-500">Parent Destination:</div>
-          <div>{destination.parentDestination.name}</div>
-        </div>
+        {destination.parentDestination.name && (
+          <div className="grid grid-cols-[150px_1fr] gap-2 pb-2 text-xs font-medium">
+            <div className="text-gray-500">Parent Destination:</div>
+            <div>{destination.parentDestination.name}</div>
+          </div>
+        )}
         <div className="grid grid-cols-[150px_1fr] gap-2 pb-2 text-xs font-medium">
           <div className="text-gray-500">Record Type:</div>
           <div>{destination.recordType.name}</div>
@@ -117,21 +119,42 @@ const InfoWindowContent = ({
 
   return (
     <div className="flex flex-col gap-2 px-2 pt-3">
-      <div className="text-sm font-medium">{reservation.name}</div>
+      <div className="text-sm">
+        <div className="text-xs font-medium">Vendor</div>
+        <div className="max-w-[250px] overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+          {reservation.name}
+        </div>
+      </div>
+      <hr className="border-[#C59D89]" />
+      <div>
+        <div className="grid grid-cols-[150px_1fr] gap-2 pb-2 text-xs font-medium">
+          <div className="text-gray-500">Vendor Type:</div>
+          <div>{reservation.vendorType}</div>
+        </div>
+        {reservation.website && (
+          <div className="grid grid-cols-[150px_1fr] gap-2 pb-2 text-xs font-medium">
+            <div className="text-gray-500">Website:</div>
+            <div className="max-w-[100px] select-text overflow-hidden whitespace-nowrap text-wrap break-words hover:underline">
+              <a href={reservation.website} target="__blank">
+                {reservation.website}
+              </a>
+            </div>
+          </div>
+        )}
+      </div>
 
-      <div className="flex flex-col gap-2">
+      <hr className="border-[#C59D89]" />
+      <Label className="pb-2">Add Vendor as</Label>
+      <div className="flex items-center justify-end gap-2">
         <CreateButton
           onClick={handleClick.bind(null, "route")}
           variant="outline"
         >
-          + Add To Route
+          Route
         </CreateButton>
 
-        <CreateButton
-          onClick={handleClick.bind(null, "reservation")}
-          variant="outline"
-        >
-          + Add To Reservation
+        <CreateButton onClick={handleClick.bind(null, "reservation")}>
+          Reservation
         </CreateButton>
       </div>
     </div>

@@ -26,6 +26,7 @@ export type Account = {
   geolocation: Geolocation;
   vendorType: string;
   vendorName: string;
+  website?: string;
 };
 
 // departures types

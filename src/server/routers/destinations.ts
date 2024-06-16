@@ -28,6 +28,7 @@ type RawAccount = {
   Geolocation__Latitude__s: number;
   Geolocation__Longitude__s: number;
   Vendor_Type__c: string;
+  Website?: string;
 };
 
 type RawDestinationDetail = {
@@ -147,7 +148,8 @@ export const destinationsRouter = router({
 
     return new Promise((resolve, reject) => {
       salesforceClient.query(
-        `SELECT Id, Name, Geolocation__Latitude__s, Geolocation__Longitude__s, Vendor_Type__c FROM Account WHERE RecordType.Name = 'Vendor'
+        `SELECT Id, Name, Geolocation__Latitude__s, Geolocation__Longitude__s, Vendor_Type__c, Website
+         FROM Account WHERE RecordType.Name = 'Vendor'
          AND (Vendor_Type__c LIKE 'Activities%' OR Vendor_Type__c LIKE 'Guide Service%' OR Vendor_Type__c LIKE 'Lodging%'
          OR Vendor_Type__c LIKE 'Transportation%' OR Vendor_Type__c LIKE 'Food & Beverage%' OR Vendor_Type__c LIKE 'Other%')
         `,
@@ -170,23 +172,30 @@ export const destinationsRouter = router({
             reject(err);
           }
 
-          const records = result.records.map((record) => {
-            const [vendorType = "", vendorName = ""] =
-              record.Vendor_Type__c.split("-");
+          try {
+            const records = result.records.map((record) => {
+              const [vendorType = "", vendorName = ""] =
+                record.Vendor_Type__c.split("-");
 
-            return {
-              id: record.Id,
-              name: record.Name,
-              geolocation: {
-                lat: record.Geolocation__Latitude__s,
-                lng: record.Geolocation__Longitude__s,
-              },
-              vendorType: vendorType.trim(),
-              vendorName: vendorName.trim(),
-            };
-          });
+              return {
+                id: record.Id,
+                name: record.Name,
+                geolocation: {
+                  lat: record.Geolocation__Latitude__s,
+                  lng: record.Geolocation__Longitude__s,
+                },
+                vendorType: vendorType.trim(),
+                vendorName: vendorName.trim(),
+                website: record.Website,
+              };
+            });
 
-          resolve(records);
+            resolve(records);
+          } catch (e) {
+            console.log(e);
+
+            reject(e);
+          }
         }
       );
     });
