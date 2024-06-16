@@ -50,6 +50,7 @@ export type Segment = {
   startDate: string;
   endDate: string;
   primaryDestinationId: string;
+  count: number;
 };
 
 export type DeparturesResponse = {
