@@ -144,3 +144,26 @@
 .custom-scroll::-webkit-scrollbar-thumb {
   border-radius: 8px;
 }
+
+/* google maps style */
+.gm-style-iw-chr button {
+  /* width: auto !important;
+  height: auto !important; */
+  /* margin-right: 28px !important;
+  width: 20px !important;
+  height: 20px !important;
+  top: -4px !important; */
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+
+  & span {
+    /* width: 20px !important;
+    height: 20px !important; */
+    mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLXgiPjxwYXRoIGQ9Ik0xOCA2IDYgMTgiLz48cGF0aCBkPSJtNiA2IDEyIDEyIi8+PC9zdmc+") !important;
+  }
+}
+
+.gm-style-iw-ch {
+  padding-top: 0 !important;
+}

@@ -9,6 +9,23 @@ export type Destination = {
   geolocation: Geolocation;
   vendorType: string;
   vendorName: string;
+  recordType: {
+    id?: string;
+    name?: string;
+  };
+  parentDestination: {
+    id?: string;
+    name?: string;
+  };
+  verificationStatus: "Approved" | "Not Approved";
+};
+
+export type Account = {
+  id: string;
+  name: string;
+  geolocation: Geolocation;
+  vendorType: string;
+  vendorName: string;
 };
 
 // departures types

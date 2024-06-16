@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { authProcedure, router } from "../trpc";
 
-import { Destination } from "@/common/types";
+import { Account, Destination } from "@/common/types";
 
 type RawDestination = {
   Id: string;
@@ -14,6 +14,12 @@ type RawDestination = {
     latitude: number;
     longitude: number;
   };
+  RecordType?: {
+    Id: string;
+    Name: string;
+  };
+  Parent_Destination__r?: { Id: string; Name: string };
+  Verification_Status__c: null | "Approved" | "Not Approved";
 };
 
 type RawAccount = {
@@ -54,7 +60,8 @@ export const destinationsRouter = router({
 
     return new Promise((resolve, reject) => {
       salesforceClient.query(
-        "SELECT Id, Name, Geolocation__c FROM Destination__c",
+        `SELECT Id, Name, Geolocation__c, RecordType.Id, RecordType.Name, 
+        Parent_Destination__r.Name, Parent_Destination__r.Id, Verification_Status__c FROM Destination__c`,
         {},
         (err, result: QueryResult<RawDestination>) => {
           if (err) {
@@ -74,20 +81,36 @@ export const destinationsRouter = router({
             reject(err);
           }
 
-          const records = result.records.map((record) => {
-            return {
-              id: record.Id,
-              name: record.Name,
-              geolocation: {
-                lat: record.Geolocation__c?.latitude,
-                lng: record.Geolocation__c?.longitude,
-              },
-              vendorType: "destinations",
-              vendorName: "destinations",
-            };
-          });
+          try {
+            const records = result.records.map((record) => {
+              return {
+                id: record.Id,
+                name: record.Name,
+                geolocation: {
+                  lat: record.Geolocation__c?.latitude,
+                  lng: record.Geolocation__c?.longitude,
+                },
+                vendorType: "destinations",
+                vendorName: "destinations",
+                recordType: {
+                  id: record.RecordType?.Id,
+                  name: record.RecordType?.Name,
+                },
+                parentDestination: {
+                  id: record.Parent_Destination__r?.Id,
+                  name: record.Parent_Destination__r?.Name,
+                },
+                verificationStatus:
+                  record.Verification_Status__c ?? "Not Approved",
+              };
+            });
 
-          resolve(records);
+            resolve(records);
+          } catch (e) {
+            console.log(e);
+
+            reject(e);
+          }
         }
       );
     });
@@ -119,7 +142,7 @@ export const destinationsRouter = router({
       },
     };
   }),
-  accounts: authProcedure.query<Destination[]>(({ ctx }) => {
+  accounts: authProcedure.query<Account[]>(({ ctx }) => {
     const { salesforceClient, apexClient } = ctx;
 
     return new Promise((resolve, reject) => {
