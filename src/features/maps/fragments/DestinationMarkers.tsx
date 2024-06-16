@@ -8,7 +8,7 @@ import type { Marker } from "@googlemaps/markerclusterer";
 
 import { Button, ButtonProps } from "@/components/button";
 
-import { useFilteredDestinations } from "../hooks/useDestinations";
+import { DestType, useFilteredDestinations } from "../hooks/useDestinations";
 import { useLocations } from "../hooks/useLocations";
 
 import { Account, Destination } from "@/common/types";
@@ -189,7 +189,7 @@ const DestinationMarkers = () => {
       window.history.pushState(null, "", url.toString());
     });
 
-    const handleMarkerClick = (destination: Destination, marker: Marker) => {
+    const handleMarkerClick = (destination: DestType, marker: Marker) => {
       infoWindow.close();
 
       const container = document.createElement("div");
@@ -198,7 +198,7 @@ const DestinationMarkers = () => {
       if (destination.vendorType === "destinations") {
         root.render(
           <DestinationInfoWindowContent
-            destination={destination}
+            destination={destination as Destination}
             callback={() => {
               if (
                 !destination.geolocation.lat ||
@@ -220,7 +220,7 @@ const DestinationMarkers = () => {
       } else {
         root.render(
           <InfoWindowContent
-            reservation={destination}
+            reservation={destination as Account}
             callback={() => {
               if (
                 !destination.geolocation.lat ||

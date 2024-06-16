@@ -2,13 +2,15 @@ import { useEffect, useMemo } from "react";
 import { create } from "zustand";
 import { toast } from "sonner";
 
-import { Destination } from "@/common/types";
+import { Account, Destination } from "@/common/types";
 
 export type FilterType = "destinations" | "activities" | "lodging" | "other";
 
+export type DestType = Destination | Account;
+
 type DestinationState = {
-  destinations: Destination[];
-  setDestinations: (callback: (state: Destination[]) => Destination[]) => void;
+  destinations: DestType[];
+  setDestinations: (callback: (state: DestType[]) => DestType[]) => void;
 };
 
 type DestinationFilters = {
@@ -78,7 +80,7 @@ export const useDestinationFilters = create<DestinationFilters>((set, get) => {
 const otherFilters = ["food & beverage"];
 
 export const filterDestinations = (props: {
-  destinations: Destination[];
+  destinations: DestType[];
   filters: string[];
   ids?: string[];
 }) => {
