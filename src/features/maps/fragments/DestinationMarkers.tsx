@@ -120,11 +120,17 @@ const InfoWindowContent = ({
       <div className="text-sm font-medium">{reservation.name}</div>
 
       <div className="flex flex-col gap-2">
-        <CreateButton onClick={handleClick.bind(null, "route")}>
+        <CreateButton
+          onClick={handleClick.bind(null, "route")}
+          variant="outline"
+        >
           + Add To Route
         </CreateButton>
 
-        <CreateButton onClick={handleClick.bind(null, "reservation")}>
+        <CreateButton
+          onClick={handleClick.bind(null, "reservation")}
+          variant="outline"
+        >
           + Add To Reservation
         </CreateButton>
       </div>
