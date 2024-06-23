@@ -17,6 +17,7 @@ import { Button } from "@/components/button";
 import Loader from "@/components/Loader";
 import { Label } from "@/components/label";
 import DateTimeField from "@/features/plan/fragments/fields/DateTimeField";
+import FormInput from "@/features/plan/fragments/fields/FormInput";
 
 import { useDestinations } from "../hooks/useDestinations";
 
@@ -31,8 +32,15 @@ const schema = z.object({
   endDateTime: z.date({
     message: "Please select an End Date Time",
   }),
-  segmentId: z.string(),
-  experienceId: z.string(),
+  segmentId: z.string({
+    message: "Please select a Segment",
+  }),
+  experienceIds: z.array(z.string(), {
+    message: "Please select atleast one Experience",
+  }),
+  reservationName: z.string({
+    message: "Please enter a Reservation Name",
+  }),
 });
 
 type Props = {
@@ -112,8 +120,9 @@ const CreateReservation = (props: Props) => {
     await mutateAsync({
       departureId: props.departure.id,
       segmentId: data.segmentId,
-      experienceId: data.experienceId,
+      experienceIds: data.experienceIds,
       vendorId: reservation!.id,
+      reservationName: data.reservationName,
       recordName: destination!.vendorType as any,
       endDateTime: dayjs(data.endDateTime).toISOString(),
       startDateTime: dayjs(data.startDateTime).toISOString(),
@@ -141,7 +150,7 @@ const CreateReservation = (props: Props) => {
     <FormProvider {...form}>
       <DialogTitle>Create Reservation</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)} className="relative">
-        <div className="box-content flex h-[550px] max-h-[550px] flex-col gap-4 overflow-y-auto pb-2">
+        <div className="box-content flex h-[550px] max-h-[550px] flex-col gap-4 overflow-y-auto pb-1 pl-1">
           <div>
             <Label className="font-normal text-gray-600">Name</Label>
             <div>{reservation.name}</div>
@@ -171,29 +180,55 @@ const CreateReservation = (props: Props) => {
               </div>
             )}
           </div>
+          <div className="w-1/2">
+            <Label className="font-normal text-gray-600">
+              Reservation Name
+            </Label>
+            <Controller
+              name="reservationName"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <FormInput
+                    field={field}
+                    error={errors.reservationName}
+                    placeholder="Enter Reservation Name"
+                  />
+                );
+              }}
+            />
+          </div>
           <div className="grid grid-cols-2">
             <div>
               <Label className="font-normal text-gray-600">Experience</Label>
               <Controller
-                name="experienceId"
+                name="experienceIds"
                 control={control}
                 render={({ field }) => {
                   return (
-                    <Select
-                      isDisabled={field.disabled}
-                      onChange={(value) => {
-                        field.onChange(value?.value);
-                      }}
-                      components={{
-                        IndicatorSeparator: () => null,
-                      }}
-                      options={expereinceOptions}
-                      placeholder="Select Experience"
-                      className="w-[70%]"
-                      value={expereinceOptions.find(
-                        (e) => e.value === field.value
+                    <>
+                      <Select
+                        isDisabled={field.disabled}
+                        onChange={(value) => {
+                          field.onChange(value.map((e) => e.value));
+                        }}
+                        components={{
+                          IndicatorSeparator: () => null,
+                        }}
+                        isMulti={true}
+                        options={expereinceOptions}
+                        placeholder="Select Experience"
+                        className="w-[70%]"
+                        value={expereinceOptions.filter((e) =>
+                          field.value?.includes(e.value)
+                        )}
+                      />
+                      {errors.experienceIds && (
+                        <div className="mt-1 text-sm text-red-500">
+                          {errors.experienceIds.message}
+                        </div>
                       )}
-                    />
+                    </>
                   );
                 }}
               />
@@ -205,21 +240,28 @@ const CreateReservation = (props: Props) => {
                 control={control}
                 render={({ field }) => {
                   return (
-                    <Select
-                      isDisabled={field.disabled}
-                      onChange={(value) => {
-                        field.onChange(value?.value);
-                      }}
-                      components={{
-                        IndicatorSeparator: () => null,
-                      }}
-                      options={segmentOptions}
-                      placeholder="Select Segment"
-                      className="w-[70%]"
-                      value={segmentOptions.find(
-                        (e) => e.value === field.value
+                    <>
+                      <Select
+                        isDisabled={field.disabled}
+                        onChange={(value) => {
+                          field.onChange(value?.value);
+                        }}
+                        components={{
+                          IndicatorSeparator: () => null,
+                        }}
+                        options={segmentOptions}
+                        placeholder="Select Segment"
+                        className="w-[70%]"
+                        value={segmentOptions.find(
+                          (e) => e.value === field.value
+                        )}
+                      />
+                      {errors.segmentId && (
+                        <div className="mt-1 text-sm text-red-500">
+                          {errors.segmentId.message}
+                        </div>
                       )}
-                    />
+                    </>
                   );
                 }}
               />

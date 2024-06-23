@@ -91,7 +91,7 @@ export const fetchSegmentsByDepartureId = ({
   client: jsforce.Connection;
 }) => {
   const query = `SELECT Id, Segment_Name__c, Narrative__c,StartDate__c,EndDate__c, Start_DateTime__c, End_DateTime__c, PrimaryDestinationId__c, 
-  (SELECT Id, Experience_Name__c, Vendor__r.Name, Vendor__r.Vendor_Type__c, StartDate__c,Start_DateTime__c,End_DateTime__c, EndDate__c FROM Reservations__r), (
+  (SELECT Id, Experience_Name__c, Vendor__r.Name, Vendor__r.Vendor_Type__c, StartDate__c,Start_DateTime__c,End_DateTime__c, EndDate__c, Reservation_Name__c FROM Reservations__r), (
     SELECT Id, Day__r.Date__c, Destination__c, Destination__r.Name FROM Destination_Assignments__r)
      FROM Segment__c WHERE Departure__c = '${departureId}'`;
 
@@ -151,27 +151,27 @@ export const fetchSegmentsByDepartureId = ({
         try {
           if (record.Reservations__r) {
             record.Reservations__r?.records.forEach((reservation) => {
-              if (reservation.Experience_Name__c) {
-                const [vendorType, vendorName] =
-                  reservation.Vendor__r.Vendor_Type__c.split("-");
+              const [vendorType, vendorName] =
+                reservation.Vendor__r.Vendor_Type__c.split("-");
 
-                // disable eslint
-                // eslint-disable-next-line
-                (response as any)[`${vendorType.trim().toLowerCase()}`] = [
-                  ...((response as any)[`${vendorType.trim().toLowerCase()}`] ||
-                    []),
-                  {
-                    id: reservation.Id,
-                    name: reservation.Experience_Name__c,
-                    vendorName,
-                    startDate:
-                      reservation.Start_DateTime__c ?? reservation.StartDate__c,
-                    endDate:
-                      reservation.End_DateTime__c ?? reservation.EndDate__c,
-                    segmentId: record.Id,
-                  },
-                ];
-              }
+              // disable eslint
+              // eslint-disable-next-line
+              (response as any)[`${vendorType.trim().toLowerCase()}`] = [
+                ...((response as any)[`${vendorType.trim().toLowerCase()}`] ||
+                  []),
+                {
+                  id: reservation.Id,
+                  name:
+                    reservation.Reservation_Name__c ??
+                    reservation.Experience_Name__c,
+                  vendorName,
+                  startDate:
+                    reservation.Start_DateTime__c ?? reservation.StartDate__c,
+                  endDate:
+                    reservation.End_DateTime__c ?? reservation.EndDate__c,
+                  segmentId: record.Id,
+                },
+              ];
             });
           }
         } catch (e) {
@@ -228,3 +228,5 @@ export const fetchSegmentsByDepartureId = ({
     });
   });
 };
+
+// a0ANq000002ofy5MAA

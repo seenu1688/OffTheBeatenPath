@@ -10,8 +10,9 @@ type RawCreateReservationResponse = {
   Id: string;
   Name: string;
   Departure__c: string;
-  Critical__c: boolean;
+  Reservation_Name__c: string;
   Experience__c: string;
+  Critical__c: boolean;
   RecordTypeId: string;
   Pre_Departure_Confirmation__c: boolean;
   Start_DateTime__c: string;
@@ -53,9 +54,9 @@ type ReservationExperience = {
 export const reservationsRouter = router({
   getExperiences: authProcedure
     .input(z.string())
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx, input: destinationId }) => {
       const query = `SELECT Id, Name, Phone, Website, Summary_Description__c, 
-    Commission__c, TaxRate__c, (select Id,name, Vendor__c from Activities__r) from Account WHERE Id='${input}'`;
+    Commission__c, TaxRate__c, (select Id,name, Vendor__c from Activities__r) from Account WHERE Id='${destinationId}'`;
 
       return new Promise<ReservationExperience>(async (resolve, reject) => {
         ctx.salesforceClient.query<RawReservation>(query, {}, (err, result) => {
@@ -132,14 +133,35 @@ export const reservationsRouter = router({
     .input(createReservationsSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        console.log(input);
+        const { experienceIds, ...payload } = input;
 
         const response = await ctx.apexClient.post<
           RawCreateReservationResponse,
-          z.infer<typeof createReservationsSchema>
+          Omit<z.infer<typeof createReservationsSchema>, "experienceIds">
         >("/createReservation", {
-          body: input,
+          body: payload,
         });
+
+        try {
+          if (experienceIds && experienceIds?.length > 0) {
+            // create experience line items
+            await ctx.apexClient.post(`/createRecords`, {
+              body: {
+                jsonData: JSON.stringify(
+                  experienceIds.map((id) => {
+                    return {
+                      attributes: { type: "Experience_Line_Item__c" },
+                      Experience__c: id,
+                      Reservation__c: response.Id,
+                    };
+                  })
+                ),
+              },
+            });
+          }
+        } catch (e) {
+          console.log(e);
+        }
 
         return {
           id: response.Id,
@@ -153,6 +175,7 @@ export const reservationsRouter = router({
           endDateTime: response.End_DateTime__c,
           vendor: response.Vendor__c,
           segment: response.Segment__c,
+          reservationName: response.Reservation_Name__c,
         };
       } catch (error) {
         console.log(error);

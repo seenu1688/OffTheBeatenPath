@@ -13,6 +13,7 @@ export type RawDeparture = {
 
 export type RawReservationRecord = {
   Id: string;
+  Reservation_Name__c?: string;
   Experience_Name__c: string;
   Vendor__r: {
     Name: string;

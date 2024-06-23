@@ -52,7 +52,7 @@ const DateTimeField = <T extends FieldValues, S extends Path<T>>(
       return timesList.filter((time) => {
         const timeValue = parseInt(time.value);
 
-        return timeValue > value;
+        return timeValue >= value;
       });
     }
 
@@ -62,7 +62,7 @@ const DateTimeField = <T extends FieldValues, S extends Path<T>>(
       return timesList.filter((time) => {
         const timeValue = parseInt(time.value);
 
-        return timeValue < value;
+        return timeValue <= value;
       });
     }
 
@@ -113,7 +113,7 @@ const DateTimeField = <T extends FieldValues, S extends Path<T>>(
                 field.onChange(date);
               }
             }}
-            isDisabled={props.field.disabled || props.disabled}
+            isDisabled={props.field.disabled || props.disabled || !time?.value}
             components={{
               DropdownIndicator: () => (
                 <ChevronDown size={30} className="pr-2 text-gray-400" />
