@@ -40,24 +40,20 @@ const ReservationPopoverCard = ({
   const utils = trpcClient.useUtils();
   const { data, isLoading } =
     trpcClient.reservations.getById.useQuery(reservationId);
-  const { isPending, mutateAsync } = trpcClient.reservations.delete.useMutation(
-    {
-      onSuccess() {
-        toast.success("Reservation deleted successfully");
-        utils.departures.getSegments.invalidate(departureId);
-      },
-      onError(error) {
-        console.log(error);
-
-        toast.error("Error deleting reservation", {
-          style: {
-            backgroundColor: "#FF0000",
-            color: "#FFFFFF",
-          },
-        });
-      },
-    }
-  );
+  const { isPending, mutate } = trpcClient.reservations.delete.useMutation({
+    onSuccess() {
+      toast.success("Reservation deleted successfully");
+      utils.departures.getSegments.invalidate(departureId);
+    },
+    onError(error) {
+      toast.error("Error deleting reservation", {
+        style: {
+          backgroundColor: "#FF0000",
+          color: "#FFFFFF",
+        },
+      });
+    },
+  });
 
   if (isLoading) {
     return (
@@ -72,7 +68,10 @@ const ReservationPopoverCard = ({
   }
 
   const handleDelete = async () => {
-    await mutateAsync(data.id);
+    try {
+      mutate(data.id);
+    } catch (e) {}
+
     onClose();
   };
 

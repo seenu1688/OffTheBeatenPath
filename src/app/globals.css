@@ -139,10 +139,19 @@
 .custom-scroll {
   scrollbar-width: thin;
   scrollbar-color: #bbbbbb #f7f7f7;
+
+  & * {
+    scrollbar-width: thin;
+    scrollbar-color: #bbbbbb #f7f7f7;
+  }
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
   border-radius: 8px;
+
+  & *::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+  }
 }
 
 /* google maps style */

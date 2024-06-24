@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { authProcedure, router } from "../trpc";
+import { authProcedure, router } from "../../trpc";
 
 import { Account, Destination } from "@/common/types";
 

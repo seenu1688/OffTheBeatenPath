@@ -1,0 +1,83 @@
+export type RawExperienceLineItem = {
+  Id: string;
+  Name: string;
+  Reservation__c: string;
+  Experience__c: string;
+  CreatedById: string;
+  CreatedDate: string;
+  LastModifiedById: string;
+  LastModifiedDate: string;
+  SystemModstamp: string;
+  IsDeleted: boolean;
+  OwnerId: string;
+  Experience_Rate_Type__c: string;
+  Experience_Short_Desc__c: string;
+  Status__c: "Active" | "Archived";
+  Archived_Date__c: string;
+  Travel_Brief_description__c: string;
+  Guide_Book_description__c: string;
+  Max_Pax__c: number;
+  Requested__c: string;
+  Included__c: string;
+  Budget_Quantity__c: number;
+  Budget_Unit_Cost__c: number;
+  Budget_Commission_Rate__c: number;
+  Budget_Tax__c: number;
+  Currency__c: string;
+  Budget_Gross_Margin__c: number;
+  Budget_Price__c: number;
+  Budget_SubTotal__c: number;
+  Budget_Total__c: number;
+  Actual_Commission_Rate__c: number;
+  Actual_Gross_Margin__c: number;
+  Actual_Price__c: number;
+  Actual_SubTotal__c: number;
+  Actual_Total__c: number;
+  Actual_Unit_Cost__c: number;
+  Actual_Quantity__c: number;
+  Actual_Tax__c: number;
+};
+
+export type ExperienceLineItem = {
+  id: string;
+  experience: string;
+  included: string;
+  daysNights: number;
+  group: {
+    recordType: string;
+    shortDescription: string;
+    travelBrief: string;
+    guideBookDescription: string;
+    rateType: string;
+    maxPax: number;
+    requested: string;
+  };
+  budget: {
+    qty: number;
+    unitCost: number;
+    subTotal: number;
+    commissionRate: number;
+    tax: number;
+    currency: string;
+    total: number;
+    grossMarginTarget: number;
+    price: number;
+  };
+  actual: {
+    qty: number;
+    unitCost: number;
+    subTotal: number;
+    commissionRate: number;
+    tax: number;
+    currency: string;
+    total: number;
+    grossMarginTarget: number;
+    price: number;
+  };
+  variance: {
+    percent: number;
+    amount: number;
+  };
+  status: "Active" | "Archived";
+  archivedDate: string;
+};

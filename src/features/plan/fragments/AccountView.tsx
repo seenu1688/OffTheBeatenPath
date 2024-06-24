@@ -9,10 +9,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/accordion";
+import ExperienceTable from "@/features/experiences";
 
 import { trpcClient } from "@/client";
 
 import { Departure, ReservationResponse } from "@/common/types";
+import { Button } from "@/components/button";
+import { useState } from "react";
 
 type Props = {
   reservationId: string;
@@ -22,6 +25,8 @@ type Props = {
 const Header = (props: {
   reservation: ReservationResponse;
   departure: Departure;
+  toggleView: () => void;
+  currentView: "account" | "vendor";
 }) => {
   const { departure, reservation } = props;
 
@@ -49,9 +54,17 @@ const Header = (props: {
           </div>
         </div>
       </div>
-      <DialogClose className="rounded-sm border border-destructive p-2">
-        <X className="h-4 w-4 text-destructive" size={30} />
-      </DialogClose>
+      <div className="flex items-center gap-3">
+        <Button
+          variant={props.currentView === "account" ? "default" : "outline"}
+          onClick={props.toggleView}
+        >
+          Vendor Information
+        </Button>
+        <DialogClose className="rounded-sm border border-destructive p-2">
+          <X className="h-4 w-4 text-destructive" size={30} />
+        </DialogClose>
+      </div>
     </div>
   );
 };
@@ -72,6 +85,9 @@ const AccountItem = ({
 };
 
 const AccountView = (props: Props) => {
+  const [currentView, setCurrentView] = useState<"account" | "vendor">(
+    "account"
+  );
   const { data: reservation } = trpcClient.reservations.getById.useQuery(
     props.reservationId
   );
@@ -90,92 +106,108 @@ const AccountView = (props: Props) => {
     return <Loader />;
   }
 
+  const renderContent = () => {
+    return (
+      <Accordion
+        type="multiple"
+        defaultValue={["user-details", "additional-details"]}
+      >
+        <AccordionItem value="user-details">
+          <AccordionTrigger>User Details</AccordionTrigger>
+          <AccordionContent className="grid grid-cols-2 gap-4">
+            <div>
+              <AccountItem label="Account Name" value={data.Name ?? "NA"} />
+              <AccountItem label="Account Record Type" value="Vendor" />
+              <AccountItem
+                label="Vendor Type"
+                value={data.Vendor_Type__c ?? "NA"}
+              />
+              <AccountItem
+                label="Parent Account"
+                value={data.ParentId ?? "NA"}
+              />
+              <AccountItem label="Account Owner" value={data.OwnerId ?? "NA"} />
+            </div>
+            <div>
+              <AccountItem label="Phone 1" value={data.Phone ?? "NA"} />
+              <AccountItem label="Phone 2" value={data.Phone_2__c ?? "NA"} />
+              <AccountItem
+                label="Phone Note"
+                value={data.Phone_Note__c ?? "NA"}
+              />
+              <AccountItem
+                label="Legacy Account ID"
+                value={data.Legacy_Accnt_ID__c ?? "NA"}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="additional-details">
+          <AccordionTrigger>Additional Details</AccordionTrigger>
+          <AccordionContent className="grid grid-cols-2 gap-4">
+            <div>
+              <AccountItem
+                label="Geo Location"
+                value={
+                  data.Geolocation__c
+                    ? `${data.Geolocation__c.latitude}, ${data.Geolocation__c.longitude}`
+                    : "NA"
+                }
+              />
+              <AccountItem label="Website" value={data.Website ?? "NA"} />
+              <AccountItem label="Fax" value={data.Fax ?? "NA"} />
+              <AccountItem
+                label="Online Account"
+                value={data.Online_Account__c ?? "NA"}
+              />
+              <AccountItem label="Answer" value={data.Answer__c ?? "NA"} />
+              <AccountItem
+                label="Online Account"
+                value={data.Online_Account__c ?? "NA"}
+              />
+              <AccountItem
+                label="Permanent Comments"
+                value={
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: data.Permanent_Comments__c ?? "NA",
+                    }}
+                  />
+                }
+              />
+            </div>
+            <div>
+              <AccountItem label="Email 1" value={data.Email_1__c ?? "NA"} />
+              <AccountItem label="Email 2" value={data.Email_2__c ?? "NA"} />
+              <AccountItem
+                label="Email Note"
+                value={data.Email_Note__c ?? "NA"}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    );
+  };
+
   return (
     <div className="h-full bg-[#f7f7f7] p-5">
-      <Header reservation={reservation!} departure={departure!} />
-      <div className="mt-5 h-[420px] overflow-y-scroll rounded-md border border-gray-300 bg-white p-4">
-        <Accordion
-          type="multiple"
-          defaultValue={["user-details", "additional-details"]}
-        >
-          <AccordionItem value="user-details">
-            <AccordionTrigger>User Details</AccordionTrigger>
-            <AccordionContent className="grid grid-cols-2 gap-4">
-              <div>
-                <AccountItem label="Account Name" value={data.Name ?? "NA"} />
-                <AccountItem label="Account Record Type" value="Vendor" />
-                <AccountItem
-                  label="Vendor Type"
-                  value={data.Vendor_Type__c ?? "NA"}
-                />
-                <AccountItem
-                  label="Parent Account"
-                  value={data.ParentId ?? "NA"}
-                />
-                <AccountItem
-                  label="Account Owner"
-                  value={data.OwnerId ?? "NA"}
-                />
-              </div>
-              <div>
-                <AccountItem label="Phone 1" value={data.Phone ?? "NA"} />
-                <AccountItem label="Phone 2" value={data.Phone_2__c ?? "NA"} />
-                <AccountItem
-                  label="Phone Note"
-                  value={data.Phone_Note__c ?? "NA"}
-                />
-                <AccountItem
-                  label="Legacy Account ID"
-                  value={data.Legacy_Accnt_ID__c ?? "NA"}
-                />
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="additional-details">
-            <AccordionTrigger>Additional Details</AccordionTrigger>
-            <AccordionContent className="grid grid-cols-2 gap-4">
-              <div>
-                <AccountItem
-                  label="Geo Location"
-                  value={
-                    data.Geolocation__c
-                      ? `${data.Geolocation__c.latitude}, ${data.Geolocation__c.longitude}`
-                      : "NA"
-                  }
-                />
-                <AccountItem label="Website" value={data.Website ?? "NA"} />
-                <AccountItem label="Fax" value={data.Fax ?? "NA"} />
-                <AccountItem
-                  label="Online Account"
-                  value={data.Online_Account__c ?? "NA"}
-                />
-                <AccountItem label="Answer" value={data.Answer__c ?? "NA"} />
-                <AccountItem
-                  label="Online Account"
-                  value={data.Online_Account__c ?? "NA"}
-                />
-                <AccountItem
-                  label="Permanent Comments"
-                  value={
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: data.Permanent_Comments__c ?? "NA",
-                      }}
-                    />
-                  }
-                />
-              </div>
-              <div>
-                <AccountItem label="Email 1" value={data.Email_1__c ?? "NA"} />
-                <AccountItem label="Email 2" value={data.Email_2__c ?? "NA"} />
-                <AccountItem
-                  label="Email Note"
-                  value={data.Email_Note__c ?? "NA"}
-                />
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+      <Header
+        reservation={reservation!}
+        departure={departure!}
+        currentView={currentView}
+        toggleView={() => {
+          setCurrentView((prevView) =>
+            prevView === "account" ? "vendor" : "account"
+          );
+        }}
+      />
+      <div className="mt-5 h-[420px] overflow-y-auto rounded-md border border-gray-300 bg-white p-4">
+        {currentView === "account" ? (
+          renderContent()
+        ) : (
+          <ExperienceTable reservationId={props.reservationId!} />
+        )}
       </div>
       <div className="flex items-center justify-end">
         <div className="relative right-0 mt-6 w-1/2 rounded-md border border-gray-400 bg-white p-3">
