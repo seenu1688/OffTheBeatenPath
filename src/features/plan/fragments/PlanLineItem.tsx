@@ -34,7 +34,9 @@ const holderStyles = cn(
 
 const PlanLineItem = (props: Props) => {
   const { item, plan, width, position } = props;
-  const [modalType, setModalType] = useState<"detail" | "edit" | null>(null);
+  const [modalType, setModalType] = useState<
+    "detail" | "account" | "vendor" | null
+  >(null);
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: props.item.id,
@@ -84,7 +86,8 @@ const PlanLineItem = (props: Props) => {
 
   const renderContent = (
     ref?: (element: HTMLElement | null) => void,
-    onClick?: () => void
+    onClick?: (e: React.MouseEvent) => void,
+    isOpen?: boolean
   ) => {
     const barStyles = {
       width: `${width}px`,
@@ -106,13 +109,13 @@ const PlanLineItem = (props: Props) => {
           ref && ref(node);
           setNodeRef(node);
         }}
-        onMouseUp={(e) => {
+        onPointerUp={(e) => {
           if (
             onClick &&
             timeRef.current &&
             Date.now() - timeRef.current < 200
           ) {
-            onClick();
+            onClick(e);
           }
           timeRef.current = null;
         }}
@@ -122,6 +125,7 @@ const PlanLineItem = (props: Props) => {
           "z-1 group absolute cursor-pointer  rounded-sm border-1.5 px-3 py-1 text-left text-xs"
         )}
         data-state={isDragging ? "dragging" : "idle"}
+        data-open={isOpen}
       >
         <div
           onPointerDown={(e) => {
@@ -193,8 +197,8 @@ const PlanLineItem = (props: Props) => {
             setModalType(null);
           }
         }}
-        onEdit={() => {
-          setModalType("edit");
+        onChangeMode={(mode) => {
+          setModalType(mode);
         }}
       />
     );
@@ -204,41 +208,39 @@ const PlanLineItem = (props: Props) => {
     <Fragment key={item.id}>
       <PopoverCard
         key={item.id}
-        show={modalType === "detail"}
-        onClose={() => {
-          if (modalType === "detail") setModalType(null);
-        }}
         popperContent={renderPopperContent()}
+        id={item.id}
       >
-        {({ setReferenceElement }) =>
-          renderContent(setReferenceElement, () => {
-            setModalType(modalType ? null : "detail");
-          })
+        {({ setReferenceElement, onClick, isOpen }) =>
+          renderContent(setReferenceElement, onClick, isOpen)
         }
       </PopoverCard>
-      <Dialog
-        open={modalType === "edit"}
-        onOpenChange={() => {
-          setModalType(null);
-        }}
-      >
-        <DialogPortal>
-          <DialogOverlay />
-          <DialogPrimitive.Content
-            className={cn(
-              "fixed left-0 top-0 h-full max-h-full w-full max-w-full rounded-none bg-background",
-              "z-50 bg-background duration-200 data-[state=open]:animate-in",
-              "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
-              "data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
-            )}
-          >
-            <AccountView
-              reservationId={item.id}
-              departureId={props.departureId}
-            />
-          </DialogPrimitive.Content>
-        </DialogPortal>
-      </Dialog>
+      {(modalType === "account" || modalType === "vendor") && (
+        <Dialog
+          open={true}
+          onOpenChange={() => {
+            setModalType(null);
+          }}
+        >
+          <DialogPortal>
+            <DialogOverlay />
+            <DialogPrimitive.Content
+              className={cn(
+                "fixed left-0 top-0 h-full max-h-full w-full max-w-full rounded-none bg-background",
+                "z-50 bg-background duration-200 data-[state=open]:animate-in",
+                "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
+                "data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+              )}
+            >
+              <AccountView
+                reservationId={item.id}
+                departureId={props.departureId}
+                currentView={modalType}
+              />
+            </DialogPrimitive.Content>
+          </DialogPortal>
+        </Dialog>
+      )}
     </Fragment>
   );
 };

@@ -27,14 +27,14 @@ const Divider = () => {
 type Props = {
   reservationId: string;
   departureId: string;
-  onEdit?: () => void;
+  onChangeMode?: (mode: "account" | "vendor") => void;
   onClose: () => void;
 };
 
 const ReservationPopoverCard = ({
   reservationId,
   departureId,
-  onEdit,
+  onChangeMode,
   onClose,
 }: Props) => {
   const utils = trpcClient.useUtils();
@@ -103,7 +103,19 @@ const ReservationPopoverCard = ({
           >
             Delete
           </Button>
-          <Button size="sm" disabled={isPending} onClick={onEdit}>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isPending}
+            onClick={onChangeMode?.bind(null, "vendor")}
+          >
+            Vendor
+          </Button>
+          <Button
+            size="sm"
+            disabled={isPending}
+            onClick={onChangeMode?.bind(null, "account")}
+          >
             Edit
           </Button>
         </div>

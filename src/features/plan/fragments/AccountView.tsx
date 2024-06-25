@@ -14,19 +14,16 @@ import ExperienceTable from "@/features/experiences";
 import { trpcClient } from "@/client";
 
 import { Departure, ReservationResponse } from "@/common/types";
-import { Button } from "@/components/button";
-import { useState } from "react";
 
 type Props = {
   reservationId: string;
   departureId: string;
+  currentView: "account" | "vendor";
 };
 
 const Header = (props: {
   reservation: ReservationResponse;
   departure: Departure;
-  toggleView: () => void;
-  currentView: "account" | "vendor";
 }) => {
   const { departure, reservation } = props;
 
@@ -55,12 +52,6 @@ const Header = (props: {
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <Button
-          variant={props.currentView === "account" ? "default" : "outline"}
-          onClick={props.toggleView}
-        >
-          Vendor Information
-        </Button>
         <DialogClose className="rounded-sm border border-destructive p-2">
           <X className="h-4 w-4 text-destructive" size={30} />
         </DialogClose>
@@ -85,9 +76,7 @@ const AccountItem = ({
 };
 
 const AccountView = (props: Props) => {
-  const [currentView, setCurrentView] = useState<"account" | "vendor">(
-    "account"
-  );
+  const { currentView } = props;
   const { data: reservation } = trpcClient.reservations.getById.useQuery(
     props.reservationId
   );
@@ -192,23 +181,16 @@ const AccountView = (props: Props) => {
 
   return (
     <div className="h-full bg-[#f7f7f7] p-5">
-      <Header
-        reservation={reservation!}
-        departure={departure!}
-        currentView={currentView}
-        toggleView={() => {
-          setCurrentView((prevView) =>
-            prevView === "account" ? "vendor" : "account"
-          );
-        }}
-      />
-      <div className="mt-5 h-[420px] overflow-y-auto rounded-md border border-gray-300 bg-white p-4">
-        {currentView === "account" ? (
-          renderContent()
-        ) : (
+      <Header reservation={reservation!} departure={departure!} />
+      {currentView === "account" ? (
+        <div className="mt-5 h-[420px] overflow-y-auto rounded-md border border-gray-300 bg-white p-4">
+          {renderContent()}
+        </div>
+      ) : (
+        <div className="mt-5 h-[420px] rounded-md  bg-white">
           <ExperienceTable reservationId={props.reservationId!} />
-        )}
-      </div>
+        </div>
+      )}
       <div className="flex items-center justify-end">
         <div className="relative right-0 mt-6 w-1/2 rounded-md border border-gray-400 bg-white p-3">
           <div>
