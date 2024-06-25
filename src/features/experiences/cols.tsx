@@ -20,6 +20,8 @@ export const colDefs: (
     minWidth: 140,
     cellClass: "exp-cell",
     headerClass: "exp-header-cell",
+    editable: true,
+    cellDataType: "string",
   },
   {
     field: "group.recordType",
@@ -86,6 +88,7 @@ export const colDefs: (
     field: "daysNights",
     headerName: "Days/Nights",
     minWidth: 100,
+    cellDataType: "number",
   },
   {
     headerName: "Budget",
@@ -97,12 +100,17 @@ export const colDefs: (
         headerName: "Qty",
         cellClass: "cell-group",
         headerClass: "cell-group",
+        cellDataType: "number",
+        editable: true,
       },
       {
         field: "budget.unitCost",
-        headerName: "Unit",
+        headerName: "Unit Cost",
         cellClass: "cell-group",
         headerClass: "cell-group",
+        cellDataType: "number",
+        editable: true,
+        minWidth: 90,
       },
       {
         field: "budget.subTotal",
@@ -110,6 +118,7 @@ export const colDefs: (
         minWidth: 90,
         cellClass: "cell-group",
         headerClass: "cell-group",
+        cellDataType: "number",
       },
       {
         field: "budget.commissionRate",
@@ -117,24 +126,49 @@ export const colDefs: (
         aggFunc: "sum",
         cellClass: "cell-group",
         headerClass: "cell-group",
+        cellDataType: "number",
+        editable: true,
       },
       {
         field: "budget.tax",
         headerName: "Tax",
-        aggFunc: "sum",
         cellClass: "cell-group",
         headerClass: "cell-group",
+        cellDataType: "number",
+        editable: true,
       },
       {
         field: "budget.currency",
         headerName: "Currency",
         minWidth: 90,
+        // editable: true,
+        // cellEditor: (props: any) => {
+        //   console.log(props);
+
+        //   return (
+        //     <Select>
+        //       <SelectTrigger className="w-[180px]">
+        //         <SelectValue placeholder="Select a fruit" />
+        //       </SelectTrigger>
+        //       <SelectContent>
+        //         <SelectGroup onSelect={}>
+        //           <SelectItem value="apple">Apple</SelectItem>
+        //           <SelectItem value="banana">Banana</SelectItem>
+        //           <SelectItem value="blueberry">Blueberry</SelectItem>
+        //           <SelectItem value="grapes">Grapes</SelectItem>
+        //           <SelectItem value="pineapple">Pineapple</SelectItem>
+        //         </SelectGroup>
+        //       </SelectContent>
+        //     </Select>
+        //   );
+        // },
       },
       {
         field: "budget.total",
         headerName: "Total",
-        aggFunc: "sum",
         type: "numericColumn",
+        minWidth: 90,
+        cellDataType: "number",
       },
       {
         field: "budget.grossMarginTarget",
@@ -142,6 +176,8 @@ export const colDefs: (
         cellClass: "cell-group",
         headerClass: "cell-group",
         minWidth: 90,
+        cellDataType: "number",
+        editable: true,
       },
       {
         field: "budget.price",
@@ -150,6 +186,8 @@ export const colDefs: (
         aggFunc: "sum",
         type: "numericColumn",
         cellClass: "cell-group cell-group-last",
+        cellDataType: "number",
+        editable: true,
       },
     ],
   },
@@ -162,12 +200,16 @@ export const colDefs: (
         headerName: "Qty",
         cellClass: "cell-group",
         headerClass: "cell-group",
+        cellDataType: "number",
+        editable: true,
       },
       {
         field: "actual.unitCost",
-        headerName: "Unit",
+        headerName: "Unit Cost",
         cellClass: "cell-group",
         headerClass: "cell-group",
+        cellDataType: "number",
+        editable: true,
       },
       {
         field: "actual.subTotal",
@@ -175,18 +217,23 @@ export const colDefs: (
         minWidth: 90,
         cellClass: "cell-group",
         headerClass: "cell-group",
+        cellDataType: "number",
       },
       {
         field: "actual.commissionRate",
         headerName: "Comm",
         cellClass: "cell-group",
         headerClass: "cell-group",
+        cellDataType: "number",
+        editable: true,
       },
       {
         field: "actual.tax",
         headerName: "Tax",
         cellClass: "cell-group",
         headerClass: "cell-group",
+        cellDataType: "number",
+        editable: true,
       },
       {
         field: "actual.currency",
@@ -196,17 +243,23 @@ export const colDefs: (
       {
         field: "actual.total",
         headerName: "Total",
+        cellDataType: "number",
+        minWidth: 90,
       },
       {
         field: "actual.grossMarginTarget",
         headerName: "GM Target",
         headerClass: "cell-group",
         cellClass: "cell-group",
+        cellDataType: "number",
+        editable: true,
       },
       {
         field: "actual.price",
         headerName: "Price",
         minWidth: 90,
+        cellDataType: "number",
+        editable: true,
       },
     ],
   },
@@ -218,11 +271,13 @@ export const colDefs: (
         field: "variance.percent",
         headerName: "Percent",
         minWidth: 100,
+        cellDataType: "number",
       },
       {
         field: "variance.amount",
         headerName: "Amount",
         minWidth: 100,
+        cellDataType: "number",
       },
     ],
   },

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { QueryResult } from "jsforce";
 
 import { authProcedure, router } from "@/server/trpc";
+import { updateExperienceSchema } from "./schema";
 
 import { ExperienceLineItem, RawExperienceLineItem } from "./types";
 
@@ -82,5 +83,25 @@ export const experiencesRouter = router({
           }
         );
       });
+    }),
+  update: authProcedure
+    .input(updateExperienceSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { data } = input;
+
+      const response = await ctx.apexClient.put(`/updateRecords`, {
+        body: {
+          jsonData: JSON.stringify(
+            data.map((item) => {
+              return {
+                attributes: { type: "Experience_Line_Item__c" },
+                ...item,
+              };
+            })
+          ),
+        },
+      });
+
+      return response;
     }),
 });
