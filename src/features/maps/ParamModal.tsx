@@ -7,6 +7,7 @@ import CreateSegment from "./fragments/CreateSegment";
 
 import { trpcClient } from "@/client";
 import ErrorBoundary from "@/components/error-boundary";
+import CreateDestination from "./fragments/CreateDestination";
 
 const ParamModal = () => {
   const searchParams = useSearchParams();
@@ -41,6 +42,10 @@ const ParamModal = () => {
 
     if (entity === "segment") {
       return <CreateSegment departure={data} destinationId={id} />;
+    }
+
+    if (entity === "destination") {
+      return <CreateDestination departure={data} destinationId={id} />;
     }
 
     return (

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { authProcedure, router } from "../../trpc";
 
 import { Account, Destination } from "@/common/types";
+import { createDestinationSchema } from "./schema";
 
 type RawDestination = {
   Id: string;
@@ -220,4 +221,5 @@ export const destinationsRouter = router({
 
     return vendorFilters;
   }),
+  create: authProcedure.input(createDestinationSchema).mutation(async () => {}),
 });

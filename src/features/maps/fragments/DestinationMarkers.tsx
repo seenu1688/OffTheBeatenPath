@@ -34,7 +34,9 @@ const DestinationInfoWindowContent = ({
   destination: Destination;
   callback: () => void;
 }) => {
-  const handleClick = (entity: "reservation" | "segment" | "route") => {
+  const handleClick = (
+    entity: "reservation" | "segment" | "route" | "destination"
+  ) => {
     if (entity === "route") {
       callback();
       return;
@@ -84,6 +86,9 @@ const DestinationInfoWindowContent = ({
           variant="outline"
         >
           Route
+        </CreateButton>
+        <CreateButton onClick={handleClick.bind(null, "destination")}>
+          Destination
         </CreateButton>
         <CreateButton onClick={handleClick.bind(null, "segment")}>
           Segment
