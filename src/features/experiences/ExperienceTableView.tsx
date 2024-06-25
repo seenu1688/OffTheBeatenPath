@@ -9,6 +9,7 @@ import { colDefs } from "./cols";
 import { trpcClient } from "@/client";
 
 import { ExperienceLineItem } from "@/server/routers/experiences/types";
+import { create } from "zustand";
 
 const CustomPinnedRowRenderer = (props: CustomCellRendererProps) => {
   if (
@@ -29,24 +30,24 @@ const CustomPinnedRowRenderer = (props: CustomCellRendererProps) => {
   return null;
 };
 
+const useDataStore = create<{
+  data: string[];
+  setData: (data: string[]) => void;
+}>((set) => ({
+  data: [] as string[],
+  setData: (data: string[]) => {
+    set({ data });
+  },
+}));
+
 const DataSaveFooter = (props: {
   agGrid: AgGridReact | null;
   onReset: () => void;
   onSave: () => void;
 }) => {
-  const [showFooter, setShowFooter] = useState(false);
+  const data = useDataStore((state) => state.data);
 
-  useEffect(() => {
-    props.agGrid?.api.addEventListener(
-      "cellValueChanged",
-      (event: NewValueParams) => {
-        setShowFooter(true);
-      }
-    );
-  }, [props.agGrid]);
-  console.log(props);
-
-  if (!showFooter) {
+  if (data.length === 0) {
     return null;
   }
 
@@ -56,7 +57,6 @@ const DataSaveFooter = (props: {
         <Button
           variant="outline"
           onClick={() => {
-            setShowFooter(false);
             props.onReset();
           }}
         >
@@ -79,13 +79,12 @@ const ExperienceTableView = (props: {
   const [gridData, setGridData] = useState<ExperienceLineItem[]>(() => {
     return structuredClone(data);
   });
-  const dataChangeRef = useRef<string[]>([]);
 
   const { mutate } = trpcClient.experiences.update.useMutation({
     onSuccess() {
       toast.success("Data saved successfully");
       props.onRefresh();
-      dataChangeRef.current = [];
+      useDataStore.getState().setData([]);
     },
     onError(error) {
       toast.error("Failed to save data " + error.message);
@@ -95,9 +94,11 @@ const ExperienceTableView = (props: {
   const defaultColDef: ColDef<ExperienceLineItem> = {
     flex: 1,
     onCellValueChanged(event) {
-      dataChangeRef.current = [
-        ...new Set(dataChangeRef.current.concat(event.node?.id!)),
-      ];
+      useDataStore.setState((state) => {
+        return {
+          data: [...new Set(state.data.concat(event.node?.id!))],
+        };
+      });
 
       //   console.log(event.data);
       //   //   console.log(agGridRef.current?.props.rowData);
@@ -221,16 +222,15 @@ const ExperienceTableView = (props: {
         />
       </div>
       <DataSaveFooter
-        key={dataChangeRef.current.length}
         agGrid={agGridRef.current}
         onReset={() => {
           setGridData(data ?? []);
-          dataChangeRef.current = [];
+          useDataStore.getState().setData([]);
         }}
         onSave={() => {
-          //   console.log(gridData);
+          const dataChange = useDataStore.getState().data;
           const saveData = gridData.filter((item) => {
-            return dataChangeRef.current.includes(item.id);
+            return dataChange.includes(item.id);
           });
 
           if (saveData.length === 0) {
