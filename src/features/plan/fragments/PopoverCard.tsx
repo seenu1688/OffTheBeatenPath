@@ -7,19 +7,20 @@ import { cn } from "@/lib/utils";
 type Props = {
   children: (props: {
     setReferenceElement: (element: HTMLElement | null) => void;
+    onClick?: (e: React.MouseEvent) => void;
+    isOpen?: boolean;
   }) => React.ReactNode;
   popperContent: React.ReactNode;
-  show: boolean;
-  onClose: () => void;
+  id: string;
 };
 
 const PopoverCard = (props: Props) => {
-  const { onClose } = props;
   const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(
     null
   );
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null);
+  const [show, setShow] = useState(false);
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     modifiers: [
@@ -37,27 +38,42 @@ const PopoverCard = (props: Props) => {
 
   useEffect(() => {
     const handleClick = (event: MouseEvent) => {
-      if (
-        !popperElement?.contains(event.target as Node) &&
-        !referenceElement?.contains(event.target as Node)
-      ) {
-        onClose();
+      if (!popperElement?.contains(event.target as Node)) {
+        setShow(false);
+      }
+    };
+    const handleItemClick = (e: CustomEvent<{ id: string }>) => {
+      const { id } = e.detail;
+      if (id !== props.id) {
+        setShow(false);
       }
     };
 
     document.addEventListener("click", handleClick);
+    document.addEventListener("itemClick", handleItemClick);
 
     return () => {
       document.removeEventListener("click", handleClick);
+      document.removeEventListener("itemClick", handleItemClick);
     };
-  }, [popperElement, onClose, referenceElement]);
+  }, [popperElement, props.id, referenceElement]);
 
   return (
     <>
       {props.children({
         setReferenceElement,
+        onClick: () => {
+          document.dispatchEvent(
+            new CustomEvent("itemClick", {
+              detail: { id: props.id! },
+            })
+          );
+
+          setShow(!show);
+        },
+        isOpen: show,
       })}
-      {props.show &&
+      {show &&
         ReactDOM.createPortal(
           <div
             ref={setPopperElement}
