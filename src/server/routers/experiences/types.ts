@@ -3,6 +3,7 @@ export type RawExperienceLineItem = {
   Name: string;
   Reservation__c: string;
   Experience__c: string;
+  Experience_Name__c: string;
   CreatedById: string;
   CreatedDate: string;
   LastModifiedById: string;

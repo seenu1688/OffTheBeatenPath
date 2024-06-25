@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { QueryResult } from "jsforce";
 
 import { authProcedure, router } from "@/server/trpc";
-import { QueryResult } from "jsforce";
+
 import { ExperienceLineItem, RawExperienceLineItem } from "./types";
 
 export const experiencesRouter = router({
@@ -33,7 +34,7 @@ export const experiencesRouter = router({
             const records = result.records.map((record) => {
               return {
                 id: record.Id,
-                experience: record.Experience__c,
+                experience: record.Experience_Name__c,
                 included: record.Included__c,
                 daysNights: 0, // FIXME: query and fix this
                 budget: {

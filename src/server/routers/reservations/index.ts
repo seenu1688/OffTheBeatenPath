@@ -33,6 +33,7 @@ type RawReservation = {
     Id: string;
     Name: string;
     Vendor__c: string;
+    Experience_Name__c: string;
   }> | null;
 };
 
@@ -56,7 +57,7 @@ export const reservationsRouter = router({
     .input(z.string())
     .query(async ({ ctx, input: destinationId }) => {
       const query = `SELECT Id, Name, Phone, Website, Summary_Description__c, 
-    Commission__c, TaxRate__c, (select Id,name, Vendor__c from Activities__r) from Account WHERE Id='${destinationId}'`;
+    Commission__c, TaxRate__c, (select Id,name,Experience_Name__c, Vendor__c from Activities__r) from Account WHERE Id='${destinationId}'`;
 
       return new Promise<ReservationExperience>(async (resolve, reject) => {
         ctx.salesforceClient.query<RawReservation>(query, {}, (err, result) => {
@@ -79,7 +80,7 @@ export const reservationsRouter = router({
             experiences:
               record.Activities__r?.records.map((activity) => ({
                 id: activity.Id,
-                name: activity.Name,
+                name: activity.Experience_Name__c,
                 vendor: activity.Vendor__c,
               })) || [],
           });
