@@ -10,20 +10,22 @@ import { trpcClient } from "@/client";
 
 import { ExperienceLineItem } from "@/server/routers/experiences/types";
 import { create } from "zustand";
+import TabHeader from "./TabHeader";
+
+const aggregateColumns = [
+  "budget.total",
+  "budget.price",
+  "actual.subtotal",
+  "actual.comm",
+  "actual.tax",
+  "actual.total",
+  "actual.price",
+  "variance.amount",
+  "variance.percent",
+];
 
 const CustomPinnedRowRenderer = (props: CustomCellRendererProps) => {
-  if (
-    [
-      "budget.total",
-      "actual.subtotal",
-      "actual.comm",
-      "actual.tax",
-      "actual.total",
-      "actual.price",
-      "variance.amount",
-      "variance.percent",
-    ].includes(props.column?.getId() ?? "")
-  ) {
+  if (aggregateColumns.includes(props.column?.getId() ?? "")) {
     return <span>{props.value}</span>;
   }
 
@@ -68,6 +70,16 @@ const DataSaveFooter = (props: {
   );
 };
 
+const filterData = (data: ExperienceLineItem[], currentTab: string) => {
+  return data.filter((item) => {
+    if (currentTab === "current") {
+      return !item.archivedDate;
+    }
+
+    return item.archivedDate === currentTab;
+  });
+};
+
 const ExperienceTableView = (props: {
   data: ExperienceLineItem[];
   reservationId: string;
@@ -76,8 +88,47 @@ const ExperienceTableView = (props: {
   const { data } = props;
 
   const agGridRef = useRef<AgGridReact>(null);
+
+  const [currentTab, setCurrentTab] = useState<"current" | string>("current");
+  const tabsList = useMemo(() => {
+    const result = data.reduce(
+      (acc, item) => {
+        if (!item.archivedDate) {
+          acc["current"].push(item);
+          return acc;
+        }
+
+        if (!acc[item.archivedDate]) {
+          acc[item.archivedDate] = [];
+        }
+
+        acc[item.archivedDate].push(item);
+
+        return acc;
+      },
+      {
+        current: [],
+      } as Record<string, ExperienceLineItem[]>
+    );
+    let index = 1;
+
+    return Object.keys(result).map((key) => {
+      let label = "Current";
+
+      if (key !== "current") {
+        label = `Past ${index}`;
+        index++;
+      }
+
+      return {
+        label,
+        value: key,
+      };
+    });
+  }, [data]);
+
   const [gridData, setGridData] = useState<ExperienceLineItem[]>(() => {
-    return structuredClone(data);
+    return filterData(structuredClone(data), currentTab);
   });
 
   const { mutate } = trpcClient.experiences.update.useMutation({
@@ -99,21 +150,6 @@ const ExperienceTableView = (props: {
           data: [...new Set(state.data.concat(event.node?.id!))],
         };
       });
-
-      //   console.log(event.data);
-      //   //   console.log(agGridRef.current?.props.rowData);
-      //   //   var changedData = [event.data];
-      //   //   event.api.applyTransaction({ update: changedData });
-      //   const oldData = event.data;
-      //   const field = event.colDef.field;
-      //   const newValue = event.newValue;
-      //   const newData = { ...oldData };
-      //   newData[field!] = event.newValue;
-      //   console.log("onCellEditRequest, updating " + field + " to " + newValue);
-      //   const tx = {
-      //     update: [newData],
-      //   };
-      //   event.api.applyTransaction(tx);
     },
     cellClass: "ot-cell",
     sortable: false,
@@ -144,59 +180,45 @@ const ExperienceTableView = (props: {
   };
 
   const getRowId = useCallback((params: GetRowIdParams) => params.data.id, []);
+  const calculateAggrgateData = (data: ExperienceLineItem[]) => {
+    return data.reduce(
+      (acc, item) => {
+        aggregateColumns.forEach((key) => {
+          const [first, second] = key.split(".");
+
+          (acc as any)[first][second] += (item as any)[first][second] ?? 0;
+        });
+
+        return acc;
+      },
+      {
+        budget: { total: 0, price: 0 },
+        actual: { total: 0, price: 0, tax: 0, comm: 0, subtotal: 0 },
+        variance: { amount: 0, percent: 0 },
+      }
+    );
+  };
 
   const pinnedBottomRowData = useMemo(() => {
-    if (!data || data.length === 0) {
+    if (!gridData || gridData.length === 0) {
       return [];
     }
 
     return [
       {
-        id: "",
-        experience: "",
-        included: "",
-        daysNights: 0,
-        group: {
-          recordType: "",
-          shortDesc: "",
-          travelBrief: "",
-          guidebookDesc: "",
-          rateType: "",
-          maxPax: "",
-          requested: "",
-        },
-        budget: {
-          qty: 2,
-          unit: 4,
-          subtotal: 6,
-          comm: 8,
-          tax: 10,
-          currency: "USD",
-          total: 12,
-          gmTarget: 14,
-          price: 16,
-        },
-        actual: {
-          qty: 2,
-          unit: 4,
-          subtotal: 6,
-          comm: 8,
-          tax: 10,
-          currency: "USD",
-          total: 12,
-          gmTarget: 14,
-          price: 16,
-        },
-        variance: {
-          percent: 18,
-          amount: 20,
-        },
+        id: "total",
+        ...calculateAggrgateData(gridData),
       },
     ];
-  }, [data]);
+  }, [gridData]);
 
   return (
     <div className="h-full w-full">
+      <TabHeader
+        items={tabsList}
+        selectedValue={currentTab}
+        onChange={setCurrentTab}
+      />
       <div className="ag-theme-quartz custom-scroll h-full w-full">
         <AgGridReact<ExperienceLineItem>
           ref={agGridRef}
@@ -206,37 +228,47 @@ const ExperienceTableView = (props: {
           getRowId={getRowId}
           animateRows={false}
           groupSuppressBlankHeader={true}
-          //   pinnedBottomRowData={pinnedBottomRowData}
+          pinnedBottomRowData={pinnedBottomRowData}
           autoSizeStrategy={{ type: "fitCellContents" }}
-          className="h-[420px]"
+          containerStyle={{ height: "360px" }}
           domLayout={"normal"}
           getRowHeight={(params) => {
             if (params.node.rowPinned) {
               return 30;
             }
+
             return 40;
           }}
           onGridReady={(params) => {
             params.api.sizeColumnsToFit();
+            // const rowData = params.api.getGridOption("rowData");
+
+            // if (rowData) {
+            //   params.api.setGridOption("rowData", [
+            //     ...rowData,
+            //     ...(pinnedBottomRowData as any),
+            //   ]);
+            // }
           }}
         />
       </div>
       <DataSaveFooter
         agGrid={agGridRef.current}
         onReset={() => {
-          setGridData(data ?? []);
+          setGridData(filterData(data, currentTab));
           useDataStore.getState().setData([]);
         }}
         onSave={() => {
+          let items: ExperienceLineItem[] =
+            agGridRef.current!.api.getGridOption("rowData") ?? [];
+
           const dataChange = useDataStore.getState().data;
-          const saveData = gridData.filter((item) => {
+          const saveData = items.filter((item) => {
             return dataChange.includes(item.id);
           });
-
           if (saveData.length === 0) {
             return;
           }
-
           mutate({
             data: saveData,
             reservationId: props.reservationId,

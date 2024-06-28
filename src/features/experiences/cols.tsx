@@ -2,6 +2,14 @@ import { ColDef, ColGroupDef, ValueGetterParams } from "ag-grid-community";
 
 import Header from "./Header";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/select";
+
 import { ExperienceLineItem } from "@/server/routers/experiences/types";
 
 export const colDefs: (
@@ -146,18 +154,16 @@ export const colDefs: (
         //   console.log(props);
 
         //   return (
-        //     <Select>
+        //     <Select defaultValue={props.value} onValueChange={() => {}}>
         //       <SelectTrigger className="w-[180px]">
         //         <SelectValue placeholder="Select a fruit" />
         //       </SelectTrigger>
         //       <SelectContent>
-        //         <SelectGroup onSelect={}>
-        //           <SelectItem value="apple">Apple</SelectItem>
-        //           <SelectItem value="banana">Banana</SelectItem>
-        //           <SelectItem value="blueberry">Blueberry</SelectItem>
-        //           <SelectItem value="grapes">Grapes</SelectItem>
-        //           <SelectItem value="pineapple">Pineapple</SelectItem>
-        //         </SelectGroup>
+        //         <SelectItem value="apple">Apple</SelectItem>
+        //         <SelectItem value="banana">Banana</SelectItem>
+        //         <SelectItem value="blueberry">Blueberry</SelectItem>
+        //         <SelectItem value="grapes">Grapes</SelectItem>
+        //         <SelectItem value="pineapple">Pineapple</SelectItem>
         //       </SelectContent>
         //     </Select>
         //   );

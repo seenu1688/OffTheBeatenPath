@@ -16,8 +16,8 @@ const ExperienceTable = (props: Props) => {
     trpcClient.experiences.getAllByReservationId.useQuery(
       {
         reservationId: props.reservationId,
-      },
-      { staleTime: 0 }
+      }
+      // { staleTime: 0 }
     );
 
   if (isLoading || isFetching) {

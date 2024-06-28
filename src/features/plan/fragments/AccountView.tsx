@@ -187,7 +187,7 @@ const AccountView = (props: Props) => {
           {renderContent()}
         </div>
       ) : (
-        <div className="mt-5 h-[420px] rounded-md  bg-white">
+        <div className="mb-5 mt-5 h-[380px] rounded-md ">
           <ExperienceTable reservationId={props.reservationId!} />
         </div>
       )}
