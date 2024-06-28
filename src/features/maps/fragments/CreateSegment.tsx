@@ -74,8 +74,6 @@ const CreateSegment = (props: Props) => {
     await mutateAsync({
       departureId: props.departure.id,
       name: data!.name,
-      startDate: dayjs(formData.startDateTime).format("YYYY-MM-DD"),
-      endDate: dayjs(formData.endDateTime).format("YYYY-MM-DD"),
       startDateTime: dayjs(formData.startDateTime).format(
         "YYYY-MM-DDTHH:mm:ss.SSSZ"
       ),

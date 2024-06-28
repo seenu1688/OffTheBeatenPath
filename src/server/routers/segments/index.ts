@@ -3,13 +3,12 @@ import { TRPCError } from "@trpc/server";
 
 import { authProcedure, router } from "@/server/trpc";
 
-import { createSegmentSchema } from "./schema";
+import { createSegmentSchema, updateSegmentSchema } from "./schema";
+import { RawSegment } from "../departures/types";
 
 type CreateSegmentPayload = {
   pNewSegment: {
     Segment_Name__c: string;
-    StartDate__c: string;
-    EndDate__c: string;
     Departure__c: string;
     Narrative__c?: string;
     start_datetime__c?: string;
@@ -95,27 +94,29 @@ export const segmentsRouter = router({
     }
   }),
   update: authProcedure
-    .input(
-      z.object({
-        startDateTime: z.string(),
-        endDateTime: z.string(),
-        segmentId: z.string(),
-      })
-    )
+    .input(updateSegmentSchema)
     .mutation(async ({ ctx, input }) => {
-      const response = await ctx.apexClient.put(`/updateRecords`, {
-        body: {
-          jsonData: JSON.stringify([
-            {
-              attributes: { type: "Segment__c" },
-              Id: input.segmentId,
-              start_datetime__c: input.startDateTime,
-              end_datetime__c: input.endDateTime,
+      try {
+        const response = await ctx.apexClient.put<RawSegment, any>(
+          `/updateRecords`,
+          {
+            body: {
+              jsonData: JSON.stringify([
+                {
+                  attributes: { type: "Segment__c" },
+                  ...input,
+                },
+              ]),
             },
-          ]),
-        },
-      });
+          }
+        );
 
-      return response;
+        return response;
+      } catch (e: any) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: e.message,
+        });
+      }
     }),
 });

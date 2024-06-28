@@ -35,7 +35,7 @@ const GanttView = (props: Props) => {
           return (
             <PlanRow
               key={plan.id}
-              departureId={props.departure.id}
+              departure={props.departure}
               state={props.state}
               plan={plan}
               data={data}

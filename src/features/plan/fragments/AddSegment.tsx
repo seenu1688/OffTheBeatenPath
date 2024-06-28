@@ -26,7 +26,7 @@ import { trpcClient } from "@/client";
 
 import { cn } from "@/lib/utils";
 
-import { Departure } from "@/common/types";
+import { Departure, Segment } from "@/common/types";
 
 const schema = z.object({
   segmentName: z.string().min(3, {
@@ -59,9 +59,11 @@ const FieldRow = <O extends FieldValues, S extends Path<O>>(props: {
 
 type Props = {
   departure: Departure;
+  segment?: Segment;
 };
 
 const AddSegment = (props: Props) => {
+  const { segment } = props;
   const utils = trpcClient.useUtils();
   const cancelRef = useRef<HTMLButtonElement>(null);
   const { mutateAsync, isPending } = trpcClient.segments.create.useMutation({
@@ -74,12 +76,31 @@ const AddSegment = (props: Props) => {
       toast.error(`Failed to create segment: ${error.message}`);
     },
   });
+  const { isPending: updating, mutateAsync: updateSegment } =
+    trpcClient.segments.update.useMutation({
+      onSuccess() {
+        toast.success(`Segment has been updated successfully`);
+        utils.departures.getSegments.invalidate(props.departure.id);
+        cancelRef.current?.click();
+      },
+      onError(error) {
+        console.log(error);
+
+        toast.error(`Failed to update segment: ${error.message}`);
+      },
+    });
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      segmentName: "",
-      narrative: "",
+      segmentName: segment?.name || "",
+      narrative: segment?.narrative || "",
+      ...(segment?.startDate && {
+        startDateTime: new Date(segment.startDate),
+      }),
+      ...(segment?.endDate && {
+        endDateTime: new Date(segment.endDate),
+      }),
     },
     disabled: isPending,
   });
@@ -103,22 +124,33 @@ const AddSegment = (props: Props) => {
       return;
     }
 
-    await mutateAsync({
+    const payload = {
       departureId: props.departure.id,
       name: data.segmentName,
-      startDate: dayjs(data.startDateTime).format("YYYY-MM-DD"),
-      endDate: dayjs(data.endDateTime).format("YYYY-MM-DD"),
       startDateTime: dayjs(data.startDateTime).format(
         "YYYY-MM-DDTHH:mm:ss.SSSZ"
       ),
       endDateTime: dayjs(data.endDateTime).format("YYYY-MM-DDTHH:mm:ss.SSSZ"),
       narrative: data.narrative,
-    });
+    };
+
+    // if there is a segment, update it
+    if (props.segment) {
+      await updateSegment({
+        ...payload,
+        segmentId: props.segment.id,
+        narrative: data.narrative!,
+      });
+    } else {
+      await mutateAsync(payload);
+    }
   };
 
   return (
     <FormProvider {...form}>
-      <DialogTitle>Add New Segment</DialogTitle>
+      <DialogTitle>
+        {!props.segment ? "Add Segment" : "Edit Segment"}
+      </DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)} className="relative">
         <div className="max-h-[550px] min-h-[550px] overflow-y-auto pb-2">
           <section>
@@ -202,7 +234,7 @@ const AddSegment = (props: Props) => {
             </Button>
           </DialogClose>
 
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" disabled={isPending || updating}>
             Submit
           </Button>
         </div>

@@ -3,17 +3,23 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useDraggable } from "@dnd-kit/core";
 
 import PopoverCard from "./PopoverCard";
-import { Dialog, DialogOverlay, DialogPortal } from "@/components/dialog";
+import {
+  Dialog,
+  DialogOverlay,
+  DialogPortal,
+  DialogContent,
+} from "@/components/dialog";
 import AccountView from "./AccountView";
 import SegmentPopoverCard from "./SegmentPopoverCard";
 import ReservationPopoverCard from "./ReservationPopoverCard";
+import AddSegment from "./AddSegment";
 
 import { useEdgeResizable } from "../hooks/useEdgeResizable";
 
 import { cn } from "@/lib/utils";
 import { PlanType } from "../constants";
 
-import { DeparturesResponse, Segment } from "@/common/types";
+import { Departure, DeparturesResponse, Segment } from "@/common/types";
 
 type Props = {
   item: DeparturesResponse[
@@ -23,7 +29,7 @@ type Props = {
   plan: PlanType;
   width: number;
   position: number;
-  departureId: string;
+  departure: Departure;
 };
 
 const holderStyles = cn(
@@ -35,7 +41,7 @@ const holderStyles = cn(
 const PlanLineItem = (props: Props) => {
   const { item, plan, width, position } = props;
   const [modalType, setModalType] = useState<
-    "detail" | "account" | "vendor" | null
+    "detail" | "account" | "vendor" | "segment" | null
   >(null);
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -176,12 +182,15 @@ const PlanLineItem = (props: Props) => {
       return (
         <SegmentPopoverCard
           key={props.item.id}
-          departureId={props.departureId}
+          departureId={props.departure.id}
           segment={props.item as Segment}
           onClose={() => {
             if (modalType === "detail") {
               setModalType(null);
             }
+          }}
+          onEdit={() => {
+            setModalType("segment");
           }}
         />
       );
@@ -190,7 +199,7 @@ const PlanLineItem = (props: Props) => {
     return (
       <ReservationPopoverCard
         key={props.item.id}
-        departureId={props.departureId}
+        departureId={props.departure.id}
         reservationId={props.item.id}
         onClose={() => {
           if (modalType === "detail") {
@@ -234,10 +243,29 @@ const PlanLineItem = (props: Props) => {
             >
               <AccountView
                 reservationId={item.id}
-                departureId={props.departureId}
+                departureId={props.departure.id}
                 currentView={modalType}
               />
             </DialogPrimitive.Content>
+          </DialogPortal>
+        </Dialog>
+      )}
+      {modalType === "segment" && (
+        <Dialog
+          open={true}
+          onOpenChange={() => {
+            setModalType(null);
+          }}
+        >
+          <DialogPortal>
+            <DialogContent
+              className="max-w-5xl"
+              onInteractOutside={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <AddSegment departure={props.departure} segment={item} />
+            </DialogContent>
           </DialogPortal>
         </Dialog>
       )}
