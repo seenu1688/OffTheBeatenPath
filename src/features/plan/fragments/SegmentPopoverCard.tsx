@@ -59,7 +59,7 @@ const SegmentPopoverCard = (props: Props) => {
       </div>
       <div className=" bottom-0 flex w-full items-center justify-end gap-4 pt-2">
         <Button
-          variant="outline"
+          variant="destructive"
           size="sm"
           disabled={isPending}
           onClick={handleDelete}

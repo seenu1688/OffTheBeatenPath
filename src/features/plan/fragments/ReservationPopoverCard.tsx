@@ -96,7 +96,7 @@ const ReservationPopoverCard = ({
 
         <div className="flex items-center justify-end gap-4">
           <Button
-            variant="outline"
+            variant="destructive"
             size="sm"
             disabled={isPending}
             onClick={handleDelete}
@@ -104,8 +104,8 @@ const ReservationPopoverCard = ({
             Delete
           </Button>
           <Button
-            variant="outline"
             size="sm"
+            variant="outline"
             disabled={isPending}
             onClick={onChangeMode?.bind(null, "vendor")}
           >
