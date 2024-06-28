@@ -23,18 +23,16 @@ export const createSegmentSchema = z
 
 export const updateSegmentSchema = z
   .object({
-    name: z.string(),
-    departureId: z.string(),
+    name: z.string().optional(),
     narrative: z.string().optional(),
-    startDateTime: z.string(),
-    endDateTime: z.string(),
+    startDateTime: z.string().optional(),
+    endDateTime: z.string().optional(),
     segmentId: z.string(),
   })
   .transform((input) => {
-    const { departureId, name, narrative, startDateTime, endDateTime } = input;
+    const { name, narrative, startDateTime, endDateTime } = input;
     return {
       Segment_Name__c: name,
-      Departure__c: departureId,
       Narrative__c: narrative,
       start_datetime__c: startDateTime,
       end_datetime__c: endDateTime,

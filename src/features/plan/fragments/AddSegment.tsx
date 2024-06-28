@@ -125,7 +125,6 @@ const AddSegment = (props: Props) => {
     }
 
     const payload = {
-      departureId: props.departure.id,
       name: data.segmentName,
       startDateTime: dayjs(data.startDateTime).format(
         "YYYY-MM-DDTHH:mm:ss.SSSZ"
@@ -142,7 +141,10 @@ const AddSegment = (props: Props) => {
         narrative: data.narrative!,
       });
     } else {
-      await mutateAsync(payload);
+      await mutateAsync({
+        ...payload,
+        departureId: props.departure.id,
+      });
     }
   };
 
