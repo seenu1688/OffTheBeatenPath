@@ -5,9 +5,10 @@ import { authProcedure, router } from "@/server/trpc";
 import { updateExperienceSchema } from "./schema";
 
 import { ExperienceLineItem, RawExperienceLineItem } from "./types";
+import { PickList, VendorInfo } from "@/common/types";
 
 export const experiencesRouter = router({
-  getAllByReservationId: authProcedure
+  getLineItems: authProcedure
     .input(
       z.object({
         reservationId: z.string(),
@@ -18,8 +19,10 @@ export const experiencesRouter = router({
             Travel_Brief_description__c, Guide_Book_description__c, Max_Pax__c, Requested__c, Included__c, Experience_Short_Desc__c,
             Budget_Quantity__c, Budget_Unit_Cost__c, Budget_Commission_Rate__c, Budget_Tax__c, Currency__c, Budget_Gross_Margin__c, 
             Budget_Price__c, Budget_SubTotal__c, Budget_Total__c, Actual_Commission_Rate__c, Actual_Gross_Margin__c, Actual_Price__c, 
-            Actual_SubTotal__c, Actual_Total__c, Actual_Unit_Cost__c, Actual_Quantity__c, Actual_Tax__c, Status__c, Archived_Date__c 
+            Actual_SubTotal__c, Actual_Total__c, Actual_Unit_Cost__c, Number_of_Days_Nights__c, Actual_Quantity__c, Actual_Tax__c, Status__c, Archived_Date__c 
             FROM Experience_Line_Item__c WHERE Reservation__c = '${input.reservationId}'`;
+
+      // FIXME: query for the tax rate, gross margin
 
       return new Promise<ExperienceLineItem[]>((resolve, reject) => {
         ctx.salesforceClient.query(
@@ -36,8 +39,8 @@ export const experiencesRouter = router({
               return {
                 id: record.Id,
                 experience: record.Experience_Name__c,
-                included: record.Included__c,
-                daysNights: 0, // FIXME: query and fix this
+                daysNights: record.Number_of_Days_Nights__c, // FIXME: query and fix this
+                requested: record.Requested__c,
                 budget: {
                   qty: record.Budget_Quantity__c,
                   unitCost: record.Budget_Unit_Cost__c,
@@ -68,9 +71,9 @@ export const experiencesRouter = router({
                   travelBrief: record.Travel_Brief_description__c,
                   guideBookDescription: record.Guide_Book_description__c,
                   maxPax: record.Max_Pax__c,
-                  requested: record.Requested__c,
                   rateType: record.Experience_Rate_Type__c,
                   currency: record.Currency__c,
+                  included: record.Included__c,
                 },
                 variance: {
                   percent: 0,
@@ -104,4 +107,80 @@ export const experiencesRouter = router({
 
       return response;
     }),
+  getVendorInfo: authProcedure
+    .input(
+      z.object({
+        reservationId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const query = `SELECT Vendor__r.Commission__c,Vendor__r.TaxRate__c, TargetGrossMargin__c
+      FROM Reservation__c WHERE Id = '${input.reservationId}'`;
+
+      return new Promise<VendorInfo>((resolve, reject) => {
+        ctx.salesforceClient.query(
+          query,
+          {},
+          (
+            err,
+            result: QueryResult<{
+              Vendor__r: {
+                Commission__c: number;
+                TaxRate__c: number;
+              };
+              TargetGrossMargin__c: number;
+            }>
+          ) => {
+            if (err) {
+              reject(err);
+
+              return;
+            }
+
+            resolve(
+              result.records.map((record) => {
+                return {
+                  commission: record.Vendor__r.Commission__c,
+                  taxRate: record.Vendor__r.TaxRate__c,
+                  grossMarginTarget: record.TargetGrossMargin__c,
+                };
+              })[0]
+            );
+          }
+        );
+      });
+    }),
+  getPickLists: authProcedure.query<PickList[]>(async ({ ctx }) => {
+    const response = await ctx.apexClient.get<{
+      fields: {
+        picklistValues: {
+          active: boolean;
+          defaultValue: boolean;
+          label: string;
+          validFor: null;
+          value: string;
+        }[];
+        name: string;
+        label: string;
+      }[];
+    }>("/services/data/v58.0/sobjects/Experience_Line_Item__c/describe", {
+      replaceUrl: true,
+    });
+    const fields = response.fields.filter(
+      (field) => field.name === "Requested__c"
+    );
+
+    return fields.map((field) => {
+      return {
+        name: field.name,
+        label: field.label,
+        values: field.picklistValues.map((value) => {
+          return {
+            label: value.label,
+            value: value.value,
+          };
+        }),
+      };
+    });
+  }),
 });

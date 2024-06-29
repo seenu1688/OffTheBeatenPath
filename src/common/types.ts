@@ -107,3 +107,18 @@ export type ReservationResponse = {
   totalCommission: number;
   grossCost: number;
 };
+
+export type PickList = {
+  name: string;
+  label: string;
+  values: {
+    label: string;
+    value: string;
+  }[];
+};
+
+export type VendorInfo = {
+  commission: number;
+  taxRate: number;
+  grossMarginTarget: number;
+};

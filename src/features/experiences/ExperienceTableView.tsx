@@ -1,22 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
-import { ColDef, GetRowIdParams, NewValueParams } from "ag-grid-community";
+import { ColDef, GetRowIdParams } from "ag-grid-community";
 import { toast } from "sonner";
+import { create } from "zustand";
 
 import { Button } from "@/components/button";
+import TabHeader from "./TabHeader";
+import { createColDefs } from "./cols";
 
-import { colDefs } from "./cols";
 import { trpcClient } from "@/client";
 
 import { ExperienceLineItem } from "@/server/routers/experiences/types";
-import { create } from "zustand";
-import TabHeader from "./TabHeader";
+import { PickList, VendorInfo } from "@/common/types";
 
-const aggregateColumns = [
+export const aggregateColumns = [
   "budget.total",
   "budget.price",
-  "actual.subtotal",
-  "actual.comm",
+  "actual.subTotal",
+  "actual.commissionRate",
   "actual.tax",
   "actual.total",
   "actual.price",
@@ -83,6 +84,8 @@ const filterData = (data: ExperienceLineItem[], currentTab: string) => {
 const ExperienceTableView = (props: {
   data: ExperienceLineItem[];
   reservationId: string;
+  pickLists: PickList[];
+  vendorInfo: VendorInfo;
   onRefresh: () => void;
 }) => {
   const { data } = props;
@@ -141,6 +144,9 @@ const ExperienceTableView = (props: {
       toast.error("Failed to save data " + error.message);
     },
   });
+  const colDefs = useMemo(() => {
+    return createColDefs(props.pickLists, props.vendorInfo);
+  }, [props.pickLists, props.vendorInfo]);
 
   const defaultColDef: ColDef<ExperienceLineItem> = {
     flex: 1,
@@ -150,6 +156,24 @@ const ExperienceTableView = (props: {
           data: [...new Set(state.data.concat(event.node?.id!))],
         };
       });
+
+      if (
+        [
+          "budget.qty",
+          "budget.price",
+          "actual.qty",
+          "actual.unitCost",
+          "actual.price",
+        ].includes(event.column.getColId())
+      ) {
+        const agg = calculateAggrgateData();
+        event.api.setGridOption("pinnedBottomRowData", [
+          {
+            id: "total",
+            ...agg,
+          },
+        ]);
+      }
     },
     cellClass: "ot-cell",
     sortable: false,
@@ -180,37 +204,39 @@ const ExperienceTableView = (props: {
   };
 
   const getRowId = useCallback((params: GetRowIdParams) => params.data.id, []);
-  const calculateAggrgateData = (data: ExperienceLineItem[]) => {
+  const calculateAggrgateData = () => {
+    const data = agGridRef.current?.api.getGridOption("rowData") || [];
     return data.reduce(
       (acc, item) => {
+        const node = agGridRef.current?.api.getRowNode(item.id);
         aggregateColumns.forEach((key) => {
           const [first, second] = key.split(".");
+          const value = agGridRef.current?.api.getCellValue({
+            rowNode: node!,
+            colKey: key,
+            useFormatter: true,
+          });
 
-          (acc as any)[first][second] += (item as any)[first][second] ?? 0;
+          const parsedValue = parseInt(value || "0");
+
+          (acc as any)[first][second] += parsedValue ?? 0;
         });
 
         return acc;
       },
       {
         budget: { total: 0, price: 0 },
-        actual: { total: 0, price: 0, tax: 0, comm: 0, subtotal: 0 },
+        actual: { total: 0, price: 0, tax: 0, commissionRate: 0, subTotal: 0 },
         variance: { amount: 0, percent: 0 },
       }
     );
   };
 
-  const pinnedBottomRowData = useMemo(() => {
-    if (!gridData || gridData.length === 0) {
-      return [];
-    }
-
-    return [
-      {
-        id: "total",
-        ...calculateAggrgateData(gridData),
-      },
-    ];
-  }, [gridData]);
+  useEffect(() => {
+    return () => {
+      useDataStore.getState().setData([]);
+    };
+  }, []);
 
   return (
     <div className="h-full w-full">
@@ -228,7 +254,6 @@ const ExperienceTableView = (props: {
           getRowId={getRowId}
           animateRows={false}
           groupSuppressBlankHeader={true}
-          pinnedBottomRowData={pinnedBottomRowData}
           autoSizeStrategy={{ type: "fitCellContents" }}
           containerStyle={{ height: "360px" }}
           domLayout={"normal"}
@@ -239,24 +264,32 @@ const ExperienceTableView = (props: {
 
             return 40;
           }}
+          alwaysShowHorizontalScroll={true}
           onGridReady={(params) => {
             params.api.sizeColumnsToFit();
-            // const rowData = params.api.getGridOption("rowData");
 
-            // if (rowData) {
-            //   params.api.setGridOption("rowData", [
-            //     ...rowData,
-            //     ...(pinnedBottomRowData as any),
-            //   ]);
-            // }
+            params.api.setGridOption("pinnedBottomRowData", [
+              {
+                id: "total",
+                ...calculateAggrgateData(),
+              },
+            ]);
           }}
         />
       </div>
       <DataSaveFooter
         agGrid={agGridRef.current}
         onReset={() => {
-          setGridData(filterData(data, currentTab));
+          setGridData(filterData(structuredClone(data), currentTab));
+
           useDataStore.getState().setData([]);
+          agGridRef.current?.api.sizeColumnsToFit();
+          agGridRef.current?.api.setGridOption("pinnedBottomRowData", [
+            {
+              id: "total",
+              ...calculateAggrgateData(),
+            },
+          ]);
         }}
         onSave={() => {
           let items: ExperienceLineItem[] =

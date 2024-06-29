@@ -40,13 +40,13 @@ const Header = (props: {
           <div className="grid grid-cols-[100px_1fr] items-center gap-2">
             <div className="font-medium">Check-In :</div>
             <div>
-              {dayjs(departure.startDate).format("MMM DD YYYY - hh:mm A")}
+              {dayjs(reservation.startDateTime).format("MMM DD YYYY - hh:mm A")}
             </div>
           </div>
           <div className="grid grid-cols-[100px_1fr] items-center gap-2">
             <div className="font-medium">Check-Out :</div>
             <div>
-              {dayjs(departure.endDate).format("MMM DD YYYY - hh:mm A")}
+              {dayjs(reservation.endDateTime).format("MMM DD YYYY - hh:mm A")}
             </div>
           </div>
         </div>
@@ -182,7 +182,7 @@ const AccountView = (props: Props) => {
   return (
     <div className="h-full bg-[#f7f7f7] p-5">
       <Header reservation={reservation!} departure={departure!} />
-      {currentView === "account" ? (
+      {currentView === "vendor" ? (
         <div className="mt-5 h-[420px] overflow-y-auto rounded-md border border-gray-300 bg-white p-4">
           {renderContent()}
         </div>
@@ -191,35 +191,37 @@ const AccountView = (props: Props) => {
           <ExperienceTable reservationId={props.reservationId!} />
         </div>
       )}
-      <div className="flex items-center justify-end">
-        <div className="relative right-0 mt-6 w-1/2 rounded-md border border-gray-400 bg-white p-3">
-          <div>
-            <div className="col-span-2 border-b pb-1 text-orange-600">
-              Reservation Payment System
-            </div>
-            <div className="grid grid-cols-2 border-b py-1">
-              <div>Gross Pay Total:</div>
-              <div>{reservation?.grossCost ?? "NA"}</div>
-            </div>
-            <div className="grid grid-cols-2 border-b py-1">
-              <div>Commission Due:</div>
-              <div>{reservation?.totalCommission ?? "NA"}</div>
-            </div>
-            <div className="grid grid-cols-2 border-b py-1">
-              <div>Net Pay Total:</div>
-              <div>{reservation?.netCost ?? "NA"}</div>
-            </div>
-            <div className="grid grid-cols-2 border-b py-1">
-              <div>Sum of payables:</div>
-              <div>{reservation?.payables.paid ?? "NA"}</div>
-            </div>
-            <div className="grid grid-cols-2 py-1">
-              <div>payables Due:</div>
-              <div>{reservation?.payables.unpaid ?? "NA"}</div>
+      {currentView === "account" && (
+        <div className="flex items-center justify-end">
+          <div className="relative right-0 mt-6 w-1/2 rounded-md border border-gray-400 bg-white p-3">
+            <div>
+              <div className="col-span-2 border-b pb-1 text-orange-600">
+                Reservation Payment System
+              </div>
+              <div className="grid grid-cols-2 border-b py-1">
+                <div>Gross Pay Total:</div>
+                <div>{reservation?.grossCost ?? "NA"}</div>
+              </div>
+              <div className="grid grid-cols-2 border-b py-1">
+                <div>Commission Due:</div>
+                <div>{reservation?.totalCommission ?? "NA"}</div>
+              </div>
+              <div className="grid grid-cols-2 border-b py-1">
+                <div>Net Pay Total:</div>
+                <div>{reservation?.netCost ?? "NA"}</div>
+              </div>
+              <div className="grid grid-cols-2 border-b py-1">
+                <div>Sum of payables:</div>
+                <div>{reservation?.payables.paid ?? "NA"}</div>
+              </div>
+              <div className="grid grid-cols-2 py-1">
+                <div>payables Due:</div>
+                <div>{reservation?.payables.unpaid ?? "NA"}</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

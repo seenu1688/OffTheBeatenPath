@@ -13,14 +13,24 @@ type Props = {
 
 const ExperienceTable = (props: Props) => {
   const { data, isLoading, isFetching, refetch } =
-    trpcClient.experiences.getAllByReservationId.useQuery(
+    trpcClient.experiences.getLineItems.useQuery({
+      reservationId: props.reservationId,
+    });
+  const { data: pickLists, isLoading: picklistLoading } =
+    trpcClient.experiences.getPickLists.useQuery(undefined, {
+      staleTime: 60 * 60 * 1000,
+    });
+  const { data: vendorInfo, isLoading: infoLoading } =
+    trpcClient.experiences.getVendorInfo.useQuery(
       {
         reservationId: props.reservationId,
+      },
+      {
+        staleTime: 60 * 60 * 1000,
       }
-      // { staleTime: 0 }
     );
 
-  if (isLoading || isFetching) {
+  if (isLoading || isFetching || picklistLoading || infoLoading) {
     return <Loader className="h-[200px]" />;
   }
 
@@ -29,6 +39,8 @@ const ExperienceTable = (props: Props) => {
       data={data!}
       reservationId={props.reservationId}
       onRefresh={refetch}
+      pickLists={pickLists!}
+      vendorInfo={vendorInfo!}
     />
   );
 };

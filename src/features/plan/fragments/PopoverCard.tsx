@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { usePopper } from "react-popper";
 
@@ -59,7 +59,7 @@ const PopoverCard = (props: Props) => {
   }, [popperElement, props.id, referenceElement]);
 
   return (
-    <>
+    <Fragment key={props.id}>
       {props.children({
         setReferenceElement,
         onClick: () => {
@@ -92,7 +92,7 @@ const PopoverCard = (props: Props) => {
           </div>,
           document.body
         )}
-    </>
+    </Fragment>
   );
 };
 

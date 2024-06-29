@@ -37,12 +37,13 @@ export type RawExperienceLineItem = {
   Actual_Unit_Cost__c: number;
   Actual_Quantity__c: number;
   Actual_Tax__c: number;
+  Number_of_Days_Nights__c: number;
 };
 
 export type ExperienceLineItem = {
   id: string;
   experience: string;
-  included: string;
+  requested: string;
   daysNights: number;
   group: {
     recordType: string;
@@ -51,7 +52,7 @@ export type ExperienceLineItem = {
     guideBookDescription: string;
     rateType: string;
     maxPax: number;
-    requested: string;
+    included: string;
   };
   budget: {
     qty: number;
