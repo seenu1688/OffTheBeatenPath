@@ -292,6 +292,8 @@ const ExperienceTableView = (props: {
           ]);
         }}
         onSave={() => {
+          agGridRef.current!.api.clearFocusedCell();
+
           let items: ExperienceLineItem[] =
             agGridRef.current!.api.getGridOption("rowData") ?? [];
 
