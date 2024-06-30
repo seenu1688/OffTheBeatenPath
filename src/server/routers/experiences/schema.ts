@@ -4,7 +4,7 @@ const reservationData = z
   .object({
     id: z.string(),
     experience: z.string().optional(),
-    requested: z.string().optional(),
+    requested: z.string().optional().nullable(),
     budget: z.object({
       qty: z.number().optional().nullable(),
       grossMarginTarget: z.number().optional().nullable(),
