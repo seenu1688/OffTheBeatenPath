@@ -16,7 +16,7 @@ const reservationData = z
       tax: z.number().optional().nullable(),
       currency: z.string().optional().nullable(),
       grossMarginTarget: z.number().optional().nullable(),
-      price: z.number().optional().nullable(),
+      // price: z.number().optional().nullable(),
     }),
     daysNights: z.number().optional().nullable(),
   })
@@ -28,7 +28,7 @@ const reservationData = z
       Budget_Gross_Margin__c: data.budget.grossMarginTarget,
       Actual_Commission_Rate__c: data.actual.commissionRate,
       Actual_Gross_Margin__c: data.actual.grossMarginTarget,
-      Actual_Price__c: data.actual.price,
+      // Actual_Price__c: data.actual.price,
       Actual_Unit_Cost__c: data.actual.unitCost,
       Actual_Quantity__c: data.actual.qty,
       Actual_Tax__c: data.actual.tax,
