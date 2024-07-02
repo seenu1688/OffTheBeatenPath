@@ -2,11 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AgGridReact, CustomCellRendererProps } from "ag-grid-react";
 import { ColDef, GetRowIdParams } from "ag-grid-community";
 import { toast } from "sonner";
-import { create } from "zustand";
+import { Loader } from "lucide-react";
 
-import { Button } from "@/components/button";
 import TabHeader from "./TabHeader";
 import { createColDefs } from "./cols";
+import DataSaveFooter from "./fragments/DataSaveFooter";
+
+import { useDataStore } from "./hooks/useDataStore";
 
 import { trpcClient } from "@/client";
 
@@ -25,7 +27,7 @@ export const aggregateColumns = [
   "variance.percent",
 ];
 
-const CustomPinnedRowRenderer = (props: CustomCellRendererProps) => {
+const CustomPinnedCellRenderer = (props: CustomCellRendererProps) => {
   if (aggregateColumns.includes(props.column?.getId() ?? "")) {
     return <span>{props.value}</span>;
   }
@@ -33,48 +35,10 @@ const CustomPinnedRowRenderer = (props: CustomCellRendererProps) => {
   return null;
 };
 
-const useDataStore = create<{
-  data: string[];
-  setData: (data: string[]) => void;
-}>((set) => ({
-  data: [] as string[],
-  setData: (data: string[]) => {
-    set({ data });
-  },
-}));
-
-const DataSaveFooter = (props: {
-  agGrid: AgGridReact | null;
-  onReset: () => void;
-  onSave: () => void;
-}) => {
-  const data = useDataStore((state) => state.data);
-
-  if (data.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="fixed bottom-9 z-10 w-full">
-      <div className="max-w-1/2 mx-auto flex w-[300px] items-center justify-between gap-4 rounded-lg bg-gray-500 p-4 shadow-lg">
-        <Button
-          variant="outline"
-          onClick={() => {
-            props.onReset();
-          }}
-        >
-          Reset
-        </Button>
-        <Button onClick={props.onSave}>Save</Button>
-      </div>
-    </div>
-  );
-};
-
 const filterData = (data: ExperienceLineItem[], currentTab: string) => {
   return data.filter((item) => {
     if (currentTab === "current") {
-      return !item.archivedDate;
+      return item.status === "Active";
     }
 
     return item.archivedDate === currentTab;
@@ -134,19 +98,46 @@ const ExperienceTableView = (props: {
     return filterData(structuredClone(data), currentTab);
   });
 
-  const { mutate } = trpcClient.experiences.update.useMutation({
-    onSuccess() {
-      toast.success("Data saved successfully");
-      props.onRefresh();
-      useDataStore.getState().setData([]);
-    },
-    onError(error) {
-      toast.error("Failed to save data " + error.message);
-    },
-  });
+  const { mutate, isPending: updatePending } =
+    trpcClient.experiences.update.useMutation({
+      onSuccess() {
+        toast.success("Data saved successfully");
+        useDataStore.getState().setData([]);
+        props.onRefresh();
+      },
+      onError(error) {
+        toast.error("Failed to save data " + error.message);
+      },
+    });
+
+  const { mutate: archive, isPending: archivePending } =
+    trpcClient.experiences.archive.useMutation({
+      onSuccess() {
+        toast.success("Create new experience line items successfully");
+        props.onRefresh();
+      },
+      onError(_error) {
+        console.log(_error);
+
+        toast.error("Failed to create new experience line items");
+      },
+    });
+
   const colDefs = useMemo(() => {
-    return createColDefs(props.pickLists, props.vendorInfo);
-  }, [props.pickLists, props.vendorInfo]);
+    agGridRef.current?.api.clearFocusedCell();
+
+    return createColDefs({
+      pickLists: props.pickLists,
+      vendorInfo: props.vendorInfo,
+      disabled: updatePending || archivePending || currentTab !== "current",
+    });
+  }, [
+    props.pickLists,
+    props.vendorInfo,
+    updatePending,
+    currentTab,
+    archivePending,
+  ]);
 
   const defaultColDef: ColDef<ExperienceLineItem> = {
     flex: 1,
@@ -185,7 +176,7 @@ const ExperienceTableView = (props: {
     cellRendererSelector: (params) => {
       if (params.node.rowPinned) {
         return {
-          component: CustomPinnedRowRenderer,
+          component: CustomPinnedCellRenderer,
         };
       } else {
         // rows that are not pinned don't use any cell renderer
@@ -244,6 +235,9 @@ const ExperienceTableView = (props: {
         items={tabsList}
         selectedValue={currentTab}
         onChange={setCurrentTab}
+        onClick={() => {
+          archive({ reservationId: props.reservationId });
+        }}
       />
       <div className="ag-theme-quartz custom-scroll h-full w-full">
         <AgGridReact<ExperienceLineItem>
@@ -279,6 +273,7 @@ const ExperienceTableView = (props: {
       </div>
       <DataSaveFooter
         agGrid={agGridRef.current}
+        disable={updatePending}
         onReset={() => {
           setGridData(filterData(structuredClone(data), currentTab));
 
@@ -310,6 +305,11 @@ const ExperienceTableView = (props: {
           });
         }}
       />
+      {(updatePending || archivePending) && (
+        <div className="fixed bottom-0 left-0 right-0 top-0 z-[100] flex h-full w-full items-center justify-center bg-gray-600/20">
+          <Loader size={36} className="z-10 animate-spin text-orange-500" />
+        </div>
+      )}
     </div>
   );
 };

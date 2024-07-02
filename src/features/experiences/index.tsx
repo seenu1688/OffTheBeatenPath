@@ -31,7 +31,7 @@ const ExperienceTable = (props: Props) => {
     );
 
   if (isLoading || isFetching || picklistLoading || infoLoading) {
-    return <Loader className="h-[200px]" />;
+    return <Loader className="h-[300px]" />;
   }
 
   return (

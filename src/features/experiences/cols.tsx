@@ -1,19 +1,7 @@
-import {
-  ColDef,
-  ColGroupDef,
-  ICellEditorParams,
-  ValueGetterParams,
-} from "ag-grid-community";
+import { ColDef, ColGroupDef, ValueGetterParams } from "ag-grid-community";
 
 import Header from "./Header";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/select";
+import SelectCell from "./compnents/Select";
 
 import { ExperienceLineItem } from "@/server/routers/experiences/types";
 import { PickList, VendorInfo } from "@/common/types";
@@ -22,13 +10,16 @@ const calculatePercentage = (total: number, percent: number) => {
   return total * (percent / 100);
 };
 
-export const createColDefs = (
-  pickLists: PickList[],
-  vendorInfo: VendorInfo
-): (ColDef<ExperienceLineItem> | ColGroupDef<ExperienceLineItem>)[] => {
+export const createColDefs = (props: {
+  pickLists: PickList[];
+  vendorInfo: VendorInfo;
+  disabled?: boolean;
+}): (ColDef<ExperienceLineItem> | ColGroupDef<ExperienceLineItem>)[] => {
+  const { pickLists, vendorInfo, disabled = false } = props;
   const requestedOptions = pickLists.find(
     (p) => p.name === "Requested__c"
   )?.values;
+  const isEditable = !disabled;
 
   return [
     {
@@ -43,7 +34,7 @@ export const createColDefs = (
       minWidth: 140,
       cellClass: "exp-cell",
       headerClass: "exp-header-cell",
-      editable: true,
+      editable: true && isEditable && isEditable,
       cellDataType: "string",
     },
     {
@@ -106,36 +97,18 @@ export const createColDefs = (
       headerName: "Requested",
       minWidth: 140,
       headerComponent: Header,
-      editable: true,
-      cellEditor: (props: ICellEditorParams) => {
-        return (
-          <Select
-            defaultValue={props.value}
-            onValueChange={(value) => {
-              props.node.setDataValue("requested", value);
-              props.stopEditing();
-            }}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {requestedOptions?.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        );
+      editable: true && isEditable,
+      cellEditorParams: {
+        options: requestedOptions,
       },
+      cellEditor: SelectCell,
     },
     {
       field: "daysNights",
       headerName: "Days/Nights",
       minWidth: 100,
       cellDataType: "number",
-      editable: true,
+      editable: true && isEditable,
     },
     {
       headerName: "Budget",
@@ -148,7 +121,7 @@ export const createColDefs = (
           cellClass: "cell-group",
           headerClass: "cell-group",
           cellDataType: "number",
-          editable: true,
+          editable: true && isEditable,
         },
         {
           field: "budget.unitCost",
@@ -203,25 +176,10 @@ export const createColDefs = (
           field: "budget.currency",
           headerName: "Currency",
           minWidth: 90,
-          // editable: true,
-          // cellEditor: (props: any) => {
-          //   console.log(props);
-
-          //   return (
-          //     <Select defaultValue={props.value} onValueChange={() => {}}>
-          //       <SelectTrigger className="w-[180px]">
-          //         <SelectValue placeholder="Select a fruit" />
-          //       </SelectTrigger>
-          //       <SelectContent>
-          //         <SelectItem value="apple">Apple</SelectItem>
-          //         <SelectItem value="banana">Banana</SelectItem>
-          //         <SelectItem value="blueberry">Blueberry</SelectItem>
-          //         <SelectItem value="grapes">Grapes</SelectItem>
-          //         <SelectItem value="pineapple">Pineapple</SelectItem>
-          //       </SelectContent>
-          //     </Select>
-          //   );
-          // },
+          cellEditorParams: {
+            options: [{ label: "USD", value: "USD" }],
+          },
+          cellEditor: SelectCell,
         },
         {
           field: "budget.total",
@@ -248,7 +206,7 @@ export const createColDefs = (
           headerClass: "cell-group",
           minWidth: 90,
           cellDataType: "number",
-          editable: true,
+          editable: true && isEditable,
           valueFormatter: (params) => {
             return `${params.value || 0}%`;
           },
@@ -261,7 +219,7 @@ export const createColDefs = (
           type: "numericColumn",
           cellClass: "cell-group cell-group-last",
           cellDataType: "number",
-          editable: true,
+          editable: true && isEditable,
         },
       ],
     },
@@ -276,7 +234,7 @@ export const createColDefs = (
           cellClass: "cell-group",
           headerClass: "cell-group",
           cellDataType: "number",
-          editable: true,
+          editable: true && isEditable,
           groupId: "actual",
         },
         {
@@ -285,7 +243,7 @@ export const createColDefs = (
           cellClass: "cell-group",
           headerClass: "cell-group",
           cellDataType: "number",
-          editable: true,
+          editable: true && isEditable,
           groupId: "actual",
         },
         {
@@ -384,7 +342,7 @@ export const createColDefs = (
           headerName: "Price",
           minWidth: 90,
           cellDataType: "number",
-          editable: true,
+          editable: true && isEditable,
           groupId: "actual",
         },
       ],
