@@ -106,6 +106,9 @@ export type ReservationResponse = {
   netCost: number;
   totalCommission: number;
   grossCost: number;
+  preDepartureConfirmation: boolean;
+  status: string;
+  critical: boolean;
 };
 
 export type PickList = {
@@ -121,4 +124,19 @@ export type VendorInfo = {
   commission: number;
   taxRate: number;
   grossMarginTarget: number;
+};
+
+export type ReservationExperience = {
+  id: string;
+  name: string;
+  phone: string;
+  website: string;
+  summary: string | null;
+  commission: number;
+  taxRate: number;
+  experiences: {
+    id: string;
+    name: string;
+    vendor: string;
+  }[];
 };

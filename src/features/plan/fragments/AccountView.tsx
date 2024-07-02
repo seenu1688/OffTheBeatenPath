@@ -1,8 +1,4 @@
-import dayjs from "dayjs";
-import { X } from "lucide-react";
-
 import Loader from "@/components/Loader";
-import { DialogClose } from "@/components/dialog";
 import {
   Accordion,
   AccordionContent,
@@ -10,54 +6,14 @@ import {
   AccordionTrigger,
 } from "@/components/accordion";
 import ExperienceTable from "@/features/experiences";
+import Header from "./Header";
 
 import { trpcClient } from "@/client";
-
-import { Departure, ReservationResponse } from "@/common/types";
 
 type Props = {
   reservationId: string;
   departureId: string;
   currentView: "account" | "vendor";
-};
-
-const Header = (props: {
-  reservation: ReservationResponse;
-  departure: Departure;
-}) => {
-  const { departure, reservation } = props;
-
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex w-[60%] justify-between gap-10 rounded-lg border bg-white p-3">
-        <div>
-          <div className="text-ellipsis font-medium">
-            {reservation.experience?.name}
-          </div>
-          <div className="text-sm">{departure.tripName}</div>
-        </div>
-        <div className="w-1/2">
-          <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-            <div className="font-medium">Check-In :</div>
-            <div>
-              {dayjs(reservation.startDateTime).format("MMM DD YYYY - hh:mm A")}
-            </div>
-          </div>
-          <div className="grid grid-cols-[100px_1fr] items-center gap-2">
-            <div className="font-medium">Check-Out :</div>
-            <div>
-              {dayjs(reservation.endDateTime).format("MMM DD YYYY - hh:mm A")}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <DialogClose className="rounded-sm border border-destructive p-2">
-          <X className="h-4 w-4 text-destructive" size={30} />
-        </DialogClose>
-      </div>
-    </div>
-  );
 };
 
 const AccountItem = ({

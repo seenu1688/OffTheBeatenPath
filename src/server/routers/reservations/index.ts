@@ -1,56 +1,12 @@
 import { z } from "zod";
-import { QueryResult } from "jsforce";
 
 import { authProcedure, router } from "@/server/trpc";
 import { TRPCError } from "@trpc/server";
+
 import { createReservationsSchema } from "./schema";
-import { ReservationResponse } from "@/common/types";
 
-type RawCreateReservationResponse = {
-  Id: string;
-  Name: string;
-  Departure__c: string;
-  Reservation_Name__c: string;
-  Experience__c: string;
-  Critical__c: boolean;
-  RecordTypeId: string;
-  Pre_Departure_Confirmation__c: boolean;
-  Start_DateTime__c: string;
-  End_DateTime__c: string;
-  Vendor__c: string;
-  Segment__c: string;
-};
-
-type RawReservation = {
-  Id: string;
-  Name: string;
-  Phone: string;
-  Website: string;
-  Summary_Description__c: null;
-  Commission__c: number;
-  TaxRate__c: number;
-  Activities__r: QueryResult<{
-    Id: string;
-    Name: string;
-    Vendor__c: string;
-    Experience_Name__c: string;
-  }> | null;
-};
-
-type ReservationExperience = {
-  id: string;
-  name: string;
-  phone: string;
-  website: string;
-  summary: string | null;
-  commission: number;
-  taxRate: number;
-  experiences: {
-    id: string;
-    name: string;
-    vendor: string;
-  }[];
-};
+import { ReservationExperience, ReservationResponse } from "@/common/types";
+import { RawCreateReservationResponse, RawReservation } from "./types";
 
 export const reservationsRouter = router({
   getExperiences: authProcedure
@@ -91,8 +47,8 @@ export const reservationsRouter = router({
     .input(z.string())
     .query<ReservationResponse>(async ({ ctx, input }) => {
       const query = `SELECT Id, Name,Experience_Name__c, Departure__c, Vendor__c,  Start_DateTime__c, End_DateTime__c, RecordType.Name, 
-    Experience__r.Name,Vendor__r.Id,Vendor__r.Name,Sum_of_payables_paid__c,Sum_of_payables_unpaid__c, Net_Cost__c, Gross_Cost__c, Total_Commission__c
-    FROM Reservation__c WHERE Id='${input}'`;
+      Experience__r.Name,Vendor__r.Id,Vendor__r.Name,Sum_of_payables_paid__c,Sum_of_payables_unpaid__c, Net_Cost__c, Gross_Cost__c, Total_Commission__c,
+      Critical__c, Pre_Departure_Confirmation__c, Status__c FROM Reservation__c WHERE Id='${input}'`;
 
       return new Promise<ReservationResponse>(async (resolve, reject) => {
         ctx.salesforceClient.query<any>(query, {}, (err, result) => {
@@ -126,6 +82,9 @@ export const reservationsRouter = router({
             netCost: record.Net_Cost__c,
             grossCost: record.Gross_Cost__c,
             totalCommission: record.Total_Commission__c,
+            status: record.Status__c,
+            critical: record.Critical__c,
+            preDepartureConfirmation: record.Pre_Departure_Confirmation__c,
           });
         });
       });
